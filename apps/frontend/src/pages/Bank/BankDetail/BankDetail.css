@@ -1,0 +1,12 @@
+.detail-bank-container{
+    max-height: 100vh;
+}
+.detail-bank-content{
+    height: 100vh;
+    width: 100%;
+    margin-top:2em;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

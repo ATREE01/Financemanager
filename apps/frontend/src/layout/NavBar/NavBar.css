@@ -1,0 +1,104 @@
+/* general */
+.fl{/*flex*/
+    display: flex;
+}
+
+.ali_c {/*align-items: center*/
+   align-items: center ;
+}
+
+.flex_1{/*分配flex中剩下的位置的比例*/
+    flex: 1;
+}
+
+/* topbar */
+
+.topbar{
+    position: fixed;
+    top:0px;
+    background-color: rgb(162, 201, 196);/*control navbar color*/
+    height: 35px;
+    width:100%;
+    z-index: 98;
+}
+
+.Link a{
+    text-decoration: none;
+    padding: 10px;
+}
+
+/* sidebar */
+
+nav.sidebar{
+    position: fixed;
+    top: 0;
+    left: -200px;
+    width: 200px;
+    height: 100vh;
+    background-color: rgb(219, 187, 187);
+    text-align: center;
+    float:left;
+    overflow: auto;
+    transition: all 0.25s;
+    z-index: 99;
+}
+
+nav.activate{
+    left: 0;
+}
+
+.sidebar-scrim{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    z-index: 97;
+}
+
+.sidebar-header{/*nav-header 顏色在這*/
+    height: 35px;
+    background-color: rgba(230, 241, 210, 0.884);
+    display: flex;
+    align-items: center;
+    justify-content: right;
+}
+
+.sidebar-container{
+    margin:0;
+}
+
+.sidebar a.active{
+    background-color: rgb(173, 62, 62);
+    border-radius: 5px;
+}
+
+.sidebar-toggle{
+    margin: 5px;
+}
+
+
+/* children of sidebar */
+
+.sidebar-item > .sidebar-container{
+    display: none;
+}
+
+.sidebar-item > .sidebar-container.open{
+    display: block;
+}
+
+.sidebar-item{
+    display: block;
+    padding: 5px 0px 5px 0px;
+    margin: 3px 10px 3px 10px;
+    font-size: 15pt;
+    text-decoration: none;
+}
+
+.sidebar-item:hover{
+    background-color: rgb(173, 62, 62, 0.5);
+}
+
+a.sidebar-item:hover{/*滑鼠在選項上的時候的背景顏色*/
+    background-color: rgb(173, 62, 62);
+    border-radius: 5px;
+}
