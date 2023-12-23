@@ -11,9 +11,10 @@ const Register = (req, res) =>{
     const password = req.body.password;
     const password_hash = bcrypt.hashSync(password, 10);
     const connection = mysql.createConnection(dbconfig);
-    const sql = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?, ?)";
+    const sql = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
     connection.query(sql, [username, email, password_hash], function(error, result){
         if(error){
+            console.log(error);
             if(error.errno === 1062){
                 res.json({
                     success : 0,

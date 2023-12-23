@@ -5,7 +5,7 @@ const dbconfig = require('../config/dbconfig.js');
 const getBank = (req, res) =>{
     const data = req.body;
     const user_id = data.user_id;
-    const sql = `SELECT bank_id, name, initialAmount FROM bank WHERE  user_id = ?`;
+    const sql = `SELECT bank_id, name, initialAmount FROM Bank WHERE  user_id = ?`;
     const connection = mysql.createConnection(dbconfig);
     connection.query(sql, [user_id], (error, result) => {
         if(error){
@@ -23,7 +23,7 @@ const addBank = (req, res) =>{
     const bank_id = uuid4();
     const name = data.name;
     const initialAmount = data.initialAmount;
-    const sql = `INSERT INTO bank (user_id, bank_id, name, initialAmount) VALUES (?, ?, ?, ?)`;
+    const sql = `INSERT INTO Bank (user_id, bank_id, name, initialAmount) VALUES (?, ?, ?, ?)`;
     const connection = mysql.createConnection(dbconfig)
     connection.query(sql, [user_id, bank_id, name, initialAmount], (error, result) => {
         if(error){
