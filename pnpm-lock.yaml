@@ -37,6 +37,10 @@ importers:
       uuid4:
         specifier: ^2.0.3
         version: 2.0.3
+    devDependencies:
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.4
 
   apps/frontend:
     dependencies:

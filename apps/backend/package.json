@@ -1,8 +1,10 @@
 {
   "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
@@ -14,10 +16,7 @@
     "mysql": "^2.18.1",
     "uuid4": "^2.0.3"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "debug": "^4.3.4"
+  }
 }

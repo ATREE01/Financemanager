@@ -1,15 +1,11 @@
 require('dotenv').config();
-const allowedOrigins = require('./config/allowedOrigins')
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const allowedOrigins = require('./config/allowedOrigins')
 const verifyJWT = require('./middleware/verifyJWT');
 const cookieParser = require('cookie-parser');
 const credentials = require("./middleware/credentials")
-
-const PORT = process.env.PORT || 5000;
-
-const mysql = require('mysql')
 
 app.use(credentials);
 app.use(
@@ -20,8 +16,8 @@ app.use(
         allowedHeaders: ['Content-Type', 'Authorization'],
     })
 )
-
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/api/Test', require("./routes/Test"));
@@ -33,4 +29,15 @@ app.use(verifyJWT);
 app.use('/api/IncExp', require("./routes/IncExp"));
 app.use('/api/Bank', require("./routes/Bank"))
 
-app.listen(PORT, () => console.log(`API is listening on port: ${PORT}`))
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;
