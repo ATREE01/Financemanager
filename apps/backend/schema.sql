@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `Bank`(
 	`initialAmount` BIGINT,
 	PRIMARY KEY (`ID`),
 	UNIQUE (`user_id`, `name`)
-)
+);
 
 CREATE TABLE IF NOT EXISTS `BankRecord`(
 	`ID` INT NOT NULL AUTO_INCREMENT,
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `BankRecord`(
 	`amount` BIGINT,
 	`charge` INT,
 	PRIMARY KEY(`ID`)
-)
+);
 
 CREATE TABLE IF NOT EXISTS `TimeDepositRecord`(
 	`ID` INT NOT NULL AUTO_INCREMENT,
@@ -67,4 +67,4 @@ CREATE TABLE IF NOT EXISTS `TimeDepositRecord`(
 	`endDate` VARCHAR(255),
 	`accInterest` INT,
 	PRIMARY KEY(`ID`)
-)
+);
