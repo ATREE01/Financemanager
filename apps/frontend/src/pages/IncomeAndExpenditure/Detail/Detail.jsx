@@ -11,6 +11,7 @@ import FilterOption from './FilterOption';
 import PageLabel from '../../../components/PageLabel/PageLabel';
 import FormIncExp from "../FormIncExp/FormIncExp";
 import DetailTable from '../../../components/DetailTable/DetailTable';
+import { useGetUserCurrencyQuery } from '../../../features/Currency/CurrencyApiSlice';
 
 const Detail = () => {
     const user_id = useSelector(selectCurrentUserId);
@@ -34,11 +35,16 @@ const Detail = () => {
     } = useGetBankQuery({user_id});
 
     const {
+        data: userCurrency,
+        isLoading: userCurIsLoading,
+        isSuccess: userCurIsSuccess
+    } = useGetUserCurrencyQuery({ user_id });
+
+    const {
         data: record,
         isLoading: recIsLoading,
         isSuccess: recIsSuccess
     } = useGetRecordQuery({user_id, duration, type, category, currency, method, bank});
-    let tableContent, filterContent;
 
     const titles = ["日期", "類別", "種類", "金額", "幣別", "方法", "金融機構", "手續費", "備註"];
     const phraseMap = {
@@ -64,13 +70,16 @@ const Detail = () => {
             default: "選擇金融機構",  
         }
     } 
-    if(catIsLoading || bankIsLoading){
-            filterContent = <div>Loading...</div>
-        }
-        else if(catIsSuccess && bankIsSuccess){
-            categoryData.IncomeCategoryData.forEach(element => phraseMap['category'][element.value] = element.name);
+    let tableContent, filterContent, currencyContent;
+    if(catIsLoading || bankIsLoading || userCurIsLoading){
+        filterContent = <div>Loading...</div>
+    }
+    else if(catIsSuccess && bankIsSuccess && userCurIsSuccess){
+        categoryData.IncomeCategoryData.forEach(element => phraseMap['category'][element.value] = element.name);
         categoryData.ExpenditureCategoryData.forEach(element => phraseMap['category'][element.value] = element.name);
         banks.forEach(element => phraseMap['bank'][element['bank_id']] = element['name']);
+        currencyContent = userCurrency.forEach((element) => phraseMap['currency'][element['code']] = element['name'])
+        
         const filterData = {
             type:Object.keys(phraseMap['type']).map(item => ({value: item, name:phraseMap['type'][item]})),
             category:Object.keys(phraseMap['category']).map(item => ({value: item, name:phraseMap['category'][item]})),
@@ -85,11 +94,11 @@ const Detail = () => {
             <FilterOption data={filterData['method']} setfilter={setMethod}/>
             <FilterOption data={filterData['bank']}  setfilter={setBank}/>
         </>
+
     }
     if(recIsLoading){
         tableContent = <tr><td>Loading...</td></tr>
     } else if(recIsSuccess && catIsSuccess){
-        console.log(record);
         tableContent = record.map((item, index) => { return(
             <tr className='table-recordRow' key={index}>
                 <td className='table-data-cell'>{item.date}</td>
@@ -105,7 +114,6 @@ const Detail = () => {
         )});
     }
 
-
     return (
         <>
             <PageLabel title={"收支紀錄:明細"}/>
@@ -113,16 +121,14 @@ const Detail = () => {
                 {/*TODO: add the funciton to revise/delete the record */}
                 {/* TODO: add a column to display the total amount base on the filter */}
                 <div className='Detail-Inc-Exp-content'> 
-
                     <div className='duration-options-container'>
-                            <div className={`duration-option ${duration === "default" ? "selected" : ""}`} onClick={() => setDuration("default")}>不限</div>
-                            <div className={`duration-option ${duration === "week" ? "selected" : ""}`} onClick={() => setDuration("week")}>近一周</div>
-                            <div className={`duration-option ${duration === "month" ? "selected" : ""}`} onClick={() => setDuration("month")} >近一個月</div>
-                            <div className={`duration-option ${duration === "3month" ? "selected" : ""}`} onClick={() => setDuration("3month")}>近三個月</div>
-                            <div className={`duration-option ${duration === "YTD" ? "selected" : ""}`} onClick={() => setDuration("YTD")}>今年至今</div>
-                            <div className={`duration-option ${duration === "other" ? "selected" : ""}`}>自訂</div> {/* //TODO: implement this*/}
+                            <div className={`duration-option w-20 ${duration === "default" ? "selected" : ""}`} onClick={() => setDuration("default")}>不限</div>
+                            <div className={`duration-option w-20 ${duration === "week" ? "selected" : ""}`} onClick={() => setDuration("week")}>近一周</div>
+                            <div className={`duration-option w-20 ${duration === "month" ? "selected" : ""}`} onClick={() => setDuration("month")} >近一個月</div>
+                            <div className={`duration-option w-20 ${duration === "3month" ? "selected" : ""}`} onClick={() => setDuration("3month")}>近三個月</div>
+                            <div className={`duration-option w-20 ${duration === "YTD" ? "selected" : ""}`} onClick={() => setDuration("YTD")}>今年至今</div>
+                            <div className={`duration-option w-20 ${duration === "other" ? "selected" : ""}`}>自訂</div> {/* //TODO: implement this*/}
                     </div>
-
                     <div className='Detail-IE-filter-contanier'>
                         {filterContent}
                     </div>
@@ -133,7 +139,7 @@ const Detail = () => {
                             tableContent={tableContent}
                         />
                     </div>
-                    <FormIncExp />
+                    <FormIncExp userCurrency={{isSuccess: userCurIsSuccess, data:userCurrency}}/>
                 </div>
             </div>
         </>

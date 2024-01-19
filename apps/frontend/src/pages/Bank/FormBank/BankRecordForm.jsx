@@ -1,4 +1,5 @@
 import "../../../assets/form.css";
+import { useState } from "react";
 import { ErrorMessage, Form, Field, Formik } from "formik";
 import * as Yup from "yup";
 import { useAddBankRecordMutation, useGetBankQuery } from "../../../features/Bank/BankApiSlice";
@@ -6,8 +7,9 @@ import { useSelector } from "react-redux";
 import { selectCurrentUserId } from "../../../features/Auth/AuthSlice";
 import { useModifyBankRecordMutation } from "../../../features/Bank/BankApiSlice";
 
-const BankRecordForm = ({showState, onClick, mode="new", formData}) =>{
+const BankRecordForm = ({showState, onClick, mode="new", formData, userCurrency}) =>{
 
+    const [ currency, setCurrency ] = useState("");
     const user_id = useSelector(selectCurrentUserId);
     const [ addBankRecord ] = useAddBankRecordMutation();
     const [ modifyBankRecord ] = useModifyBankRecordMutation();
@@ -16,8 +18,17 @@ const BankRecordForm = ({showState, onClick, mode="new", formData}) =>{
         data: banks,
         isSuccess: bankIsSuccess
     } = useGetBankQuery({user_id});
+
+    console.log(banks)
+    const phraseMap = {
+        currency:{
+            TWD: "台幣"
+        }
+    };
+
     let bankContent;
-    if(bankIsSuccess){
+    if(bankIsSuccess && userCurrency.isSuccess){
+        userCurrency.data.forEach( element => phraseMap['currency'][element.code] = element.name);
         bankContent = banks.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>)
     }
     
@@ -57,7 +68,7 @@ const BankRecordForm = ({showState, onClick, mode="new", formData}) =>{
                     onSubmit={async (values, actions) => {
                         let result;
                         if(mode === 'new'){
-                            result = await addBankRecord({user_id, ...values}).unwrap();
+                            result = await addBankRecord({user_id, currency,...values}).unwrap();
                         }
                         else if(mode === 'modify'){
                             result = await modifyBankRecord({ID:formData.ID, user_id, ...values}).unwrap();
@@ -67,13 +78,17 @@ const BankRecordForm = ({showState, onClick, mode="new", formData}) =>{
                             if(mode === 'new') window.alert("新增成功"); else window.alert("修改成功");
                             actions.resetForm();
                         }
+                        else {
+                            // console.log(result)
+                            window.alert("發生不明錯誤")
+                        }
                     }}
                 >
                     {props => (
                         <Form>
                             <div className='form-InputBar'>
                                 <label className='form-label'>類別 </label>
-                                <Field as='select' className='form-select' name='type' onChange={(e) => {props.handleChange(e);}}>
+                                <Field as='select' className='form-select' name='type'>
                                     <option disabled value="default"> -- 請選擇 -- </option>
                                     <option value="deposit">存款</option>
                                     <option value="withdraw">提款</option>
@@ -87,12 +102,17 @@ const BankRecordForm = ({showState, onClick, mode="new", formData}) =>{
                                 <Field className='form-input' name='date' type='date' />
                             </div>
                             <div className="form-InputBar">
-                                <label className="form-label">金融機構</label>
-                                <Field as='select' className="form-select" name="bank">
+                                <label className="form-label" >金融機構</label>
+                                <Field as='select' className="form-select" name="bank" onChange={(e) => {
+                                    props.handleChange(e);
+                                    const index = banks.findIndex(item => item.bank_id === e.target.value);
+                                    setCurrency(banks[index].currency);
+                                }}>
                                     <option disabled value="default"> -- 請選擇 -- </option>
                                     { bankContent }
                                 </Field>
                             </div>
+                            <div className="-my-2 text-center font-bold">幣別:{phraseMap['currency'][currency]}</div>
                             <ErrorMessage className="form-ErrorMessage" name='bank' component="div"/>
                             <div className='form-InputBar'>
                                 <label className='form-label'>金額 </label>
@@ -105,7 +125,7 @@ const BankRecordForm = ({showState, onClick, mode="new", formData}) =>{
                             </div>
                             <ErrorMessage className="form-ErrorMessage" name='charge' component="div"/>
                             <div className='form-btn'>
-                                <button  disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
+                                <button  className="bg-slate-300 hover:bg-slate-500 border-2 border-black rounded-full" disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
                             </div>
                         </Form>
 

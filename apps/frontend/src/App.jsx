@@ -16,7 +16,6 @@ import TimeDeposit from './pages/Bank/TimeDeposit/TimeDeposit';
 import BankDetail from './pages/Bank/BankDetail/BankDetail';
 import Currency from './pages/Currency/Currency';
 
-
 export default function App(){
   return(
     <Routes>

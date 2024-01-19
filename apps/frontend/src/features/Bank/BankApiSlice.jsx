@@ -20,7 +20,7 @@ export const BankApiSlce = apiSlice.injectEndpoints({
         }),
         getBankRecord:builder.query({
             query: credentials => ({
-                url:"api/Bank/getBankRecord",
+                url:"/api/Bank/getBankRecord",
                 method:"POST",
                 body:{...credentials}
             }),
@@ -30,7 +30,7 @@ export const BankApiSlce = apiSlice.injectEndpoints({
         }),
         getBankRecordSum:builder.query({
             query: credentials => ({
-                url: "api/Bank/getBankRecordSum",
+                url: "/api/Bank/getBankRecordSum",
                 method:"POST",
                 body:{...credentials}
             }),
@@ -38,7 +38,7 @@ export const BankApiSlce = apiSlice.injectEndpoints({
         }),
         modifyBankRecord:builder.mutation({
             query: credentials => ({
-                url: "api/Bank/modifyBankRecord",
+                url: "/api/Bank/modifyBankRecord",
                 method:"PATCH",
                 body:{...credentials}
             }),
@@ -65,7 +65,7 @@ export const BankApiSlce = apiSlice.injectEndpoints({
         }),
         getTimeDepositRecord:builder.query({
             query: credentials => ({
-                url: "api/Bank/getTimeDepositRecord",
+                url: "/api/Bank/getTimeDepositRecord",
                 method:"POST",
                 body:{...credentials}
             }),
@@ -75,7 +75,7 @@ export const BankApiSlce = apiSlice.injectEndpoints({
         }),
         getTimeDepositRecordSum: builder.query({
             query: credentials => ({
-                url:"api/Bank/getTimeDepositRecordSum",
+                url:"/api/Bank/getTimeDepositRecordSum",
                 method:"POST",
                 body:{...credentials}
             }),
@@ -83,7 +83,7 @@ export const BankApiSlce = apiSlice.injectEndpoints({
         }),
         modifyTimeDepositRecord:builder.mutation({
             query: credentials => ({
-                url:"api/Bank/modifyTimeDepositRecord",
+                url:"/api/Bank/modifyTimeDepositRecord",
                 method:"POST",
                 body:{...credentials}
             }),
@@ -94,7 +94,7 @@ export const BankApiSlce = apiSlice.injectEndpoints({
         }),
         deleteTimeDepositRecord:builder.mutation({
             query: credentials => ({
-                url:"api/Bank/deleteTimeDepositRecord",
+                url:"/api/Bank/deleteTimeDepositRecord",
                 method:"DELETE",
                 body:{...credentials}
             }),
@@ -102,7 +102,7 @@ export const BankApiSlce = apiSlice.injectEndpoints({
         }),
         addTimeDepositRecord:builder.mutation({
             query: credentials => ({
-                url:"api/Bank/addTimeDepositRecord",
+                url:"/api/Bank/addTimeDepositRecord",
                 method:"POST",
                 body:{...credentials}
             }),

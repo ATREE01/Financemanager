@@ -4,9 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev:frontend": "pnpm -F frontend dev",
+    "dev:backend": "pnpm -F backend start",
+    "dev": "concurrently \"pnpm dev:frontend\" \"pnpm dev:backend\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

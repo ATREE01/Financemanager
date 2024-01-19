@@ -74,8 +74,8 @@ const TimeDeposit = () =>{
                     <td className="table-data-cell number">{item.startDate}</td>
                     <td className="table-data-cell number">{item.endDate}</td>
                     <td className="table-data-cell number">{item.accInterest}</td>
-                    <td className="table-btn"><button onClick={() => {setFormData(item); setShowModifyForm(!showModifyForm) }}>修改</button></td>
-                    <td className="table-btn"><button onClick={() => deleteRecord(item.ID)}>刪除</button></td>
+                    <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-2 border-black " onClick={() => {setFormData(item); setShowModifyForm(!showModifyForm) }}>修改</button></td>
+                    <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-2 border-black " onClick={() => deleteRecord(item.ID)}>刪除</button></td>
                 </tr>
             )
         })

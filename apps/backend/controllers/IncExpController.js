@@ -47,7 +47,7 @@ const GetIncExpFinRecordSum = (req, res) => {
     const user_id = data.user_id;
     const sql = `SELECT bank_id, SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS inSum,
                  SUM(CASE WHEN type = 'expenditure' THEN amount ELSE 0 END) AS expSum
-                 FROM incExpRecord WHERE user_id = ? AND method = 'finance' OR method = 'credit' GROUP BY bank_id`
+                 FROM IncExpRecord WHERE user_id = ? AND method = 'finance' OR method = 'credit' GROUP BY bank_id`
     const connection = mysql.createConnection(dbconfig);
     const query = () => {
         return new Promise((resolve, reject) => {
@@ -85,11 +85,12 @@ const GetIncExpRecordSum = async (req, res)=>{
     const data = req.body;
     const user_id = data.user_id;
     const duration = data.duration;
+    const currency = data.currency;
     if(data.duration === 'YTD'){
         const now = new Date();
         dayMap[duration] = (now - new Date(now.getFullYear(), 0, 1)) / 1000 / 60 / 60 / 24;
     }
-    let sql = `SELECT category, SUM(amount) FROM IncExpRecord WHERE user_id = ? AND type = ?`;
+    let sql = `SELECT category, SUM(amount) FROM IncExpRecord WHERE user_id = ? AND type = ? AND currency = ?`;
     if(duration !== 'default') sql += ` AND DATEDIFF(CURDATE(), date) <= ${dayMap[duration]}`;
     sql += ` GROUP BY category, type`;
 
@@ -97,7 +98,7 @@ const GetIncExpRecordSum = async (req, res)=>{
     const connection = mysql.createConnection(dbconfig);
     const query = async (type) =>{
         return new Promise((resolve, reject) => {
-            connection.query(sql, [user_id, type], (error, result) => {
+            connection.query(sql, [user_id, type, currency], (error, result) => {
                 if(error){
                     console.log(error);
                     reject(500);

@@ -11,9 +11,9 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
     const [ addTimeDepositRecord ] = useAddTimeDepositRecordMutation();
     const [ modifyTimeDepositRecord ] = useModifyTimeDepositRecordMutation();
 
-    let banks;
+    let bankContent, currencyContent;
     if(bank.bankIsSuccess){
-        banks = bank.banks.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>)
+        bankContent = bank.banks.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>)
     }
     
     return (
@@ -76,7 +76,7 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
                                 <label className='form-label'>金融機構 </label>
                                 <Field className="form-select" as='select' name="bank">
                                     <option disabled value="default">--請選擇--</option>
-                                    {banks}
+                                    {bankContent}
                                 </Field>                                
                             </div>
                             <ErrorMessage className="form-ErrorMessage" name='bank' component="div"/>
@@ -95,6 +95,7 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
                                 <Field className="form-select" as="select" name='currency'> 
                                     <option disabled value="default">--- 請選擇 ---</option>
                                     <option value="TWD">台幣</option>
+                                    {currencyContent}
                                 </Field>
                             </div>
                             <ErrorMessage className="form-ErrorMessage" name='currency' component="div"/>
@@ -123,7 +124,7 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
                                 <Field className="form-input" name='accInterest'/>
                             </div>
                             <div className='form-btn'>
-                                <button  disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
+                                <button className="bg-slate-300 hover:bg-slate-500 border-2 border-black rounded-full" disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
                             </div>
                         </Form>
 

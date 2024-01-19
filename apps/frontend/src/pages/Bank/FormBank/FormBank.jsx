@@ -3,7 +3,7 @@ import BankForm from "./BankForm";
 
 import { useState } from 'react';
 
-const FormBank = () => {
+const FormBank = ({userCurrency}) => {
     const [show, setShow] = useState(false);
     const [showRecordForm, setShowRecordForm] = useState(false);
     const [showBankForm, setShowBankForm] = useState(false);
@@ -31,8 +31,8 @@ const FormBank = () => {
                 </div>
             </div>
 
-            <BankRecordForm onClick={handleNewRecordClick} showState={{showRecordForm, setShowRecordForm}} />
-            <BankForm onClick={handleNewBankClick} showState={{showBankForm, setShowBankForm}}  />
+            <BankRecordForm onClick={handleNewRecordClick} showState={{showRecordForm, setShowRecordForm}} userCurrency={userCurrency}/>
+            <BankForm onClick={handleNewBankClick} showState={{showBankForm, setShowBankForm}} userCurrency={userCurrency}  />
         </>
     )
 }

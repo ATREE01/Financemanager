@@ -27,6 +27,10 @@ table, th, td{
     overflow: auto;
 }
 
+.table-data-center{
+    text-align: center;
+}
+
 .table-data-cell.number{
     text-align: right;
 }

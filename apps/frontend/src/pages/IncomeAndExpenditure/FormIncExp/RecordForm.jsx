@@ -7,27 +7,28 @@ import { useAddRecordMutation, useGetCategoryQuery } from '../../../features/Inc
 import { useSelector } from 'react-redux';
 import { selectCurrentUserId } from '../../../features/Auth/AuthSlice';
 import { useGetBankQuery } from '../../../features/Bank/BankApiSlice';
+import { useGetUserCurrencyQuery } from '../../../features/Currency/CurrencyApiSlice';
 
+// userCurrency{
+//     data
+//     userCurIsSuccess
+// }
 
-const RecordForm = ({onClick, showState, currency}) => {
+const RecordForm = ({onClick, showState, currency, userCurrency}) => {
     const user_id = useSelector(selectCurrentUserId);    
     const [ addRecord ] = useAddRecordMutation();
     const [ type, setType ] = useState();
     const [ method, setMethod ] = useState();
+
     const {
-        data:acc,
+        data:banks,
         isSuccess:accIsSuccess
-    } = useGetBankQuery({user_id, type:"account"});
+    } = useGetBankQuery({user_id});
 
-    const {
-        data:crd,
-        isSuccess:crdIsSuccess
-    } = useGetBankQuery({user_id, type:"credit"});
-
-    let accBankContent, crdBankContent;
-    if(accIsSuccess && crdIsSuccess){
-        accBankContent = acc.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>);
-        crdBankContent = crd.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>);
+    let BankContent, currencyContent;
+    if(accIsSuccess && userCurrency.isSuccess){
+        currencyContent = userCurrency.data.map((item, index) => <option key={index} value={item.code}>{item.name}</option> )
+        BankContent = banks.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>);
     }
 
     const {
@@ -63,9 +64,11 @@ const RecordForm = ({onClick, showState, currency}) => {
                     validationSchema={Yup.object().shape({
                         type:Yup.string()
                         .notOneOf(["default"], "請選擇類別"),
-                        amount: Yup.string()
-                        .required("請填入金額")
-                        .matches(/^\d+$/, "只能填入數字"),
+                        amount: Yup.number()
+                        .typeError("只能填入數字")
+                        .min(0, "請填入大於零的數字")
+                        .max(2000000000, "數值過大")
+                        .required("請填入金額"),
                         category:Yup.string()
                         .notOneOf(["default"], "請選擇種類"),
                         method:Yup.string()
@@ -122,7 +125,7 @@ const RecordForm = ({onClick, showState, currency}) => {
                                 <Field as='select' className='form-select' name='currency' >
                                     <option disabled value='default'> -- 請選擇 -- </option>
                                     <option value='TWD'>台幣</option>
-                                    <option value='USD'>美金</option>
+                                    {currencyContent}
                                 </Field>
                             </div>
                             <div className='form-InputBar'>

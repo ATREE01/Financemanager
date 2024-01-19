@@ -8,6 +8,8 @@ import { useSelector } from 'react-redux';
 import { selectCurrentUserId } from '../../../features/Auth/AuthSlice';
 import PageLabel from '../../../components/PageLabel/PageLabel';
 import FormIncExp from "../FormIncExp/FormIncExp";
+import { useGetUserCurrencyQuery } from "../../../features/Currency/CurrencyApiSlice";
+import CurrencyOption from "./CurrencyOption";
 
 const DashboardIncExp = () => {
     const [currency, setCurrency] = useState('TWD');
@@ -15,6 +17,8 @@ const DashboardIncExp = () => {
     
     const phraseMap = {
         category:{
+        },
+        currency:{
         }
     }
     const IncSumData = [
@@ -40,9 +44,20 @@ const DashboardIncExp = () => {
     const {
         data: recordSum,
         isSuccess: isRecSumSuccess
-    } = useGetRecordSumQuery({user_id, duration})
+    } = useGetRecordSumQuery({ user_id, duration, currency })
 
-    if(catIsSuccess){
+    const {
+        data: userCurrency,
+        isLoading: userCurIsLoading,
+        isSuccess: userCurIsSuccess,
+    } = useGetUserCurrencyQuery({ user_id })
+
+    let CurrencyContent ;
+    if( catIsSuccess && userCurIsSuccess){
+        //  Currency List
+        userCurrency.forEach(element => {phraseMap['currency'][element.code] = element.name;})
+        CurrencyContent = <CurrencyOption data={phraseMap['currency']} setCurrency={setCurrency}/>
+        
         categoryData.IncomeCategoryData.forEach(element => {phraseMap['category'][element.value] = element.name})
         categoryData.ExpenditureCategoryData.forEach(element => {phraseMap['category'][element.value] = element.name})
     }
@@ -61,19 +76,18 @@ const DashboardIncExp = () => {
             <div className='Dash-IE-container'>
                 <div className='Dash-IE-content'>
                     <div className='currency-options-container'>
-                        <div className={`currency-option ${currency === "TWD" ? "selected" : ""}`} onClick={() => setCurrency("TWD")}>台幣</div>
-                        <div className='currency-option' >外幣
-                            {/* TODO: this element should be a drop down*/}
+                        <div className='currency-option w-[5em]' >
+                            {CurrencyContent}
                         </div>
                     </div>
 
                     <div className='duration-options-container'>
-                        <div className={`duration-option ${duration === "default" ? "selected" : ""}`} onClick={() => setDuration("default")}>不限</div>
-                        <div className={`duration-option ${duration === "week" ? "selected" : ""}`} onClick={() => setDuration("week")}>近一周</div>
-                        <div className={`duration-option ${duration === "month" ? "selected" : ""}`} onClick={() => setDuration("month")} >近一個月</div>
-                        <div className={`duration-option ${duration === "3month" ? "selected" : ""}`} onClick={() => setDuration("3month")}>近三個月</div>
-                        <div className={`duration-option ${duration === "YTD" ? "selected" : ""}`} onClick={() => setDuration("YTD")}>今年至今</div>
-                        <div className={`duration-option ${duration === "other" ? "selected" : ""}`}>自訂</div>
+                        <div className={`duration-option w-20 ${duration === "default" ? "selected" : ""}`} onClick={() => setDuration("default")}>不限</div>
+                        <div className={`duration-option w-20 ${duration === "week" ? "selected" : ""}`} onClick={() => setDuration("week")}>近一周</div>
+                        <div className={`duration-option w-20 ${duration === "month" ? "selected" : ""}`} onClick={() => setDuration("month")} >近一個月</div>
+                        <div className={`duration-option w-20 ${duration === "3month" ? "selected" : ""}`} onClick={() => setDuration("3month")}>近三個月</div>
+                        <div className={`duration-option w-20 ${duration === "YTD" ? "selected" : ""}`} onClick={() => setDuration("YTD")}>今年至今</div>
+                        <div className={`duration-option w-20 ${duration === "other" ? "selected" : ""}`}>自訂</div>
                     </div>
 
                     <div className='Dash-IE-pie-chart-container'>
@@ -98,8 +112,7 @@ const DashboardIncExp = () => {
                             />
                         </div>
                     </div>
-
-                    <FormIncExp currency={currency}/>
+                    <FormIncExp currency={currency} userCurrency={{isSuccess:userCurIsSuccess, data:userCurrency}}/>
                 </div>
             </div>
         </>

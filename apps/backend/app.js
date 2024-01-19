@@ -27,7 +27,8 @@ app.use('/api/Refresh', require('./routes/Refresh'));
 app.use(verifyJWT);
 
 app.use('/api/IncExp', require("./routes/IncExp"));
-app.use('/api/Bank', require("./routes/Bank"))
+app.use('/api/Bank', require("./routes/Bank"));
+app.use('/api/Currency', require("./routes/Currency"))
 
 // error handler
 app.use(function(err, req, res, next) {

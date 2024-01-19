@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS `Bank`(
 	`user_id` INT,
 	`bank_id` VARCHAR(255),
 	`name` VARCHAR(255),
+	`currency` VARCHAR(16),
 	`initialAmount` BIGINT,
 	PRIMARY KEY (`ID`),
 	UNIQUE (`user_id`, `name`)
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `BankRecord`(
 	`type` VARCHAR(255),
 	`category` VARCHAR(255),
 	`bank_id` VARCHAR(255),
+	`currency` VARCHAR(16),
 	`amount` BIGINT,
 	`charge` INT,
 	PRIMARY KEY(`ID`)
@@ -67,4 +69,38 @@ CREATE TABLE IF NOT EXISTS `TimeDepositRecord`(
 	`endDate` VARCHAR(255),
 	`accInterest` INT,
 	PRIMARY KEY(`ID`)
+);
+
+CREATE TABLE IF NOT EXISTS `Currency`(
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`code` VARCHAR(16),
+	`name` NVARCHAR(16),
+	PRIMARY KEY(`ID`)
+);
+
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("USD", "美金", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("EUR", "歐元", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("JPY", "日幣", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("KRW", "韓元", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("AUD", "澳幣", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("CAD", "加幣", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("CNY", "人民幣", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("GBP", "英鎊", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("ZAR", "南非幣", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("SGD", "新加坡幣", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("MXN", "墨西哥披索", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("THB", "泰銖", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("PHP", "菲律賓披索", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("VND", "越南盾", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("NZD", "紐西蘭幣", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("CHF", "瑞士法郎", 0);
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("SEK", "瑞典幣", 0);
+
+
+CREATE TABLE IF NOT EXISTS `UserCurrencyList`(
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`user_id` INT,
+	`code` VARCHAR(16),
+	PRIMARY KEY(`ID`),
+	UNIQUE(`user_id`, `code`)
 );

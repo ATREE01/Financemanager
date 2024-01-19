@@ -4,6 +4,7 @@ const mysql = require('mysql');
 const dbconfig = require('../config/dbconfig.js');
 
 const Refresh = (req, res) => {
+    console.log("REFRESHED CALLED");
     const cookies = req.cookies;
     if(!cookies?.jwt) return res.sendStatus(401);
     const refreshToken = cookies.jwt;
@@ -19,7 +20,10 @@ const Refresh = (req, res) => {
                 const connection = mysql.createConnection(dbconfig);
                 const query = 'select * from users WHERE email = ?';
                 connection.query(query, [decoded.email], (err, results) => {
-                    if(err) res.sendStatus(500);// server error
+                    if(err) {
+                        console.log(err);
+                        res.sendStatus(500);// server error
+                    }
                     else if(results.length === 0)return res.sendStatus(403);
                     else{
                         const user = Object.assign({}, results[0]);

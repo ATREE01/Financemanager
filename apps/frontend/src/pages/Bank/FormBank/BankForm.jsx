@@ -4,14 +4,23 @@ import { ErrorMessage, Form, Field, Formik } from "formik";
 import * as Yup from "yup";
 
 import { useAddBankMutation } from '../../../features/Bank/BankApiSlice';
-import { useSelector } from 'react-redux';
-import { selectCurrentUserId } from '../../../features/Auth/AuthSlice';
+import { useSelector } from "react-redux";
+import { selectCurrentUserId } from "../../../features/Auth/AuthSlice";
 
-const BankForm = ({showState, onClick}) => {
+// userCurrency is sent from dashboard or detail
+const BankForm = ({showState, onClick, userCurrency}) => {
     
     const [addBank] = useAddBankMutation();
 
     const user_id = useSelector(selectCurrentUserId);
+
+    let currencyContent;
+    if(userCurrency.isSuccess){
+        currencyContent = userCurrency.data.map((item, index) => 
+            <option key={index} value={item.code}>{item.name}</option>
+        )
+    }
+    
     
     return (
         <>
@@ -24,17 +33,21 @@ const BankForm = ({showState, onClick}) => {
                 <Formik
                     initialValues={{
                         name:"",
+                        currency:"default",
                         initialAmount:''
                     }}
                     validationSchema={Yup.object().shape({
                         name:Yup.string()
                         .required("請輸入名稱")
                         .max(16, "長度最長為16個字"),
+                        currency:Yup.string()
+                        .notOneOf(['default'], "請選擇幣別"),
                         initialAmount:Yup.number()
                         .typeError("必須是數字")
                         .required("請輸入初始金額")
                         .min(0, "不能小於0")
                         .max(9007199254740991,"不能大於9007199254740991")
+
                     })}
                     onSubmit={async (values, actions) => {
                         const result = await addBank({user_id, ...values}).unwrap();
@@ -44,6 +57,7 @@ const BankForm = ({showState, onClick}) => {
                             window.alert("新增成功"); 
                         }
                         else {
+                            console.log(result);
                             if(result.errno === 1062){
                                 window.alert("已有相同的銀行名稱");
                             }
@@ -58,12 +72,20 @@ const BankForm = ({showState, onClick}) => {
                             </div>
                             <ErrorMessage className="form-ErrorMessage" name='name' component="div"/>
                             <div className='form-InputBar'>
+                                <label className='form-label'>幣別 </label>
+                                <Field className="form-input"  as="select" name='currency'>
+                                    <option value="default" disabled>-- 請選擇 --</option>
+                                    <option value="TWD">台幣</option>
+                                    {currencyContent}
+                                </Field>
+                            </div>
+                            <div className='form-InputBar'>
                                 <label className='form-label'>初始金額 </label>
                                 <Field className="form-input" name='initialAmount'/>
                             </div>
                             <ErrorMessage className="form-ErrorMessage" name='initialAmount' component="div"/>
                             <div className='form-btn'>
-                                <button  disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
+                                <button  className="bg-slate-300 hover:bg-slate-500 border-2 border-black rounded-full" disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
                             </div>
                         </Form>
 

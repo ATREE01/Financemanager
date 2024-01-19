@@ -5,7 +5,7 @@ const dbconfig = require('../config/dbconfig.js');
 const getBank = (req, res) =>{
     const data = req.body;
     const user_id = data.user_id;
-    const sql = `SELECT bank_id, name, initialAmount FROM Bank WHERE  user_id = ?`;
+    const sql = `SELECT bank_id, name, currency, initialAmount FROM Bank WHERE  user_id = ?`;
     const connection = mysql.createConnection(dbconfig);
     connection.query(sql, [user_id], (error, result) => {
         if(error){
@@ -22,16 +22,17 @@ const addBank = (req, res) =>{
     const user_id = data.user_id;
     const bank_id = uuid4();
     const name = data.name;
+    const currency = data.currency;
     const initialAmount = data.initialAmount;
-    const sql = `INSERT INTO Bank (user_id, bank_id, name, initialAmount) VALUES (?, ?, ?, ?)`;
+    const sql = `INSERT INTO Bank (user_id, bank_id, name, currency, initialAmount) VALUES (?, ?, ?, ?, ?)`;
     const connection = mysql.createConnection(dbconfig)
-    connection.query(sql, [user_id, bank_id, name, initialAmount], (error, result) => {
+    connection.query(sql, [user_id, bank_id, name, currency, initialAmount], (error, result) => {
         if(error){
             console.log(error);
             res.json({success: 0, errno: error.errno});
         }
         else{
-            res.json({success : 1});
+            res.json({success: 1});
         }
     })
     connection.end();
@@ -128,9 +129,10 @@ const addBankRecord = (req, res) => {
     const bank = data.bank;
     const amount = data.amount;
     const charge = data.charge;
-    const sql = "INSERT INTO bankRecord (user_id, date, type, bank_id, amount, charge) VALUES (?, ?, ?, ?, ?, ?)";
+    const currency = data.currency
+    const sql = "INSERT INTO BankRecord (user_id, date, type, bank_id, currency, amount, charge) VALUES (?, ?, ?, ?, ?, ?, ?)";
     const connection = mysql.createConnection(dbconfig);
-    connection.query(sql, [user_id, date, type, bank, amount, charge], (error, result) => {
+    connection.query(sql, [user_id, date, type, bank, currency, amount, charge], (error, result) => {
         if(error){
             console.log(error);
             return res.sendStatus(500) //server error
@@ -143,7 +145,7 @@ const addBankRecord = (req, res) => {
 const getTimeDepositRecord = (req, res) =>{
     const data = req.body;
     const user_id = data.user_id;
-    const sql = "SELECT * FROM timeDepositRecord WHERE user_id = ?";
+    const sql = "SELECT * FROM TimeDepositRecord WHERE user_id = ?";
     const connection = mysql.createConnection(dbconfig);
     connection.query(sql, [user_id], (error, result) => {
         if(error){
@@ -159,10 +161,14 @@ const getTimeDepositRecord = (req, res) =>{
 const getTimeDepositRecordSum = (req, res) => {
     const data = req.body;
     const user_id = data.user_id;
-    const sql  = "SELECT bank_id, SUM(accInterest) intTot, SUM(CASE WHEN endDate >= CURDATE() THEN amount ELSE 0 END) as amoTot FROM timeDepositRecord WHERE user_id = ? GROUP BY bank_id;";
+    const sql  = "SELECT bank_id, SUM(accInterest) intTot, SUM(CASE WHEN endDate >= CURDATE() THEN amount ELSE 0 END) as amoTot FROM TimeDepositRecord WHERE user_id = ? GROUP BY bank_id;";
     const connection = mysql.createConnection(dbconfig);
     let result_dict = {};
     connection.query(sql, [user_id], (error, result) => {
+        if(error){
+            console.log(error);
+            return res.sendStatus(500);
+        }
         result.forEach(element => {
             result_dict[element['bank_id']] = {
                 intTot: element['intTot'],
@@ -176,7 +182,7 @@ const getTimeDepositRecordSum = (req, res) => {
 
 const modifyTimeDepositRecord = (req, res) => {
     const data = req.body;
-    const sql  = `UPDATE timeDepositRecord  SET user_id = ?, bank_id = ?, type = ?, currency = ?, amount = ?, interest = ?, startDate = ?, endDate = ?, accInterest = ? WHERE ID = ?;`;
+    const sql  = `UPDATE TimeDepositRecord  SET user_id = ?, bank_id = ?, type = ?, currency = ?, amount = ?, interest = ?, startDate = ?, endDate = ?, accInterest = ? WHERE ID = ?;`;
     const connection = mysql.createConnection(dbconfig);
     connection.query(sql, [data.user_id, data.bank, data.type, data.currency, data.amount, data.interest, data.startDate, data.endDate, data.accInterest, data.ID], (error, result) => {
         if(error){
@@ -216,7 +222,7 @@ const addTimeDepositRecord = (req, res) =>{
     const startDate = data.startDate;
     const endDate = data.endDate;
     const accInterest = data.accInterest;
-    const sql  = `INSERT INTO timeDepositRecord (user_id, bank_id, type, currency, amount, interest, startDate, endDate, accInterest)
+    const sql  = `INSERT INTO TimeDepositRecord (user_id, bank_id, type, currency, amount, interest, startDate, endDate, accInterest)
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
     const connection = mysql.createConnection(dbconfig);
     connection.query(sql, [user_id, bank, type, currency, amount, interest, startDate, endDate, accInterest], (error, result) => {

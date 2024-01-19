@@ -1,5 +1,5 @@
 const Test = async (req, res) => {
-    console.log(req);
+    // console.log(req);
     console.log("TEST")
 }
 

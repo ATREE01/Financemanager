@@ -9,11 +9,12 @@ import PageLabel from "../../../components/PageLabel/PageLabel";
 import DetailTable from "../../../components/DetailTable/DetailTable";
 import BankRecordForm from "../FormBank/BankRecordForm";
 import FormBank from "../FormBank/FormBank";
+import { useGetUserCurrencyQuery } from "../../../features/Currency/CurrencyApiSlice";
 
 const BankDetail = () => {
     const user_id = useSelector(selectCurrentUserId);
 
-    const titles = ['類別', '日期', '金融機構','金額', "手續費"]
+    const titles = ['類別', '日期', '金融機構', '金額', "幣別", "手續費"]
     const [ formData, setFormData ] = useState("");
     const [ showModifyForm, setShowModifyForm ] = useState(false);
     const {
@@ -26,6 +27,11 @@ const BankDetail = () => {
         isSuccess: bankIsSuccess
     } = useGetBankQuery({user_id});
 
+    const {
+        data: userCurrency,
+        isSuccess: userCurIsSuccess
+    } = useGetUserCurrencyQuery({ user_id });
+
     let tableContent;
 
     const phraseMap = {
@@ -35,7 +41,10 @@ const BankDetail = () => {
             transfer_in:"轉入",
             transfer_out:"轉出"
         },
-        bank:{}
+        bank:{},
+        currency:{
+            "TWD": "台幣"
+        }
     }
 
     const [ deleteBankRecord ] = useDeleteBankRecordMutation();
@@ -50,7 +59,8 @@ const BankDetail = () => {
         }
     }
 
-    if(bankIsSuccess && recIsSuccess){
+    if(bankIsSuccess && recIsSuccess && userCurIsSuccess){
+        userCurrency.forEach(element => phraseMap['currency'][element.code] = element.name);
         banks.forEach(element => phraseMap['bank'][element.bank_id] = element.name)
         tableContent = 
         bankRecord.map((item, index) => { return(
@@ -59,9 +69,10 @@ const BankDetail = () => {
                 <td className="table-data-cell">{item.date}</td>
                 <td className="table-data-cell">{phraseMap['bank'][item.bank_id]}</td>
                 <td className="table-data-cell number">{item.amount}</td>
+                <td className="table-data-cell">{phraseMap['currency'][item.currency]}</td>
                 <td className="table-data-cell number">{item.charge}</td>
-                <td className="table-btn"><button onClick={() => {setFormData(item); setShowModifyForm(!showModifyForm)}}>修改</button></td>
-                <td className="table-btn"><button onClick={() => deleteRecord(item.ID)}>刪除</button></td>
+                <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-2 border-black " onClick={() => {setFormData(item); setShowModifyForm(!showModifyForm)}}>修改</button></td>
+                <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-2 border-black " onClick={() => deleteRecord(item.ID)}>刪除</button></td>
             </tr>
         )})
         
@@ -77,8 +88,8 @@ const BankDetail = () => {
                             tableContent={tableContent}
                         />
                     </div>
-                    <FormBank />
-                    <BankRecordForm  onClick={() => setShowModifyForm(!showModifyForm)} showState={{showRecordForm: showModifyForm , setShowRecordForm:setShowModifyForm}} mode="modify" formData={formData} />
+                    <FormBank userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}}/>
+                    <BankRecordForm  onClick={() => setShowModifyForm(!showModifyForm)} showState={{showRecordForm: showModifyForm , setShowRecordForm:setShowModifyForm}} mode="modify" formData={formData} userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} />
                 </div>
             </div>
         </>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import RecordForm from "./RecordForm";
 import CategoryForm from "./CategoryForm";
 
-const FormIncExp = ({currency="TWD"}) => {
+const FormIncExp = ({currency, userCurrency}) => {
     const [show, setShow] = useState(false);
     const [showCategoryForm, setShowCategoryForm] = useState(false);
     const [showRecordForm, setShowRecordForm] = useState(false);
@@ -31,7 +31,7 @@ const FormIncExp = ({currency="TWD"}) => {
                 </div>
             </div>
             
-            <RecordForm onClick={handleNewRecordClick} showState={{showRecordForm, setShowRecordForm}} currency={currency} />
+            <RecordForm onClick={handleNewRecordClick} showState={{showRecordForm, setShowRecordForm}} currency={currency} userCurrency={userCurrency}/>
             <CategoryForm onClick={handleNewCategoryClick} showState={{showCategoryForm, setShowCategoryForm}}/>
         </>
     )

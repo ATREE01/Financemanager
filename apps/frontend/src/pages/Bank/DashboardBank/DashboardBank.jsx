@@ -8,11 +8,12 @@ import { selectCurrentUserId } from "../../../features/Auth/AuthSlice";
 import PageLabel from "../../../components/PageLabel/PageLabel";
 import DetailTable from '../../../components/DetailTable/DetailTable';
 import FormBank from '../FormBank/FormBank';
+import { useGetUserCurrencyQuery } from '../../../features/Currency/CurrencyApiSlice';
 
 const DashboardBank = () => { //TODO: 外幣還沒做 新增帳戶的時候要選擇幣別
 
-    const values = ["amount", "income", "expenditure", "deposit", "withdraw", "transfer_in", "transfer_out", "charge", "time_deposit"];
-    const titles = ["銀行名稱", "現有金額", "收入", "支出", "存款", "提款", "轉入", "轉出", "手續費", "定存"]
+    const values = ["currency", "amount", "income", "expenditure", "deposit", "withdraw", "transfer_in", "transfer_out", "charge", "time_deposit"];
+    const titles = ["銀行名稱", "幣別","現有金額", "收入", "支出", "存款", "提款", "轉入", "轉出", "手續費", "定存"]
 
     const user_id = useSelector(selectCurrentUserId);
 
@@ -36,17 +37,28 @@ const DashboardBank = () => { //TODO: 外幣還沒做 新增帳戶的時候要�
         isLoading: tiSumIsLoading,
         isSuccess: tiSumIsSuccess
     } = useGetTimeDepositRecordSumQuery({user_id});
-
-    const phraseMap = {banks:{}}
+    const{
+        data:userCurrency,
+        isLoading: iserCurIsLoading,
+        isSuccess: userCurIsSuccess,
+    } = useGetUserCurrencyQuery({ user_id })
+    const phraseMap = {
+        banks:{},
+        currency:{
+            "TWD":"台幣"
+        }
+    }
     const bankData = {};
     let tableContent;
     if(bankIsLoading || recIsLoading || finIsLoading || tiSumIsLoading){
         tableContent = <tr><td>Loading. . .</td></tr>
     }
-    else if(bankIsSuccess && recIsSuccess && finIsSuccess && tiSumIsSuccess){
+    else if(bankIsSuccess && recIsSuccess && finIsSuccess && tiSumIsSuccess && userCurIsSuccess){
+        userCurrency.forEach(element => phraseMap['currency'][element.code] = element.name);
         banks.forEach(element => {
             bankData[element['bank_id']] = { // create the data for each bank
                 amount: element['initialAmount'],
+                currency: phraseMap["currency"][element['currency']],
                 income: 0,
                 expenditure: 0,
                 deposit: 0,
@@ -94,7 +106,7 @@ const DashboardBank = () => { //TODO: 外幣還沒做 新增帳戶的時候要�
                             tableContent={tableContent}
                         />
                     </div>
-                    <FormBank />
+                    <FormBank userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}}/>
                 </div>
             </div>
         </>
