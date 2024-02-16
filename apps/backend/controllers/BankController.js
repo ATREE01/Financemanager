@@ -5,14 +5,14 @@ const dbconfig = require('../config/dbconfig.js');
 const getBank = (req, res) =>{
     const data = req.body;
     const user_id = data.user_id;
-    const sql = `SELECT bank_id, name, currency, initialAmount FROM Bank WHERE  user_id = ?`;
+    const sql = `SELECT bank_id, name, currency, initialAmount FROM Bank WHERE user_id = ? ORDER BY ID`;
     const connection = mysql.createConnection(dbconfig);
     connection.query(sql, [user_id], (error, result) => {
         if(error){
             console.log(error);
             return res.sendStatus(500);
         }
-        res.json(result.map(item => Object.assign({}, item)));
+        res.json(result);
     }); 
     connection.end();
 }

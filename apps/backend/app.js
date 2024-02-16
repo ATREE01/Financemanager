@@ -20,15 +20,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/api/Test', require("./routes/Test"));
 app.use('/api/auth', require("./routes/Auth"));
 app.use('/api/Refresh', require('./routes/Refresh'));
 
 app.use(verifyJWT);
 
+app.use('/api/Dashboard', require("./routes/Dashboard"));
 app.use('/api/IncExp', require("./routes/IncExp"));
 app.use('/api/Bank', require("./routes/Bank"));
 app.use('/api/Currency', require("./routes/Currency"))
+app.use('/api/Invt', require("./routes/Invt"))
+
+
 
 // error handler
 app.use(function(err, req, res, next) {

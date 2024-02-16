@@ -2,18 +2,13 @@ const mysql = require('mysql');
 const uuid4 = require('uuid4');
 const dbconfig = require('../config/dbconfig.js');
 
-const dayMap = {
-    'week': 7,
-    'month': 30,
-    '3month': 90,
-    'YTD': 0,
-}
-
 const GetIncExpRecord = (req, res) => {
     const connection = mysql.createConnection(dbconfig);
     const data = req.body;
     const user_id = data.user_id
-    const duration = data.duration;
+    let duration = data.duration;
+    const startDate = data.startDate;
+    const endDate = data.endDate;
     const type = data.type
     const category = data.category;
     const currency = data.currency;
@@ -21,17 +16,18 @@ const GetIncExpRecord = (req, res) => {
     const bank = data.bank;
     if(data.duration === 'YTD'){
         const now = new Date();
-        dayMap[duration] =  (now - new Date(now.getFullYear(), 0, 1)) / 1000 / 60 / 60 / 24;
+        duration =  (now - new Date(now.getFullYear(), 0, 1)) / 1000 / 60 / 60 / 24;
     }
     let sql = `SELECT * FROM IncExpRecord WHERE user_id = ?`;
-    values = [user_id]
-    if(duration !== 'default'){sql += ` AND DATEDIFF(CURDATE(), date) <= ${dayMap[duration]}`;}
+    const values = [ user_id ];
+    if(duration === 'customize'){sql += " AND date >= ? AND date <= ?"; values.push(startDate);values.push(endDate)}
+    else if(duration !== 'default'){sql += ` AND DATEDIFF(CURDATE(), date) <= ${duration}`;}
     if(type !== "default") {sql += " AND type = ?"; values.push(type);}
     if(category !== "default") {sql += " AND category = ?"; values.push(category);}
     if(currency !== "default") {sql += " AND currency = ?"; values.push(currency);}
     if(method !== "default") {sql += " AND method = ?"; values.push(method);}
     if(bank !== "default") {sql += " AND bank_id = ?"; values.push(bank);}
-    sql += " ORDER BY date DESC, record_id DESC"
+    sql += " ORDER BY date DESC, ID DESC"
     connection.query(sql, values, (error, result) => {
         if(error){
             console.log(error);
@@ -40,6 +36,55 @@ const GetIncExpRecord = (req, res) => {
         res.json(result);
     })
     connection.end();
+}
+
+const GetIncExpRecordSum = async (req, res)=>{
+    const data = req.body;
+    const user_id = data.user_id;
+    let duration = data.duration;
+    const currency = data.currency;
+    const startDate = data.startDate;
+    const endDate = data.endDate;
+    if(data.duration === 'YTD'){
+        const now = new Date();
+        duration = (now - new Date(now.getFullYear(), 0, 1)) / 1000 / 60 / 60 / 24;
+    }
+    const values = [user_id, currency];
+    let sql = `SELECT category, SUM(amount) FROM IncExpRecord WHERE user_id = ? AND currency = ?`;
+    if(duration === 'customize'){sql += " AND date >= ? AND date <= ?"; values.push(startDate);values.push(endDate)}
+    else if(duration !== 'default') sql += ` AND DATEDIFF(CURDATE(), date) <= ${duration}`;
+    sql += ` AND type = ?  GROUP BY category, type`;
+    let incSum, expSum;
+    const connection = mysql.createConnection(dbconfig);
+    const query = async (type) =>{
+        return new Promise((resolve, reject) => {
+            connection.query(sql, [ ...values, type ], (error, result) => {
+                if(error){
+                    console.log(error);
+                    reject(500);
+                }
+                resolve(result);
+            })
+        })
+    };
+    query("income")
+    .then(result => {
+        incSum = result;
+        return query("expenditure");
+    })
+    .then(result => {
+        expSum = result;
+        res.json({
+            incSum: incSum,
+            expSum: expSum
+        });
+    })
+    .catch(err => {
+        res.sendStatus(500);
+    })
+    .finally(() => {
+        connection.end();
+    })
 }
 
 const GetIncExpFinRecordSum = (req, res) => {
@@ -80,61 +125,17 @@ const GetIncExpFinRecordSum = (req, res) => {
     });
 }
 
-
-const GetIncExpRecordSum = async (req, res)=>{
-    const data = req.body;
-    const user_id = data.user_id;
-    const duration = data.duration;
-    const currency = data.currency;
-    if(data.duration === 'YTD'){
-        const now = new Date();
-        dayMap[duration] = (now - new Date(now.getFullYear(), 0, 1)) / 1000 / 60 / 60 / 24;
-    }
-    let sql = `SELECT category, SUM(amount) FROM IncExpRecord WHERE user_id = ? AND type = ? AND currency = ?`;
-    if(duration !== 'default') sql += ` AND DATEDIFF(CURDATE(), date) <= ${dayMap[duration]}`;
-    sql += ` GROUP BY category, type`;
-
-    let incSum, expSum;
-    const connection = mysql.createConnection(dbconfig);
-    const query = async (type) =>{
-        return new Promise((resolve, reject) => {
-            connection.query(sql, [user_id, type, currency], (error, result) => {
-                if(error){
-                    console.log(error);
-                    reject(500);
-                }
-                resolve(result);
-            })
-        })
-    };
-    query("income")
-    .then(result => {
-        incSum = result;
-        return query("expenditure");
-    })
-    .then(result => {
-        expSum = result;
-        res.json({
-            incSum: incSum,
-            expSum: expSum
-        });
-    })
-    .catch(err => {
-        res.sendStatus(500);
-    })
-    .finally(() => {
-        connection.end();
-    })
-}
-
 const AddIncExpRecord = (req, res) => {
-    const connection = mysql.createConnection(dbconfig);
-    const sql = "INSERT INTO IncExpRecord (user_id, date, type, category, currency, method, amount, bank_id, charge, note)  \
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     const data = req.body;
-    const bank_id = (data.bank === "default" ? "" : data.bank);
-    connection.query(sql, [data.user_id, data.date, data.type, data.category, data.currency, data.method, data.amount, bank_id, data.charge, data.note], (error, result) => {
+    let currency = data.currency;
+    if(data.method !== "cash") currency = data.bankCurrency
+    const bank_id = (data.method === "cash" ? null : data.bank);
+    const sql = "INSERT INTO IncExpRecord (user_id, date, type, category, currency, method, amount, bank_id, charge, note)\
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const connection = mysql.createConnection(dbconfig);
+    connection.query(sql, [data.user_id, data.date, data.type, data.category, currency, data.method, data.amount, bank_id, data.charge, data.note], (error, result) => {
         if(error){
+            console.log(error);
             return res.sendStatus(500);
         }
         else {
@@ -144,59 +145,105 @@ const AddIncExpRecord = (req, res) => {
     connection.end();
 }
 
-const  GetIncExpCategory = async (req, res) =>{
+const modifyIncExpRecord = (req, res) => {
+    const data = req.body;
+    let currency = data.currency;
+    if(data.method !== "cash") currency = data.bankCurrency
+    const bank_id = (data.method === "cash" ? null : data.bank);
+    const sql = "UPDATE IncExpRecord SET type = ?, category = ?, currency = ?, method = ?, amount = ?, bank_id = ?, charge = ?, note = ? WHERE ID = ?";
     const connection = mysql.createConnection(dbconfig);
-    const sql = "SELECT sort, value, name FROM IncExpCategory where user_id = (?) AND type = 'income'"
-    const sql2 = "SELECT sort, value, name FROM IncExpCategory where user_id = (?) AND type ='expenditure'"
-    const user_id = req.body.user_id;
-    let IncomeCategoryData = [...IncomeCategoryDataDefault];
-    let ExpenditureCategoryData = [...ExpenditureCategoryDataDefault];
-    connection.query(sql, [user_id], (error, result) => {
+    connection.query(sql, [data.type, data.category, data.bankCurrency, data.method, data.amount, bank_id, data.charge, data.note, data.ID], (error, result) => {
         if(error){
             console.log(error);
             return res.sendStatus(500);
         }
-        const IncomeCategory = result.map(item => Object.assign({}, item));
-        IncomeCategory.forEach(element => {
+        res.json({success : 1});
+    })
+    connection.end();
+}
+
+const deleteIncExpRecord = (req, res) => {
+    const data = req.query  ;
+    const sql = "DELETE FROM IncExpRecord WHERE ID = ?;";
+    const connection = mysql.createConnection(dbconfig);
+    connection.query(sql, [data.ID], (error, result) => {
+        if(error){
+            console.log(error);
+            return res.sendStatus(500);
+        }
+        res.json({success: 1});
+    })
+    connection.end();
+}
+
+
+
+const  GetIncExpCategory = async (req, res) =>{
+    const connection = mysql.createConnection(dbconfig);
+    const sql1 = "SELECT sort, value, name FROM IncExpCategory where user_id = ? AND type = 'income'"
+    const sql2 = "SELECT sort, value, name FROM IncExpCategory where user_id = ? AND type ='expenditure'"
+    const user_id = req.query.user_id;
+    let IncomeCategoryData = [...IncomeCategoryDataDefault];
+    let ExpenditureCategoryData = [...ExpenditureCategoryDataDefault];
+
+    const query = (sql) => {
+        return new Promise(async (resolve, reject) => {
+            connection.query(sql, [user_id], (error, result) => {
+                if(error){
+                    console.log(error);
+                    reject(500);
+                }else {
+                    resolve(result);
+                }
+            });
+        });
+    };
+    query(sql1)
+    .then((result) => {
+        result.forEach(element => {
             IncomeCategoryData.push({
                 value: element.value,
                 name: element.name
-            })
+            });
         });
+        return query(sql2);
     })
-    connection.query(sql2, [user_id], (error, result) => {
-        if(error){
-            console.log(error);
-            return res.sendStatus(500);
-        }
-        const ExpenditureCategory = result.map(item => Object.assign({}, item));
-        ExpenditureCategory.forEach(element => {
+    .then((result) => {
+        result.forEach(element => {
             ExpenditureCategoryData.push({
                 value: element.value,
                 name: element.name
-            })
+            });
         });
         res.json({
             IncomeCategoryData: IncomeCategoryData,
             ExpenditureCategoryData: ExpenditureCategoryData
-        })
+        });
     })
-    connection.end();
+    .catch(err => {
+        console.log(err);
+        res.sendStatus(500);
+    })
+    .finally(() => {
+        connection.end();
+    });
+
 }
 
 const AddIncExpCategory = (req, res) =>{
     const connection = mysql.createConnection(dbconfig);
     const sql = "INSERT INTO IncExpCategory (user_id, type, value, name) VALUES(?, ?, ?, ?)"//TODO: add the feature that user can sort their category
     const data = req.body;
+    
     IncomeCategoryDataDefault.forEach((element) => {
         if(element.name === data.name){
-            res.json({success: 0, text:"This name has been used"});
+            return res.json({success: 0, text:"This name has been used"});
         }
     })
 
     ExpenditureCategoryDataDefault.forEach((element) => {
         if(element.name === data.name){
-            res.json({success: 0, text:"This name has been used"});
+            return res.json({success: 0, text:"This name has been used"});
         }
     })
     const value = uuid4();
@@ -299,6 +346,9 @@ module.exports = {
     GetIncExpRecordSum,
     GetIncExpFinRecordSum,
     AddIncExpRecord,
+    modifyIncExpRecord,
+    deleteIncExpRecord,
+
     GetIncExpCategory,
     AddIncExpCategory,
 }

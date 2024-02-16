@@ -20,8 +20,10 @@ const PersistLogin = () => {
                         'Content-type': 'application/json; charset=UTF-8',
                     },
                 });
-
-                console.log(result);
+                if(result.status !== 200){
+                    console.log(result)
+                    throw new Error("Unauthorized")
+                }
                 const json = await result.json();
                 dispatch(setCredentials({...json}));
             }

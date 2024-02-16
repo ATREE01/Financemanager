@@ -1,25 +1,42 @@
-import "../../../assets/form.css";
-
 import { selectCurrentUserId } from "../../../features/Auth/AuthSlice";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useSelector } from "react-redux";
 import { useAddTimeDepositRecordMutation, useModifyTimeDepositRecordMutation } from "../../../features/Bank/BankApiSlice";
+import { useEffect, useState } from "react";
 
-const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
+const TiDptRecordForm = ({showState, bank, userCurrency, mode="new", formData}) =>{
     const user_id = useSelector(selectCurrentUserId);
     const [ addTimeDepositRecord ] = useAddTimeDepositRecordMutation();
     const [ modifyTimeDepositRecord ] = useModifyTimeDepositRecordMutation();
 
-    let bankContent, currencyContent;
-    if(bank.bankIsSuccess){
-        bankContent = bank.banks.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>)
+    const [ currency, setCurrency ] = useState();
+
+    const phraseMap = {
+        'currency': {
+            TWD: "台幣"
+        }
     }
-    
+    const onClick = () => showState.setShow(!showState.isShow);
+    let bankContent, currencyContent;
+    if(bank.isSuccess && userCurrency.isSuccess){
+        bankContent = bank.data.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>)
+        userCurrency.data.forEach(element => phraseMap['currency'][element.code] = element.name);
+    }
+
+    useEffect(() => {
+        if(bank.isSuccess){
+            const index = bank.data.findIndex(item => item.bank_id === formData?.bank_id);
+            if(index != -1)
+                setCurrency(bank.data[index].currency);
+        }
+    }, [formData])
+
+
     return (
         <>
-            {showState.showForm ? <div className="form-scrim" onClick={onClick}></div> : ""}
-            <div className={`form-container ${showState.showForm ? "activate" : ""}`}>
+            {showState.isShow && <div className="form-scrim" onClick={onClick}></div>}
+            <div className={`form-container ${showState.isShow ? "activate" : ""}`}>
                 <div className='close-btn'>
                     <i className="bi bi-x-circle-fill" onClick={onClick}></i>
                 </div>
@@ -29,7 +46,6 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
                     initialValues={{
                         bank: mode === 'new' ? "default" : formData.bank_id || "",
                         type: mode ==='new' ? "default" : formData.type || "",
-                        currency: mode === 'new' ? "default" : formData.currency || "",
                         amount: mode === 'new' ? "" : formData.amount || "",
                         interest: mode === 'new' ? "" : formData.interest || "",
                         startDate: mode === 'new' ? new Date().toISOString().split('T')[0] : formData.startDate || "",
@@ -40,10 +56,7 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
                         bank:Yup.string()
                         .notOneOf(["default"], "請選擇金融機構"),
                         type:Yup.string()
-                        .notOneOf(["default"], "請選擇種類"),
-                        currency:Yup.string()
-                        .notOneOf(['default'], "請選擇幣別"),
-                        amount:Yup.number()
+                        .notOneOf(["default"], "請選擇種類")
                         .required("請輸入金額")
                         .typeError("只能輸入數字")
                         .min(1, "不能小於1"),
@@ -60,11 +73,11 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
                     onSubmit={async (values, actions) => {
                         let result;
                         if(mode === 'new')
-                            result = await addTimeDepositRecord({user_id, ...values}).unwrap();
+                            result = await addTimeDepositRecord({user_id, currency, ...values}).unwrap();
                         else
-                            result = await modifyTimeDepositRecord({ID:formData.ID, user_id, ...values}).unwrap();
+                            result = await modifyTimeDepositRecord({ID:formData.ID, user_id, currency, ...values}).unwrap();
                         if(result.success === 1){
-                            showState.setShowForm(!showState.showForm);
+                            showState.setShow(!showState.isShow);
                             if(mode === 'new') window.alert("新增成功"); else window.alert("修改成功");
                             actions.resetForm();
                         }
@@ -72,13 +85,18 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
                 >
                     {props => (
                         <Form>
-                            <div className='form-InputBar'>
-                                <label className='form-label'>金融機構 </label>
-                                <Field className="form-select" as='select' name="bank">
-                                    <option disabled value="default">--請選擇--</option>
-                                    {bankContent}
-                                </Field>                                
+                            <div className="form-InputBar">
+                                <label className="form-label" >金融機構</label>
+                                <Field as='select' className="form-select" name="bank" onChange={(e) => {
+                                    props.handleChange(e);
+                                    const index = bank.data.findIndex(item => item.bank_id === e.target.value);
+                                    setCurrency(bank.data[index].currency);
+                                }}>
+                                    <option disabled value="default"> -- 請選擇 -- </option>
+                                    { bankContent }
+                                </Field>
                             </div>
+                            <div className="-my-2 text-center text-xl">幣別:<span className='font-bold text-xl text-rose-600'>{phraseMap['currency'][currency]}</span></div>
                             <ErrorMessage className="form-ErrorMessage" name='bank' component="div"/>
                             <div className="form-InputBar">
                                 <label className="form-label">種類 </label>
@@ -90,15 +108,6 @@ const TiDptRecordForm = ({showState, onClick, bank, mode="new", formData}) =>{
                                 </Field>
                             </div>
                             <ErrorMessage className="form-ErrorMessage" name='type' component="div"/>
-                            <div className="form-InputBar">
-                                <label className="form-label">幣別</label> {/* other currency should be add with user customize currency */}
-                                <Field className="form-select" as="select" name='currency'> 
-                                    <option disabled value="default">--- 請選擇 ---</option>
-                                    <option value="TWD">台幣</option>
-                                    {currencyContent}
-                                </Field>
-                            </div>
-                            <ErrorMessage className="form-ErrorMessage" name='currency' component="div"/>
                             <div className="form-InputBar">
                                 <label className="form-label">金額</label>
                                 <Field className="form-input" name='amount'/>

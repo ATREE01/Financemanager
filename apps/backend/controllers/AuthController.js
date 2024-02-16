@@ -11,16 +11,17 @@ const Register = (req, res) =>{
     const password = req.body.password;
     const password_hash = bcrypt.hashSync(password, 10);
     const connection = mysql.createConnection(dbconfig);
-    const sql = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
+    const sql = "INSERT INTO Users (username, email, password_hash) VALUES (?, ?, ?)";
     connection.query(sql, [username, email, password_hash], function(error, result){
         if(error){
-            console.log(error);
             if(error.errno === 1062){
                 res.json({
                     success : 0,
                     errno: error.errno
                 });
             }
+            else
+                console.log(error);
         }
         else {
             res.json({
@@ -36,7 +37,7 @@ const Login = (req, res) =>{
     const password = req.body.password;
     
     const connection = mysql.createConnection(dbconfig);
-    const query = 'select * from users WHERE email = ?';
+    const query = 'select * from Users WHERE email = ?';
     connection.query(query, [email], (err, results) => {
         if(err){
             console.log(err);
@@ -49,7 +50,7 @@ const Login = (req, res) =>{
                     expiresIn: '60s'
                 });
                 const refreshToken = jwt.sign({"username" : user.username, "email" : user.email}, process.env.REFRESH_TOKEN_SECRET, {
-                    expiresIn: '1h'
+                    expiresIn: '2h'
                 });
                 res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
                 res.json({ user_id:user.user_id, username:user.username, email:user.email, accessToken: accessToken })

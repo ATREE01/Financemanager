@@ -1,5 +1,3 @@
-import "./BankDetail.css"
-
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectCurrentUserId } from "../../../features/Auth/AuthSlice";
@@ -14,7 +12,7 @@ import { useGetUserCurrencyQuery } from "../../../features/Currency/CurrencyApiS
 const BankDetail = () => {
     const user_id = useSelector(selectCurrentUserId);
 
-    const titles = ['類別', '日期', '金融機構', '金額', "幣別", "手續費"]
+    const titles = [ '日期', '類別', '金融機構', '金額', "幣別", "手續費"]
     const [ formData, setFormData ] = useState("");
     const [ showModifyForm, setShowModifyForm ] = useState(false);
     const {
@@ -23,7 +21,7 @@ const BankDetail = () => {
     } = useGetBankRecordQuery({user_id});
 
     const {
-        data: banks,
+        data: bank,
         isSuccess: bankIsSuccess
     } = useGetBankQuery({user_id});
 
@@ -31,6 +29,8 @@ const BankDetail = () => {
         data: userCurrency,
         isSuccess: userCurIsSuccess
     } = useGetUserCurrencyQuery({ user_id });
+
+    
 
     let tableContent;
 
@@ -50,7 +50,6 @@ const BankDetail = () => {
     const [ deleteBankRecord ] = useDeleteBankRecordMutation();
     const deleteRecord = async (ID) =>{
         const del = window.confirm("是否確認刪除紀錄?");
-        console.log(ID);
         if(del){
             const result = await deleteBankRecord({ID}).unwrap();
             if(result.success === 1){
@@ -61,38 +60,38 @@ const BankDetail = () => {
 
     if(bankIsSuccess && recIsSuccess && userCurIsSuccess){
         userCurrency.forEach(element => phraseMap['currency'][element.code] = element.name);
-        banks.forEach(element => phraseMap['bank'][element.bank_id] = element.name)
+        bank.forEach(element => phraseMap['bank'][element.bank_id] = element.name)
         tableContent = 
         bankRecord.map((item, index) => { return(
             <tr key={index}>
-                <td className="table-data-cell">{phraseMap['type'][item.type]}</td>
                 <td className="table-data-cell">{item.date}</td>
+                <td className="table-data-cell">{phraseMap['type'][item.type]}</td>
                 <td className="table-data-cell">{phraseMap['bank'][item.bank_id]}</td>
                 <td className="table-data-cell number">{item.amount}</td>
                 <td className="table-data-cell">{phraseMap['currency'][item.currency]}</td>
                 <td className="table-data-cell number">{item.charge}</td>
-                <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-2 border-black " onClick={() => {setFormData(item); setShowModifyForm(!showModifyForm)}}>修改</button></td>
-                <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-2 border-black " onClick={() => deleteRecord(item.ID)}>刪除</button></td>
+                <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-[1px] border-black rounded" onClick={() => {setFormData(item); setShowModifyForm(!showModifyForm)}}>修改</button></td>
+                <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-[1px] border-black rounded" onClick={() => deleteRecord(item.ID)}>刪除</button></td>
             </tr>
         )})
         
     }
     return (
-        <>
+        <div className="bg-slate-100 py-5 min-h-screen">
             <PageLabel title={"金融機構:明細"} />
             <div className="detail-bank-container">
-                <div className="detail-bank-content">
+                <div className="detail-bank-content mt-4 h-[80vh] w-full flex justify-center">
                     <div className="table-container">
                         <DetailTable 
                             titles={titles}
                             tableContent={tableContent}
                         />
                     </div>
-                    <FormBank userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}}/>
-                    <BankRecordForm  onClick={() => setShowModifyForm(!showModifyForm)} showState={{showRecordForm: showModifyForm , setShowRecordForm:setShowModifyForm}} mode="modify" formData={formData} userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} />
+                    <FormBank userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} bank={{data: bank, isSuccess: bankIsSuccess}}/>
+                    <BankRecordForm showState={{isShow: showModifyForm , setShow:setShowModifyForm}} mode="modify" formData={formData} userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} bank={{data: bank, isSuccess: bankIsSuccess}}/>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

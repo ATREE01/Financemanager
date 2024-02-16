@@ -1,5 +1,3 @@
-import "../../../assets/form.css";
-    
 import { ErrorMessage, Form, Field, Formik } from "formik";
 import * as Yup from "yup";
 
@@ -8,24 +6,27 @@ import { useSelector } from "react-redux";
 import { selectCurrentUserId } from "../../../features/Auth/AuthSlice";
 
 // userCurrency is sent from dashboard or detail
-const BankForm = ({showState, onClick, userCurrency}) => {
+const BankForm = ({showState, userCurrency}) => {
     
     const [addBank] = useAddBankMutation();
 
     const user_id = useSelector(selectCurrentUserId);
 
     let currencyContent;
+    let currencyOption = [];
     if(userCurrency.isSuccess){
-        currencyContent = userCurrency.data.map((item, index) => 
-            <option key={index} value={item.code}>{item.name}</option>
-        )
+        currencyContent = userCurrency.data.map((item, index) => {
+            currencyOption.push(item.code);
+            return <option key={index} value={item.code}>{item.name}</option>
+        })
     }
     
-    
+    const onClick = () => showState.setShow(!showState.isShow)
+
     return (
         <>
-            {showState.showBankForm ? <div className="form-scrim" onClick={onClick}></div> : ""}
-            <div className={`form-container ${showState.showBankForm ? "activate" : ""}`}>
+            {showState.isShow ? <div className="form-scrim" onClick={onClick}></div> : ""}
+            <div className={`form-container ${showState.isShow ? "activate" : ""}`}>
                 <div className='close-btn'>
                     <i className="bi bi-x-circle-fill" onClick={onClick}></i>
                 </div>
@@ -41,13 +42,12 @@ const BankForm = ({showState, onClick, userCurrency}) => {
                         .required("請輸入名稱")
                         .max(16, "長度最長為16個字"),
                         currency:Yup.string()
-                        .notOneOf(['default'], "請選擇幣別"),
+                        .oneOf(currencyOption, "請選擇幣別"),
                         initialAmount:Yup.number()
                         .typeError("必須是數字")
                         .required("請輸入初始金額")
                         .min(0, "不能小於0")
-                        .max(9007199254740991,"不能大於9007199254740991")
-
+                        .max(9000000000000000,"數值過大")
                     })}
                     onSubmit={async (values, actions) => {
                         const result = await addBank({user_id, ...values}).unwrap();
@@ -57,7 +57,6 @@ const BankForm = ({showState, onClick, userCurrency}) => {
                             window.alert("新增成功"); 
                         }
                         else {
-                            console.log(result);
                             if(result.errno === 1062){
                                 window.alert("已有相同的銀行名稱");
                             }
@@ -85,7 +84,7 @@ const BankForm = ({showState, onClick, userCurrency}) => {
                             </div>
                             <ErrorMessage className="form-ErrorMessage" name='initialAmount' component="div"/>
                             <div className='form-btn'>
-                                <button  className="bg-slate-300 hover:bg-slate-500 border-2 border-black rounded-full" disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
+                                <button  className="bg-slate-300 enabled:hover:bg-slate-500 border-2 border-black rounded-full disabled:opacity-25" disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
                             </div>
                         </Form>
 

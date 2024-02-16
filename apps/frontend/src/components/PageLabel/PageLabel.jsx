@@ -1,9 +1,7 @@
-import "./PageLabel.css"
-
 const PageLabel = ({title}) =>{
     return (
-        <div className='label'>   
-            <div className='title'>{title}</div>
+        <div className='label bg-slate-400 w-36 h-12 rounded-r-lg flex items-center justify-center shadow'>   
+            <div className='title text-xl font-bold'>{title}</div>
         </div>
     )
 }

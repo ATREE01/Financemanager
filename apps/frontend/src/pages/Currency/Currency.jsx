@@ -1,4 +1,3 @@
-import "./Currency.css";
 import PageLabel from "../../components/PageLabel/PageLabel";
 import DetailTable from "../../components/DetailTable/DetailTable";
 import { useDeleteUserCurrencyMutation, useGetExchangeRateQuery, useGetUserCurrencyQuery, useAddUserCurrencyMutation } from "../../features/Currency/CurrencyApiSlice";
@@ -14,9 +13,9 @@ const Currency = () => {
     const [ deleteUserCurrency ] = useDeleteUserCurrencyMutation();
 
     const {
-        data: CurrencyList,
-        isLoading: curIsLoading,
-        isSuccess: curIsSuccess
+        data: exRate,
+        isLoading: exRateIsLoading,
+        isSuccess: exRateIsSuccess
     } = useGetExchangeRateQuery()
     
     const {
@@ -24,7 +23,6 @@ const Currency = () => {
         isLoading: userCurIsLoading,
         isSuccess: userCurIsSuccess
     } = useGetUserCurrencyQuery({ user_id });
-    console.log(UserCurrency);
 
     const handleOnChange = async (e, item) =>{
         const value = e.target.checked;
@@ -45,18 +43,18 @@ const Currency = () => {
     
     let CurrencyContent = null
 
-    if(curIsLoading || userCurIsLoading){
+    if(exRateIsLoading || userCurIsLoading){
         CurrencyContent = 
         <>
             Loading...
         </>
     }
-    if(curIsSuccess && userCurIsSuccess){
+    if(exRateIsSuccess && userCurIsSuccess){
         let selectedCur = {};
         UserCurrency.forEach(item => {
             selectedCur[item['code']] = true;
         })
-        const CurrencyTable = CurrencyList.map((item, index) =>  
+        const CurrencyTable = exRate.map((item, index) =>  
             <tr key={index}>
                 <td className="table-data-cell text-center"><input onChange={(e) => handleOnChange(e, item)} type="checkbox" checked={selectedCur[item['code']] ?? 0} /></td>
                 <td className='table-data-cell text-center'>{item['code']}</td>
@@ -67,16 +65,16 @@ const Currency = () => {
         CurrencyContent = <DetailTable titles={titles} tableContent={CurrencyTable} />
     }
     return (
-        <>
+        <div className="bg-slate-100 py-5 min-h-screen">
             <PageLabel title={"外幣管理"}/>
-            <div className="curreny-container">
-                <div className="currency-content">
-                    <div className="currency-table-container">
+            <div className="curreny-container max-h-full">
+                <div className="currency-content h-full mt-4 flex flex-col items-center">
+                    <div className="table-container w-2/5">
                         {CurrencyContent}
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

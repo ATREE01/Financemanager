@@ -4,9 +4,23 @@ table, th, td{
 
 .table-container{
     width:90vw;
-    max-height: 60vh;
+    max-height: 65vh;
     overflow: auto;
 }
+
+.table-container::-webkit-scrollbar {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 10px;
+    background: rgb(235, 234, 234);
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    width: 0.5rem;
+    border-radius: 10px;
+    background: #a5a4a4;
+}
+
 
 .table-content{
     width: 100%;
@@ -14,7 +28,7 @@ table, th, td{
 
 .table-title{
     width: 100%;
-    background-color: rgb(218, 238, 127);
+    background-color: rgb(161, 235, 253);
     overflow: auto;
 }
 
@@ -22,6 +36,8 @@ table, th, td{
     white-space: nowrap;/*這個東西可以讓她不會換行*/
     min-width: 3em;
     max-width: 20em;
+    height: 1rem;
+    font-size: 0.9rem;
     padding-right: 0.2em;
     border: 1px solid;
     overflow: auto;
@@ -42,7 +58,6 @@ table, th, td{
 .table-data-cell::-webkit-scrollbar {
     display: none;
 }
-
 
 .table-btn{
     width: 2em;

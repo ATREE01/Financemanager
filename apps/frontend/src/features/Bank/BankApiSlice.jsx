@@ -45,7 +45,8 @@ export const BankApiSlce = apiSlice.injectEndpoints({
             invalidatesTags:(result, error, arg) => {
                 return(
                     [{type:"BankRecord", ID: arg.ID}]
-            )}
+                )
+            }
         }),
         deleteBankRecord:builder.mutation({
             query: credentials => ({

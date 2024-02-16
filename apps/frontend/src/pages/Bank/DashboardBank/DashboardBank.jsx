@@ -1,24 +1,30 @@
-import '../../../assets/table.css';
-import './DashboardBank.css';
 import { useSelector } from "react-redux";
 import { useGetBankQuery, useGetBankRecordSumQuery, useGetTimeDepositRecordSumQuery } from "../../../features/Bank/BankApiSlice";
 import { useGetFinRecordSumQuery } from "../../../features/IncExp/IncExpApiSlice";
 import { selectCurrentUserId } from "../../../features/Auth/AuthSlice";
+import Chart from "react-google-charts";
 
 import PageLabel from "../../../components/PageLabel/PageLabel";
 import DetailTable from '../../../components/DetailTable/DetailTable';
 import FormBank from '../FormBank/FormBank';
-import { useGetUserCurrencyQuery } from '../../../features/Currency/CurrencyApiSlice';
+import { useGetExchangeRateQuery, useGetUserCurrencyQuery } from '../../../features/Currency/CurrencyApiSlice';
+import { useGetDividendRecordSumQuery, useGetInvtRecordSumQuery } from '../../../features/Invt/InvtApiSlice';
 
-const DashboardBank = () => { //TODO: 外幣還沒做 新增帳戶的時候要選擇幣別
+const DashboardBank = () => { 
 
-    const values = ["currency", "amount", "income", "expenditure", "deposit", "withdraw", "transfer_in", "transfer_out", "charge", "time_deposit"];
-    const titles = ["銀行名稱", "幣別","現有金額", "收入", "支出", "存款", "提款", "轉入", "轉出", "手續費", "定存"]
+    const pieChartOptions = {
+        legend:{position:'top', maxLines:3},
+        pieSliceText:"percentage",
+        backgroundColor: 'transparent'
+    };
+
+    const values = ["currency", "total", "income", "expenditure", "deposit", "withdraw", "transfer_in", "transfer_out", "charge", "invt", "time_deposit", "initialAmount"];
+    const titles = ["銀行名稱", "幣別", "現有金額", "收入", "支出", "存款", "提款", "轉入", "轉出", "手續費",  "證券交易金額", "定存", "初始金額"]
 
     const user_id = useSelector(selectCurrentUserId);
 
     const {
-        data: banks,
+        data: bank,
         isLoading: bankIsLoading,
         isSuccess: bankIsSuccess,
     } = useGetBankQuery({user_id});
@@ -37,11 +43,25 @@ const DashboardBank = () => { //TODO: 外幣還沒做 新增帳戶的時候要�
         isLoading: tiSumIsLoading,
         isSuccess: tiSumIsSuccess
     } = useGetTimeDepositRecordSumQuery({user_id});
+    const {
+        data: exchangeRate,
+        isLoading: exRateIsLoading,
+        isSuccess: exRateIsSuccess
+    } = useGetExchangeRateQuery();
     const{
         data:userCurrency,
         isLoading: iserCurIsLoading,
         isSuccess: userCurIsSuccess,
     } = useGetUserCurrencyQuery({ user_id })
+    const {
+        data: InvtRecSum,
+        isSuccess: invtRecSumIsSuccess
+    } = useGetInvtRecordSumQuery({ user_id })
+    const {
+        data: dividendRecSum,
+        isSuccess: dividendReSumIsSuccess
+    } = useGetDividendRecordSumQuery({ user_id })
+
     const phraseMap = {
         banks:{},
         currency:{
@@ -50,15 +70,27 @@ const DashboardBank = () => { //TODO: 外幣還沒做 新增帳戶的時候要�
     }
     const bankData = {};
     let tableContent;
-    if(bankIsLoading || recIsLoading || finIsLoading || tiSumIsLoading){
+    let bankChartData = [["bank", "amount"]];
+    if(bankIsLoading || recIsLoading || finIsLoading || tiSumIsLoading || exRateIsLoading){
         tableContent = <tr><td>Loading. . .</td></tr>
     }
-    else if(bankIsSuccess && recIsSuccess && finIsSuccess && tiSumIsSuccess && userCurIsSuccess){
+    else if(bankIsSuccess && recIsSuccess && finIsSuccess && tiSumIsSuccess && userCurIsSuccess && invtRecSumIsSuccess && dividendReSumIsSuccess && exRateIsSuccess){
         userCurrency.forEach(element => phraseMap['currency'][element.code] = element.name);
-        banks.forEach(element => {
-            bankData[element['bank_id']] = { // create the data for each bank
-                amount: element['initialAmount'],
-                currency: phraseMap["currency"][element['currency']],
+
+        const getExchangeRate = (code) => {
+            const result = exchangeRate.find(item => item.code === code);
+            return result?.ExchangeRate ?? 1;
+        }
+
+        const getDividend = (bank_id) => {
+            const result = dividendRecSum.filter(item => item.bank_id === bank_id).reduce((sum, item) => sum + item.amount, 0);
+            return result;
+        };
+        tableContent = bank.map((item) =>  {
+            bankData[item['bank_id']] = { // create the data for each bank
+                initialAmount: item['initialAmount'],
+                total: item['initialAmount'],
+                currency: phraseMap["currency"][item['currency']],
                 income: 0,
                 expenditure: 0,
                 deposit: 0,
@@ -66,50 +98,64 @@ const DashboardBank = () => { //TODO: 外幣還沒做 新增帳戶的時候要�
                 transfer_in: 0,
                 transfer_out: 0,
                 charge:0,
+                invt:InvtRecSum[item['bank_id']] ?? 0,
                 time_deposit: 0
             }
-            phraseMap["banks"][element['bank_id']] = element['name'];
-        });
-        banks.forEach(bank => {
-            const result = JSON.parse(record[bank['bank_id']]?.result ?? "[]").reduce((acc, obj) => { // This function turn array of json to one json object
+            phraseMap["banks"][item['bank_id']] = item['name'];
+            const result = JSON.parse(record[item['bank_id']]?.result ?? "[]").reduce((acc, obj) => { // This function turn array of json to one json object
                 const key = Object.keys(obj)[0];
                 acc[key] = obj[key];
                 return acc;
             }, {});
-            bankData[bank['bank_id']]['income'] +=  (finRecord[bank['bank_id']]?.['inSum'] ?? 0) + (tiSum[bank['bank_id']]?.['intTot'] ?? 0);// int-Interest
-            bankData[bank['bank_id']]['expenditure'] += (finRecord[bank['bank_id']]?.['expSum'] ?? 0);
-            bankData[bank['bank_id']]['charge'] += (record[bank['bank_id']]?.charge ?? 0);
-            bankData[bank['bank_id']]['time_deposit'] += (tiSum[bank['bank_id']]?.['amoTot'] ?? 0);
-            Object.keys(result).forEach(key => { bankData[bank['bank_id']][key] += result[key];}) // add the value to each bank
+            
+            bankData[item['bank_id']]['income'] +=  (finRecord[item['bank_id']]?.['inSum'] ?? 0) + (tiSum[item['bank_id']]?.['intTot'] ?? 0) + getDividend(item.bank_id);// int-Interest
+            bankData[item['bank_id']]['expenditure'] += (finRecord[item['bank_id']]?.['expSum'] ?? 0);
+            bankData[item['bank_id']]['charge'] += (record[item['bank_id']]?.charge ?? 0);
+            bankData[item['bank_id']]['time_deposit'] += (tiSum[item['bank_id']]?.['amoTot'] ?? 0);
+            Object.keys(result).forEach(key => { bankData[item['bank_id']][key] += result[key];}) // add the value to each bank
             // have to add a documentation about how to value been calculated.
-            bankData[bank['bank_id']]["amount"] += bankData[bank['bank_id']]["income"] + bankData[bank['bank_id']]["deposit"] + bankData[bank['bank_id']]["transfer_in"] -
-            bankData[bank['bank_id']]["expenditure"] - bankData[bank['bank_id']]["withdraw"] - bankData[bank['bank_id']]["transfer_out"] - bankData[bank['bank_id']]['charge'] - (tiSum[bank['bank_id']]?.['amoTot'] ?? 0);  // amoTot-amountTot
+            bankData[item['bank_id']]["total"] += bankData[item['bank_id']]["income"] + bankData[item['bank_id']]["deposit"] + bankData[item['bank_id']]["transfer_in"]
+            - bankData[item['bank_id']]["expenditure"] - bankData[item['bank_id']]["withdraw"] - bankData[item['bank_id']]["transfer_out"] - bankData[item['bank_id']]['charge']
+            + bankData[item['bank_id']]['invt'] - (tiSum[item['bank_id']]?.['amoTot'] ?? 0);  // amoTot-amountTot
+
+            bankChartData.push([ phraseMap["banks"][item['bank_id']], (bankData[item.bank_id]['total'] + bankData[item.bank_id]['time_deposit']) * getExchangeRate(item.currency) ])
+            return (
+                <tr key={item.bank_id}>
+                    <td className="table-data-cell" >{[[phraseMap['banks'][item.bank_id]]]}</td>   
+                    {
+                        values.map(value => <td className="table-data-cell number" value={value} key={value}>{bankData[item.bank_id][value]}</td>)
+                    }
+                </tr>
+            )
         })
-        tableContent = banks.map((item) => { return (
-            <tr key={item.bank_id}>
-                <td className="table-data-cell" >{[[phraseMap['banks'][item.bank_id]]]}</td>   
-                {
-                    values.map(value => <td className="table-data-cell number" value={value} key={value}>{bankData[item.bank_id][value]}</td>)
-                }
-            </tr>
-        )})
+
     }
 
     return(
-        <>
+        <div className="bg-slate-100 py-5 min-h-screen">
             <PageLabel title={"金融機構:總覽"}/>
-            <div className="dash-bank-container">
-                <div className="dash-bank-content">
-                    <div className="table-container">
+            <div className="dash-bank-container mt-4 max-h-full flex justify-center">
+                <div className="dash-bank-content w-[95%] flex flex-wrap justify-center">
+                    <div className="text-center">
+                        <div className='text-3xl font-bold'>資產分布(台)</div>
+                        <Chart 
+                            chartType="PieChart"
+                            data={bankChartData}
+                            options={pieChartOptions}
+                            width={"20rem"}
+                            height={"20rem"}
+                        />
+                    </div>
+                    <div className="flex-1 overflow-auto min-w-[50%] max-h-[80vh] flex items-center scrollBar">
                         <DetailTable 
                             titles={titles}
                             tableContent={tableContent}
                         />
                     </div>
-                    <FormBank userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}}/>
+                    <FormBank userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} bank={{data: bank, isSuccess: bankIsSuccess}}/>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

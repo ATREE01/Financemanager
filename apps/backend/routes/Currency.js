@@ -1,10 +1,10 @@
 const express = require("express");
-const route = express.Router();
+const router = express.Router();
 const CurrencyController = require("../controllers/CurrencyController");
 
-route.get("/getExchangeRate", CurrencyController.getExchangeRate);
-route.post("/addUserCurrency", CurrencyController.addUserCurrency);
-route.get("/getUserCurrency", CurrencyController.getUserCurrency);
-route.delete("/deleteUserCurrency", CurrencyController.deleteUserCurrency);
+router.get("/getExchangeRate", CurrencyController.getExchangeRate);
+router.post("/addUserCurrency", CurrencyController.addUserCurrency);
+router.get("/getUserCurrency", CurrencyController.getUserCurrency);
+router.delete("/deleteUserCurrency", CurrencyController.deleteUserCurrency);
 
-module.exports = route;
+module.exports = router;

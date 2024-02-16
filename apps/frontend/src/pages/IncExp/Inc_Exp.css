@@ -1,0 +1,28 @@
+
+.currency-option{
+    width: 4em;
+    height: 5vh;
+    font-weight: bold;
+    font-size: 1.5em;
+    border-radius: 5vw;
+    margin: 2vw;
+    display: flex;
+    align-items: center;    
+    justify-content: center;
+}
+
+.duration-option{
+    font-weight: bold;
+    font-size: 0.8em;
+    background-color: rgb(162, 232, 255);
+    border-radius: 5vw;
+    width: 4em;
+    height: 2em;
+    margin: 1vh;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    display: flex;
+    align-items: center;    
+    justify-content: center;
+    flex-wrap: nowrap;
+}

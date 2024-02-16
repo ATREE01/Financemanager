@@ -1,4 +1,4 @@
-const DetailTable = (props) => {// TODO: Doing this
+const DetailTable = (props) => {
     return (
         <table className="table-content">
             <thead>

@@ -1,4 +1,9 @@
 import { apiSlice } from "../../app/api/apiSlice";
+
+apiSlice.enhanceEndpoints({
+    addTagTypes:["IncExpRecord", "category"]
+})
+
 export const IncExpApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
         getRecord:builder.query({
@@ -8,7 +13,7 @@ export const IncExpApiSlice = apiSlice.injectEndpoints({
                 body:{...credentials}
             }),
             providesTags:['IncExpRecord'],
-            keepUnusedDataFor: 60
+            keepUnusedDataFor: 600
         }),
         getRecordSum:builder.query({
             query: credentials => ({
@@ -17,18 +22,18 @@ export const IncExpApiSlice = apiSlice.injectEndpoints({
                 body:{...credentials}
             }),
             providesTags:['IncExpRecord'],
-            keepUnusedDataFor: 300
+            keepUnusedDataFor: 600
         }),
-        getFinRecordSum:builder.query({// TODO: need to add tag for this
+        getFinRecordSum:builder.query({
             query: credentials => ({
                 url:'/api/IncExp/GetIncExpFinRecordSum', // financial record,
                 method: "POST",
                 body:{...credentials}
             }),
-            keepUnusedDataFor:300,
+            keepUnusedDataFor:600,
             providesTags:['IncExpRecord']
         }),
-        addRecord: builder.mutation({ // TODO: also invalid tag provided from getFinRecordSum
+        addRecord: builder.mutation({
             query: credentials => ({
                 url: '/api/IncExp/AddIncExpRecord',
                 method: 'POST',
@@ -36,11 +41,27 @@ export const IncExpApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags:['IncExpRecord']
         }),
-        getCategory:builder.query({
+        modifyIncExpRecord:builder.mutation({
             query: credentials => ({
-                url:'/api/IncExp/GetIncExpCategory',
-                method:'POST',
+                url: "/api/IncExp/modifyIncExpRecord",
+                method:"PATCH",
                 body:{...credentials}
+            }),
+            invalidatesTags:['IncExpRecord']    
+        }),
+        deleteIncExpRecord: builder.mutation({
+            query: args => ({
+                url: "/api/IncExp/deleteIncExpRecord",
+                method: "DELETE",
+                params: { ...args }
+            }),
+            invalidatesTags:['IncExpRecord']
+        }),
+        getCategory:builder.query({
+            query: args => ({
+                url:'/api/IncExp/GetIncExpCategory',
+                method:'GET',
+                params:{...args}
             }),
             providesTags:['category']
         }),
@@ -60,6 +81,8 @@ export const {
     useGetRecordSumQuery,
     useGetFinRecordSumQuery,
     useAddRecordMutation,
+    useModifyIncExpRecordMutation,
+    useDeleteIncExpRecordMutation,
 
     useGetCategoryQuery,
     useAddIncExpCategoryMutation,

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE IF NOT EXISTS `Users` (
 	`user_id` INT NOT NULL AUTO_INCREMENT,
 	`username` VARCHAR(255),
 	`email` VARCHAR(255),
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 );
 
 CREATE TABLE IF NOT EXISTS `IncExpRecord` (
-	`Record_id` INT NOT NULL AUTO_INCREMENT,
+	`ID` INT NOT NULL AUTO_INCREMENT,
 	`user_id` INT,
 	`date` VARCHAR(255),
 	`type` VARCHAR(255),
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `IncExpCategory`(
 	`sort` INT,
 	`type` VARCHAR(255),
 	`value` VARCHAR(255),
-	`name` NVARCHAR(16),
+	`name` VARCHAR(16),
 	PRIMARY KEY (`ID`),
 	UNIQUE (`user_id`, `name`, `type`)
 );
@@ -75,9 +75,11 @@ CREATE TABLE IF NOT EXISTS `Currency`(
 	`ID` INT NOT NULL AUTO_INCREMENT,
 	`code` VARCHAR(16),
 	`name` NVARCHAR(16),
+	`ExchangeRate` float,
 	PRIMARY KEY(`ID`)
 );
 
+INSERT INTO Currency (code, name, ExchangeRate) VALUES("TWD", "台幣", 1);
 INSERT INTO Currency (code, name, ExchangeRate) VALUES("USD", "美金", 0);
 INSERT INTO Currency (code, name, ExchangeRate) VALUES("EUR", "歐元", 0);
 INSERT INTO Currency (code, name, ExchangeRate) VALUES("JPY", "日幣", 0);
@@ -104,3 +106,74 @@ CREATE TABLE IF NOT EXISTS `UserCurrencyList`(
 	PRIMARY KEY(`ID`),
 	UNIQUE(`user_id`, `code`)
 );
+
+CREATE TABLE IF NOT EXISTS `Brokerage`(
+	`ID` INT NOT NULL AUTO_INCREMENT, 
+	`user_id` INT, 
+	`brokerage_id` VARCHAR(255),
+	`name` VARCHAR(255),
+	`transactionCur` VARCHAR(16),
+	`settlementCur` VARCHAR(16),
+	PRIMARY KEY(`ID`),
+	UNIQUE(`user_id`, `name`)
+);
+
+CREATE TABLE IF NOT EXISTS `StockList`(
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`user_id` INT, 
+	`stock_symbol` VARCHAR(32),
+	`currency` VARCHAR(32),
+	`stock_name` VARCHAR(32),
+	PRIMARY KEY (`ID`),
+	UNIQUE(`user_id`, `stock_symbol`, `stock_name`)
+);
+
+CREATE TABLE IF NOT EXISTS `StockPrice`(
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`stock_symbol` VARCHAR(32),
+	`stock_price` float,
+	PRIMARY KEY(`ID`),
+	UNIQUE(`stock_symbol`)
+);
+
+CREATE TABLE IF NOT EXISTS `StockRecord`(
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`user_id` INT, 
+	`date` VARCHAR(32),
+	`brokerage_id` VARCHAR(64),
+	`action` VARCHAR(16),
+	`type` VARCHAR(16),
+	`bank_id` VARCHAR(64),
+	`total` DECIMAL(16, 6),
+	`stock_symbol` VARCHAR(64),
+	`buy_stock_price` DECIMAL(12, 6),
+	`sell_stock_price` DECIMAL(12, 6),
+	`share_number` DECIMAL(16, 6),
+	`buy_exchange_rate` DECIMAL(10, 5),
+	`sell_exchange_rate` DECIMAL(10, 5),
+	`charge` DECIMAL(16, 6),
+	`tax` DECIMAL(16, 6),
+	`note` VARCHAR(255),
+	PRIMARY KEY(`ID`)
+);
+
+CREATE TABLE IF NOT EXISTS `DividendRecord`(
+	`ID` INT NOT NULL AUTO_INCREMENT,
+	`user_id` INT,
+	`date` VARCHAR(32),
+	`brokerage_id` VARCHAR(64),
+	`stock_symbol` VARCHAR(16),
+	`bank_id` VARCHAR(64),
+	`currency` VARCHAR(16),
+	`amount` DECIMAL(16, 6),
+	PRIMARY KEY(`ID`)
+);
+
+CREATE TABLE IF NOT EXISTS `MarketValueRecord` (
+	`ID` INT NOT NULL AUTO_INCREMENT, 
+	`user_id` INT,
+	`date` VARCHAR(32),
+	`value` BIGINT,
+	PRIMARY KEY(`ID`)
+)
+
