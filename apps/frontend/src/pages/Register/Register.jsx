@@ -121,7 +121,7 @@ export default function Register(){
                     </div>
                     <div>
                         <label for="passwordConfirm" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">確認密碼</label>
-                        <input type="password" name="passwordConfirm" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="" {...formik.getFieldProps('passwordConfirm')}/>
+                        <input type="password" name="passwordConfirm" id="passwordConfirm" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="" {...formik.getFieldProps('passwordConfirm')}/>
                         {passwordConfirmError &&
                             <div class="p-2 my-2 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
                                 <span class="font-medium">{formik.errors.passwordConfirm}</span>

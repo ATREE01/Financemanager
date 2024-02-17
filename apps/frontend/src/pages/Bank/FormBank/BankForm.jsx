@@ -13,7 +13,7 @@ const BankForm = ({showState, userCurrency}) => {
     const user_id = useSelector(selectCurrentUserId);
 
     let currencyContent;
-    let currencyOption = [];
+    let currencyOption = ['TWD'];
     if(userCurrency.isSuccess){
         currencyContent = userCurrency.data.map((item, index) => {
             currencyOption.push(item.code);

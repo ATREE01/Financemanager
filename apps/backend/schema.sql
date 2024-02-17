@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `IncExpRecord` (
 	`bank_id` VARCHAR(255),
 	`charge` VARCHAR(255),
 	`note` NVARCHAR(255),
-	PRIMARY KEY (`Record_id`)
+	PRIMARY KEY (`ID`)
 );
 
 CREATE TABLE IF NOT EXISTS `IncExpCategory`(

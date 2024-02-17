@@ -19,8 +19,9 @@ const TiDptRecordForm = ({showState, bank, userCurrency, mode="new", formData}) 
     }
     const onClick = () => showState.setShow(!showState.isShow);
     let bankContent, currencyContent;
+    let bankOption = [];
     if(bank.isSuccess && userCurrency.isSuccess){
-        bankContent = bank.data.map((item, index) => <option key={index} value={item.bank_id}>{item.name}</option>)
+        bankContent = bank.data.map((item, index) => { bankOption.push(item.bank_id); return <option key={index} value={item.bank_id}>{item.name}</option>})
         userCurrency.data.forEach(element => phraseMap['currency'][element.code] = element.name);
     }
 
@@ -54,9 +55,9 @@ const TiDptRecordForm = ({showState, bank, userCurrency, mode="new", formData}) 
                     }}
                     validationSchema={Yup.object().shape({
                         bank:Yup.string()
-                        .notOneOf(["default"], "請選擇金融機構"),
+                        .oneOf(bankOption, "請選擇金融機構"),
                         type:Yup.string()
-                        .notOneOf(["default"], "請選擇種類")
+                        .oneOf(["part-deposit-all-withdraw", "all-deposit-all-withdraw", "all-deposit-part-interest"], "請選擇種類")
                         .required("請輸入金額")
                         .typeError("只能輸入數字")
                         .min(1, "不能小於1"),
