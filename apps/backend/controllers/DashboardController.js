@@ -216,7 +216,7 @@ const getBankAreaChartData = async (req, res) => {
     const currentDate = moment(startDate)
     const currentYear = endDate.year();
     const currentWeek = endDate.week() - 1;
-    const bankAreaChartData = [['date', 'amount']];
+    const bankAreaChartData = [['date', '資產']];
     let sum = 0;
     // console.log(currentYear, currentWeek)
     // console.log(tempResult);
@@ -227,6 +227,9 @@ const getBankAreaChartData = async (req, res) => {
             currentDate.add(1, 'week')
         }
     }   
+            
+    if(bankAreaChartData.length === 1)
+        bankAreaChartData.push([moment().tz('America/New_York').format("YYYY-MM-DD"), 0]);
     res.send(bankAreaChartData)
 }
 
@@ -336,15 +339,19 @@ const getInvtAreaChartData = (req, res) => {
         WHERE user_id = ?\
     "
     const connection = mysql.createConnection(dbconfig);
-    const invtAreaChartData = [['date', 'value']];
+    const invtAreaChartData = [['date', '市值']];
     connection.query(sql, [data.user_id], (error, result) => {
         if(error){
             console.log(error);
             return res.sendStatus(500);
         }
-        result.forEach( element => {
+        
+        if(result.length === 0)
+            invtAreaChartData.push([moment().tz('America/New_York').format("YYYY-MM-DD"), 0]);
+        result.forEach(element => {
             invtAreaChartData.push([element.date, element.value]);
         })
+
         res.send(invtAreaChartData);
     })
     connection.end();

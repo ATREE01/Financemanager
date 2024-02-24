@@ -1,19 +1,5 @@
 version: '3'
 services:
-  backend:
-    build: ./apps/backend
-    restart: always
-    ports:
-      - "3000:3000"
-    depends_on:
-      - database
-  frontend:
-    build: ./apps/frontend
-    restart: always
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
   database:
     image: mariadb:11.2
     restart: always
@@ -27,5 +13,14 @@ services:
       - TZ=Asia/Taipei
     ports:
       - 3306:3306
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+    environment:
+      ADMINER_DEFAULT_SERVER: database
 volumes:
   financemanager_db:
