@@ -4,7 +4,7 @@ import PageLabel from "./../../components/PageLabel/PageLabel.jsx";
 
 import { useSelector } from "react-redux";
 import { selectCurrentUserId } from "../../features/Auth/AuthSlice.jsx";
-import { useGetBankAreaChartDataQuery, useGetBankDataQuery, useGetInvtAreaChartDataQuery, useGetInvtDataQuery } from "../../features/Dashboard/DashBoardApiSlice.jsx";
+import { useGetBankAreaChartDataQuery, useGetBankDataQuery, useGetInvtAreaChartDataQuery, useGetInvtDataQuery } from "../../features/Dashboard/DashboardApiSlice.jsx";
 import { useGetBankQuery } from "../../features/Bank/BankApiSlice.jsx";
 import { useGetBrokerageQuery } from "../../features/Invt/InvtApiSlice.jsx";
 

@@ -11,13 +11,13 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies using PNPM
-RUN pnpm install
+RUN pnpm install --prod
 
 # Copy the rest of the application
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE 5000
+EXPOSE 3000
 
 # Command to run the app
 CMD ["pnpm", "start"]

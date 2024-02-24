@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BrokerageForm from "./brokerageForm";
+import BrokerageForm from "./BrokerageForm";
 import StockRecordForm from "./StockRecordForm";
 import StockForm from "./StockForm";
 import DividendForm from "./DividendForm";
