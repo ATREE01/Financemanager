@@ -73,7 +73,7 @@ export default function User(){
         pageContent =
         <div className="w-full h-[70vh] flex items-center justify-center">
             <div
-                class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"
             ></div>
         </div>
     }

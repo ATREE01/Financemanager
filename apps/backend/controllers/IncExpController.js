@@ -50,7 +50,7 @@ const GetIncExpRecordSum = async (req, res)=>{
         duration = (now - new Date(now.getFullYear(), 0, 1)) / 1000 / 60 / 60 / 24;
     }
     const values = [user_id, currency];
-    let sql = `SELECT category, SUM(amount) FROM IncExpRecord WHERE user_id = ? AND currency = ?`;
+    let sql = `SELECT category, SUM(amount) AS SUM, SUM(charge) AS charge FROM IncExpRecord WHERE user_id = ? AND currency = ?`;
     if(duration === 'customize'){sql += " AND date >= ? AND date <= ?"; values.push(startDate);values.push(endDate)}
     else if(duration !== 'default') sql += ` AND DATEDIFF(CURDATE(), date) <= ${duration}`;
     sql += ` AND type = ?  GROUP BY category, type`;
@@ -91,7 +91,8 @@ const GetIncExpFinRecordSum = (req, res) => {
     const data = req.body;
     const user_id = data.user_id;
     const sql = `SELECT bank_id, SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS inSum,
-                 SUM(CASE WHEN type = 'expenditure' THEN amount ELSE 0 END) AS expSum
+                 SUM(CASE WHEN type = 'expenditure' THEN amount ELSE 0 END) AS expSum,
+                 SUM(charge) AS charge
                  FROM IncExpRecord WHERE user_id = ? AND method = 'finance' OR method = 'credit' GROUP BY bank_id`
     const connection = mysql.createConnection(dbconfig);
     const query = () => {
@@ -110,8 +111,9 @@ const GetIncExpFinRecordSum = (req, res) => {
     .then((result) => {
         result.forEach(element => {
             result_dict[element['bank_id']] = {
-                inSum: element['inSum'] = element['inSum'],
-                expSum: element['expSum'] = element['expSum'] 
+                inSum: element['inSum'],
+                expSum: element['expSum'],
+                charge: element['charge']
             }
         });
         res.json(result_dict);

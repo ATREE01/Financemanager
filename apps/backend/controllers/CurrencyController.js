@@ -2,7 +2,7 @@ const axios = require('axios');
 const mysql = require('mysql');
 const dbconfig = require('../config/dbconfig.js');
 
-const googleSheetApiURL = "https://script.google.com/macros/s/AKfycbzOAiwGUzITOuAo4i7mMoziArqsqjY1t8Aqa_AL_HdcWZM7K24qruHuCSVguNn37zpM/exec?action="
+const googleSheetApiURL = "https://script.google.com/macros/s/AKfycbzwK-fuvMUuqx5uuBSF_RWsjVLK-B0k6bZKn1R8AB3kYrLME2kLsMxTVPVELgOC2hY/exec?action="
 
 // update the exchange rate data once every 2 hours
 const updateExchangeRate = () => { 
@@ -24,6 +24,9 @@ const updateExchangeRate = () => {
     })
     .finally(() => connection.end());
 }
+updateExchangeRate();
+setInterval(updateExchangeRate, 20 * 60 * 1000);
+
 const getExchangeRate = (req, res) => {
     const connection = mysql.createConnection(dbconfig);
     const sql = "SELECT code, name, ExchangeRate FROM Currency";

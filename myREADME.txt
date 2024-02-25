@@ -15,3 +15,7 @@ Bank:
 
 用這個指令來切換到本地沒有但在遠端有的分枝
 git switch 'branch name'
+
+docker compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d financemanager.ddns.net
+
+docker compose run --rm certbot renew

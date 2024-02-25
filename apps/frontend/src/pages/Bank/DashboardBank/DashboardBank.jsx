@@ -29,7 +29,7 @@ const DashboardBank = () => {
         isSuccess: bankIsSuccess,
     } = useGetBankQuery({user_id});
     const {
-        data:record,
+        data:bankRecord,
         isLoading: recIsLoading,
         isSuccess: recIsSuccess
     } = useGetBankRecordSumQuery({user_id});//bankRecord
@@ -102,15 +102,14 @@ const DashboardBank = () => {
                 time_deposit: 0
             }
             phraseMap["banks"][item['bank_id']] = item['name'];
-            const result = JSON.parse(record[item['bank_id']]?.result ?? "[]").reduce((acc, obj) => { // This function turn array of json to one json object
+            const result = JSON.parse(bankRecord[item['bank_id']]?.result ?? "[]").reduce((acc, obj) => { // This function turn array of json to one json object
                 const key = Object.keys(obj)[0];
                 acc[key] = obj[key];
                 return acc;
             }, {});
-            
             bankData[item['bank_id']]['income'] +=  (finRecord[item['bank_id']]?.['inSum'] ?? 0) + (tiSum[item['bank_id']]?.['intTot'] ?? 0) + getDividend(item.bank_id);// int-Interest
             bankData[item['bank_id']]['expenditure'] += (finRecord[item['bank_id']]?.['expSum'] ?? 0);
-            bankData[item['bank_id']]['charge'] += (record[item['bank_id']]?.charge ?? 0);
+            bankData[item['bank_id']]['charge'] += (bankRecord[item['bank_id']]?.charge ?? 0) + (finRecord[item['bank_id']].charge) ;
             bankData[item['bank_id']]['time_deposit'] += (tiSum[item['bank_id']]?.['amoTot'] ?? 0);
             Object.keys(result).forEach(key => { bankData[item['bank_id']][key] += result[key];}) // add the value to each bank
             // have to add a documentation about how to value been calculated.

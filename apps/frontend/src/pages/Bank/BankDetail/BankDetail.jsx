@@ -30,8 +30,6 @@ const BankDetail = () => {
         isSuccess: userCurIsSuccess
     } = useGetUserCurrencyQuery({ user_id });
 
-    
-
     let tableContent;
 
     const phraseMap = {

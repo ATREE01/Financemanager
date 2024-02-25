@@ -136,7 +136,6 @@ const DashboardStock = () => {
             const value = (item.hold_share_number * stock_price).toFixed(3) * 1;
             const dividend = getDividend(item.brokerage_id, item.stock_symbol);
             chartData.push([phraseMap['stock'][item.stock_symbol], value * exchangeRate]);
-
             const priceDetail = getPriceDetail(item.brokerage_id, item.stock_symbol);
             if(transactionCur === settlementCur){            
                 normalStkRecSum.push(
@@ -210,13 +209,13 @@ const DashboardStock = () => {
                             <td className="table-data-cell text-center">{(value * exchangeRate).toFixed(2) * 1}</td>
                             <td className="table-data-cell text-center">{dividend}</td>
                             <td className="table-data-cell text-center">{item.realized ?? 0}({(item.sold_settlement_cost ?? 0 )!== 0 ? (item.realized / item.sold_settlement_cost * 100).toFixed(2) * 1 : 0}%)</td>
-                            <td className="table-data-cell text-center">{(value - item.hold_transaction_cost).toFixed(2) * 1}({(item.hold_transaction_cost ?? 0) !== 0 ? ((value / item.hold_transanction_cost - 1) * 100).toFixed(3) * 1 : 0}%)</td>
+                            <td className="table-data-cell text-center">{(value - item.hold_transaction_cost).toFixed(2) * 1}({(item.hold_transaction_cost ?? 0) !== 0 ? ((value / item.hold_transaction_cost - 1) * 100).toFixed(3) * 1 : 0}%)</td>
                             <td className="table-data-cell text-center">{(value * exchangeRate  - item.hold_settlement_cost).toFixed(2) * 1}({ item.hold_settlement_cost !== 0 ? ((value * exchangeRate / item.hold_settlement_cost - 1) * 100).toFixed(2) * 1 : 0}%)</td>
                         </tr>
                         {isSubTableExpanded[index] && (
                             <tr className="table-recordRow">
                                 <td></td>
-                                <td className="px-0" colSpan="10">
+                                <td className="px-0" colSpan="8">
                                     <DetailTable titles={subNormalTitles} tableContent={
                                         priceDetail.map((item, index) => {
                                             const value = (item.hold_share_number * stock_price).toFixed(3) * 1;                        

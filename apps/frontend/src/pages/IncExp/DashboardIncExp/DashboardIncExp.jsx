@@ -28,6 +28,7 @@ const DashboardIncExp = () => {
     
     const phraseMap = {
         category:{
+            charge: "手續費"
         },
         currency:{
         }
@@ -75,11 +76,14 @@ const DashboardIncExp = () => {
 
     if(isRecSumSuccess){
         recordSum.incSum.forEach(element => {
-            IncSumData.push([phraseMap['category'][element['category']], element['SUM(amount)']]);
+            IncSumData.push([phraseMap['category'][element['category']], element['SUM']]);
         })
+        let charge = 0;
         recordSum.expSum.forEach(element => {
-            ExpSumData.push([phraseMap['category'][element['category']], element['SUM(amount)']]);
+            ExpSumData.push([phraseMap['category'][element['category']], element['SUM']]);
+            charge += element['charge']
         })
+        ExpSumData.push([phraseMap['category']['charge'], charge]);
     }
 
     return(

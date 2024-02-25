@@ -41,7 +41,6 @@ const updateStockMarketValue = () => {
         for (const element of result) {
             try {
                 const valueResult = await query(connection, dataSQL, [element.user_id]);
-                console.log(valueResult[0].market_value);
                 await query(connection, recordSQL, [element.user_id, date, valueResult[0].market_value]);
             } catch (error) {
                 console.error(error);
@@ -55,7 +54,6 @@ const updateStockMarketValue = () => {
         connection.end();
     })
 }
-
 cron.schedule('0 8 * * 0', () => {
     updateStockMarketValue()
 }, {
@@ -65,6 +63,16 @@ cron.schedule('0 8 * * 0', () => {
 const getBankAreaChartData = async (req, res) => {
     const data = req.query;
     // incexp record with finance method
+    const sql0 = "\
+        SELECT SUM(cur_sum) AS initSum\
+        FROM (\
+            SELECT SUM(B.initialAmount) * C.ExchangeRate AS cur_sum\
+            FROM Bank B\
+            LEFT JOIN Currency C ON C.code = B.currency\
+            WHERE user_id = ?\
+            GROUP BY B.currency\
+        ) AS subquery;\
+    ";
     const sql1 = "\
         SELECT\
             YEAR(date) Y,\
@@ -171,8 +179,12 @@ const getBankAreaChartData = async (req, res) => {
             minW = Math.min(W, minW);
         }
     }
-
-    await query(sql1)
+    let sum = 0;
+    await query(sql0)
+    .then(result => {
+        sum = result[0].initSum;
+        return query(sql1);
+    })
     .then(result => {
         result.forEach(element => {
             getMin(element.Y, element.W);
@@ -211,13 +223,13 @@ const getBankAreaChartData = async (req, res) => {
     .finally(() => {
         connection.end();
     })
-    const startDate = moment(`${minY}-01-01`, 'YYYY-MM-DD').startOf('isoWeek').add(minW + 1, 'week');
+    const startDate = moment(`${minY}-01-01`, 'YYYY-MM-DD').startOf('isoWeek').add(minW, 'week');
     const endDate = moment();
     const currentDate = moment(startDate)
     const currentYear = endDate.year();
     const currentWeek = endDate.week() - 1;
     const bankAreaChartData = [['date', '資產']];
-    let sum = 0;
+
     // console.log(currentYear, currentWeek)
     // console.log(tempResult);
     for(let i = minY;  i <= currentYear; i++){
@@ -235,6 +247,13 @@ const getBankAreaChartData = async (req, res) => {
 
 const getBankData = (req, res) => {
     const data = req.query;        
+    const sql0 = "\
+        SELECT B.bank_id, SUM(B.initialAmount) * C.ExchangeRate AS initialAmount\
+        FROM Bank B\
+        LEFT JOIN Currency C ON C.code = B.currency\
+        WHERE user_id = ?\
+        GROUP BY B.bank_id\
+    ";
     const sql1 = "\
         SELECT\
             bank_id,\
@@ -295,28 +314,34 @@ const getBankData = (req, res) => {
 
     const connection = mysql.createConnection(dbconfig)
     let bankData = {};
-    query(connection, sql1, [data.user_id])
+    query(connection, sql0, [data.user_id])
+    .then(result => {
+        result.forEach(element => {
+            bankData[element.bank_id] = element.initialAmount;
+        })
+        return query(connection, sql1, [data.user_id])
+    })
     .then((result) => {
         result.forEach(element => {
-            bankData[element.bank_id] =( bankData[element.bank_id] || 0 ) + element.final_amount;
+            bankData[element.bank_id] += element.final_amount;
         })
         return query(connection, sql2, [data.user_id]);
     })
     .then((result) => {
         result.forEach(element => {
-            bankData[element.bank_id] =( bankData[element.bank_id] || 0 ) + element.final_amount;
+            bankData[element.bank_id] += element.final_amount;
         });
         return query(connection, sql3, [data.user_id]);
     })
     .then((result) => {
         result.forEach(element => {
-            bankData[element.bank_id] =( bankData[element.bank_id] || 0 ) + element.amount;
+            bankData[element.bank_id] += element.amount;
         });
         return query(connection, sql4, [data.user_id]);
     })
     .then((result) => {
         result.forEach(element => {
-            bankData[element.bank_id] = ( bankData[element.bank_id] || 0 ) + element.final_amount;
+            bankData[element.bank_id] += element.final_amount;
         });
         res.json(bankData);
     })

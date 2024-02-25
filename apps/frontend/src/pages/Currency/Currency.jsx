@@ -54,7 +54,7 @@ const Currency = () => {
         UserCurrency.forEach(item => {
             selectedCur[item['code']] = true;
         })
-        const CurrencyTable = exRate.map((item, index) =>  
+        const CurrencyTable = exRate.slice(1).map((item, index) =>  
             <tr key={index}>
                 <td className="table-data-cell text-center"><input onChange={(e) => handleOnChange(e, item)} type="checkbox" checked={selectedCur[item['code']] ?? 0} /></td>
                 <td className='table-data-cell text-center'>{item['code']}</td>

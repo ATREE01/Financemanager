@@ -11,21 +11,34 @@ services:
     build: ./apps/frontend
     restart: always
     ports:
-      - "80:80"
+      - 80:80
+      - 443:443
     depends_on:
       - backend
+    volumes:
+      - certbot:/etc/letsencrypt/:ro
+      - certbot:/var/www/certbot/:ro
   database:
     image: mariadb:11.2
     restart: always
     volumes:
       - financemanager_db:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
     environment:
       - MARIADB_DATABASE=financemanager
-      - MARIADB_USER=root
+      - MARIADB_USER=user
       - MARIADB_PASSWORD=password
       - MARIADB_ROOT_PASSWORD=password
       - TZ=Asia/Taipei
     ports:
       - 3306:3306
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot:/etc/letsencrypt/:rw
+      - certbot:/var/www/certbot/:rw
+      - certbot:/var/lib/letsencrypt/:rw
 volumes:
   financemanager_db:
+  certbot:
+

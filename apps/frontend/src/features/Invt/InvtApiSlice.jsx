@@ -47,7 +47,6 @@ export const InvtApiSlice = apiSlice.injectEndpoints({
                 body: { ...credentials }
             }),
             invalidatesTags: ['Stock']
-
         }),
         getStockRecordSum: builder.query({
             query: args => ({

@@ -24,7 +24,7 @@ const addStockSymbol = async (stockSymbol) => {
                 if(error){
                     if(error.errno !== 1062){
                         console.log(error);
-                        throw new Error("");
+                        throw new Error("duplicated");
                     }
                 }
             });
@@ -126,7 +126,7 @@ const getStockPrice = (req, res) => {
     connection.end();
 }
 
-const addStock = async (req, res) => {
+const addStock = async (req, res) => { 
     const data = req.body;
     
     // This is function to add stock sumbol to google sheet and sql StockTable
@@ -274,10 +274,10 @@ const addStockRecord = (req, res) => {
 
 const modifyStockRecord = (req, res) => {
     const data = req.query;
-    const sql = "UPDATE StockRecord SET brokerage_id = ?, date = ?, action = ?, type = ?, bank_id = ?\
-    total = ?, stock_symbol = ?, buy_stock_price = ?, sell_stock_price = ?, share_number = ?, exchange_rate = ?, charge = ?, note = ? WHERE ID = ?;";
+    const sql = "UPDATE StockRecord SET brokerage_id = ?, date = ?, action = ?, type = ?, bank_id = ?,\
+    total = ?, stock_symbol = ?, buy_stock_price = ?, sell_stock_price = ?, share_number = ?, buy_exchange_rate = ?, sell_exchange_rate = ?, charge = ?, note = ? WHERE ID = ?;";
     const connection = mysql.createConnection(dbconfig);
-    connection.query(sql, [data.brokerage, data.date, data.action, data.type, data.bank, data.total, data.stock_symbol, data.buy_stock_price, data.sell_stock_price, data.share_number, data.charge, data.exchange_rate, data.note, data.ID], (error, result) => {
+    connection.query(sql, [data.brokerage, data.date, data.action, data.type, data.bank, data.total, data.stock_symbol, data.buy_stock_price, data.sell_stock_price, data.share_number, data.buy_exchange_rate, data.sell_exchange_rate, data.charge, data.note, data.ID], (error, result) => {
         if(error){
             console.log(error);
             return res.sendStatus(500);

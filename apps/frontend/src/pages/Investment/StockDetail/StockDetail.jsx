@@ -18,7 +18,7 @@ const StockDetail = () => {
     const [ showModifyForm, setShowModifyForm ] = useState(false);
 
     const user_id = useSelector(selectCurrentUserId);
-    const titles = ["日期", "券商", "操作類型", "買入方法", "金融機構", "交易幣別", "交割幣別", "股票代號", "股票名稱", "總金額", "交易股價", "元買入股價", "股數", "匯率", "手續費", "稅金","備註"]
+    const titles = ["日期", "券商", "操作類型", "買入方法", "金融機構", "交易幣別", "交割幣別", "股票代號", "股票名稱", "總金額", "交易股價", "元買入股價", "股數", "買入匯率", "賣出匯率", "手續費", "稅金","備註"]
 
     const {
         data: bank,
@@ -105,9 +105,10 @@ const StockDetail = () => {
                 <td className="table-data-cell text-center">{ item.action === "buy" ? item.buy_stock_price : item.sell_stock_price }</td>
                 <td className="table-data-cell text-center">{ item.action === "sell" ? item.buy_stock_price : 'X' }</td>
                 <td className="table-data-cell text-center">{ item.share_number }</td>
-                <td className="table-data-cell text-center">{ item.exchange_rate ?? 'X' }</td>
+                <td className="table-data-cell text-center">{ item.buy_exchange_rate ?? 'X' }</td>
+                <td className="table-data-cell text-center">{ item.sell_exchange_rate ?? 'X' }</td>
                 <td className="table-data-cell text-center">{ item.charge }</td>
-                <td className="table-data-cell text-center">{ item.tax }</td>
+                <td className="table-data-cell text-center">{ item.tax ?? 'X'}</td>
                 <td className="table-data-cell text-center">{ item.note }</td>
                 <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-[1px] border-black rounded" onClick={() => {setFormData(item); setShowModifyForm(!showModifyForm)}}>修改</button></td>
                 <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-[1px] border-black rounded" onClick={() => deleteRecord(item.ID)}>刪除</button></td>

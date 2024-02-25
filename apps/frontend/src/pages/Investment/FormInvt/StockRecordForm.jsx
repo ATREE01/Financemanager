@@ -75,7 +75,7 @@ const StockRecordForm = ({showState, bank, brokerage, userCurrency, stkList, act
                         stock_symbol: mode === "new" && action === "buy" ? "default" : formData?.stock_symbol ?? '',
                         buy_stock_price: mode === "new" && action === "buy" ? 0 : formData?.buy_stock_price ?? 0,
                         sell_stock_price: mode === "new" ? (action === "buy" ? undefined : 0) : formData?.sell_stock_price ?? 0,
-                        share_number: mode === "new" && action === "buy" ? 0 : formData?.hold_share_number ?? 0,
+                        share_number: mode === "new" ? (action === "buy" ? 0 : formData?.hold_share_number ?? 0) : formData?.share_number ?? 0,
                         buy_exchange_rate: mode === "new" && action === "buy" ? 1 : formData?.buy_exchange_rate ?? 0,
                         sell_exchange_rate: mode === "new" && action === "sell" ? 1 : undefined,
                         charge:mode === "new" ? (action === 'buy' ? 0 : 0 ) : formData?.charge ?? 0,
@@ -172,8 +172,9 @@ const StockRecordForm = ({showState, bank, brokerage, userCurrency, stkList, act
                         let result;
                         if(mode == "new")
                             result = await addStockRecord({user_id, action, selectedBankCurrency, ...values}).unwrap();
-                        else if(mode === 'modify') 
-                            result = await modiftyStockRecord({ ID:formData.ID, user_id, action, bankCurrency, ...values}).unwrap();
+                        else if(mode === 'modify') {
+                            result = await modiftyStockRecord({ ID:formData.ID, user_id, action, selectedBankCurrency, ...values}).unwrap();
+                        }
                         
                         if(result.success === 1){
                             showState.setShow(!showState.setShow);
