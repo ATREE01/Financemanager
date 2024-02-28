@@ -152,9 +152,9 @@ const modifyIncExpRecord = (req, res) => {
     let currency = data.currency;
     if(data.method !== "cash") currency = data.bankCurrency
     const bank_id = (data.method === "cash" ? null : data.bank);
-    const sql = "UPDATE IncExpRecord SET type = ?, category = ?, currency = ?, method = ?, amount = ?, bank_id = ?, charge = ?, note = ? WHERE ID = ?";
+    const sql = "UPDATE IncExpRecord SET date= ?, type = ?, category = ?, currency = ?, method = ?, amount = ?, bank_id = ?, charge = ?, note = ? WHERE ID = ?";
     const connection = mysql.createConnection(dbconfig);
-    connection.query(sql, [data.type, data.category, data.bankCurrency, data.method, data.amount, bank_id, data.charge, data.note, data.ID], (error, result) => {
+    connection.query(sql, [data.date, data.type, data.category, data.bankCurrency, data.method, data.amount, bank_id, data.charge, data.note, data.ID], (error, result) => {
         if(error){
             console.log(error);
             return res.sendStatus(500);

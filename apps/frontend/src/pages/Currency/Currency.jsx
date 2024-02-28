@@ -29,7 +29,6 @@ const Currency = () => {
         const code = item['code'];
         if(value === true){
             const result = await AddUserCurrency({user_id, code}).unwrap();
-            console.log(result);
             if(result['isSuccess']){
                 window.alert("新增成功");
             }

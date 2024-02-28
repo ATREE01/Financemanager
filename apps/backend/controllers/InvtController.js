@@ -32,14 +32,15 @@ const addStockSymbol = async (stockSymbol) => {
         updateStockPrice();
     })
     .catch((error) => {
-        console.log(error);
+        console.log("error happened when geting adding stocl symbol")
+        // console.log(error);
         return {success: false};
     });
     return {success: true, currency: currency};
 }
 
 const updateStockPrice = () => {
-    console.log("Stock Price Updated");
+    // console.log("Stock Price Updated");
     const sql = "UPDATE StockPrice SET stock_price = ? WHERE stock_symbol = ?";
     const connection = mysql.createConnection(dbconfig);
     axios.get(googleSheetApiURL + "getStockPrice")
@@ -53,7 +54,8 @@ const updateStockPrice = () => {
         });
     })
     .catch((error) => {
-        console.log(error);
+        console.log("error happened when geting stock price")
+        // console.log(error);
     })
     .finally(() => connection.end());
 }
@@ -136,8 +138,7 @@ const addStock = async (req, res) => {
     }
     
     const sql = "INSERT INTO StockList (user_id, stock_symbol, currency, stock_name) VALUES (?, ?, ?, ?);";
-    const connection = mysql.createConnection(dbconfig);
-    console.log(result.currency);
+    const connection = mysql.createConnection(dbconfig);   
     connection.query(sql, [data.user_id, data.stock_symbol, result.currency, data.stock_name], (error, result) => {
         if(error){
             if(error.errno === 1062)

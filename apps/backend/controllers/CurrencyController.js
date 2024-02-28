@@ -6,7 +6,7 @@ const googleSheetApiURL = "https://script.google.com/macros/s/AKfycbzwK-fuvMUuqx
 
 // update the exchange rate data once every 2 hours
 const updateExchangeRate = () => { 
-    console.log("EXCHANGE RATE UPDATED")
+    // console.log("EXCHANGE RATE UPDATED")
     const sql = "UPDATE Currency SET ExchangeRate = ? WHERE code = ?"
     const connection = mysql.createConnection(dbconfig);
     axios.get(googleSheetApiURL + "getExchangeRate")
@@ -20,7 +20,8 @@ const updateExchangeRate = () => {
         });
     })
     .catch(error =>{
-        console.log(error);
+        console.log("error happened when updating exhchange rate")
+        // console.log(error);
     })
     .finally(() => connection.end());
 }

@@ -12,7 +12,8 @@ const DashboardApiSlice = apiSlice.injectEndpoints({
                 url: "/api/Dashboard/getBankAreaChartData",
                 method: "GET",
                 params: { ...args }
-            })
+            }),
+            providesTags:['BankRecord', "IncExpRecord"]
         }),
         getBankData: builder.query({
             query: args => ({

@@ -54,7 +54,7 @@ const updateStockMarketValue = () => {
         connection.end();
     })
 }
-cron.schedule('0 8 * * 0', () => {
+cron.schedule('0 22 * * 6', () => {
     updateStockMarketValue()
 }, {
     timezone: "Asia/Taipei"
@@ -223,19 +223,17 @@ const getBankAreaChartData = async (req, res) => {
     .finally(() => {
         connection.end();
     })
-    const startDate = moment(`${minY}-01-01`, 'YYYY-MM-DD').startOf('isoWeek').add(minW, 'week');
+    const startDate = moment().year(minY).week(minW).endOf('week');
     const endDate = moment();
     const currentDate = moment(startDate)
     const currentYear = endDate.year();
     const currentWeek = endDate.week() - 1;
     const bankAreaChartData = [['date', '資產']];
 
-    // console.log(currentYear, currentWeek)
-    // console.log(tempResult);
     for(let i = minY;  i <= currentYear; i++){
-        for(let j = (i === minY ? minW : 0); j <= (i === currentYear ? currentWeek : 51); j++){
-            sum += tempResult[i][j] ?? 0;       
-            bankAreaChartData.push([currentDate.endOf("isoWeek").format("YYYY-MM-DD"), sum])
+        for(let j = (i === minY ? minW : 0); j <= (i === currentYear ? currentWeek - 1 : 52); j++){    
+            sum += tempResult[i][j] ?? 0;    
+            bankAreaChartData.push([currentDate.endOf("week").format("YYYY-MM-DD"), sum])
             currentDate.add(1, 'week')
         }
     }   

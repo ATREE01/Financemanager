@@ -106,9 +106,9 @@ const RecordForm = ({showState, currency, userCurrency, category, bank, mode='ne
                         if(mode === 'new')
                             result = await addRecord({user_id, bankCurrency, ...values}).unwrap();
                         else if(mode === 'modify')
-                            result = await modifyIncExpRecord({ID: formData.ID, user_id, bankCurrency, ...values})
+                            result = await modifyIncExpRecord({ID: formData.ID, user_id, bankCurrency, ...values}).unwrap();
                         if(result.success === 1){
-                            window.alert("新增成功");
+                            window.alert(`${ mode === 'new' ? '新增成功' : '修改成功'}`);
                             setMethod('default');
                             actions.resetForm();
                         }

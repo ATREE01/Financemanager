@@ -89,9 +89,8 @@ export default function User(){
         if(invtTotal)
             totalChartData.push(["投資", invtTotal]);
         
-        console.log(invtAreaChartData);
         const map = new Map(invtAreaChartData.slice(1));
-        bankAreaChartData.slice(1, -1).forEach(([date, amount]) => {
+        bankAreaChartData.slice(1).forEach(([date, amount]) => {
             const invtValue = map.get(date) ?? 0;
             totalAreaChartData.push([date, amount, invtValue]);
         })
