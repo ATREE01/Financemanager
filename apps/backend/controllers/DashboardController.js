@@ -162,7 +162,7 @@ const getBankAreaChartData = async (req, res) => {
     }
     
     let tempResult = {};
-    let minY = 10000, minW;
+    let minY = moment().year(), minW = moment().week();
 
     const checkExist = (Y, W) => {
         if(!tempResult[Y])
