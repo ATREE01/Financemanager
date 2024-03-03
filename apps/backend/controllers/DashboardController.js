@@ -28,11 +28,11 @@ const updateStockMarketValue = () => {
             LEFT JOIN StockPrice SP ON SR.stock_symbol = SP.stock_symbol\
             LEFT JOIN StockList SL ON SR.stock_symbol = SL.stock_symbol\
             LEFT JOIN Currency C ON SL.currency = C.code\
-            WHERE SR.user_id = ?\
+            WHERE SR.user_id = ? ND SL.user_id = ?\
             GROUP BY SR.stock_symbol\
         ) AS subquery\
    "
-   const recordSQL = " INSERT INTO MarketValueRecord (user_id, date, value) VALUES (?, ?, ?) "
+    const recordSQL = " INSERT INTO MarketValueRecord (user_id, date, value) VALUES (?, ?, ?) "
     const connection = mysql.createConnection(dbconfig);
     let userList;
     const date = moment.tz('Asia/Taipei').format('YYYY-MM-DD');
@@ -40,7 +40,7 @@ const updateStockMarketValue = () => {
     .then(async result => {
         for (const element of result) {
             try {
-                const valueResult = await query(connection, dataSQL, [element.user_id]);
+                const valueResult = await query(connection, dataSQL, [element.user_id, element.user_id]);
                 await query(connection, recordSQL, [element.user_id, date, valueResult[0].market_value]);
             } catch (error) {
                 console.error(error);
@@ -54,7 +54,7 @@ const updateStockMarketValue = () => {
         connection.end();
     })
 }
-cron.schedule('0 22 * * 6', () => {
+cron.schedule('0 8 * * 0', () => { // TODO: change back to saturday 10PM
     updateStockMarketValue()
 }, {
     timezone: "Asia/Taipei"
@@ -223,20 +223,20 @@ const getBankAreaChartData = async (req, res) => {
     .finally(() => {
         connection.end();
     })
-    const startDate = moment().year(minY).week(minW).endOf('week');
-    const endDate = moment();
-    const currentDate = moment(startDate)
+    const startDate = moment().year(minY).week(minW + 1).endOf('week');
+    const endDate = moment().tz('Asia/Taipei');
+    const currentDate = moment(startDate);
+    const currencyDay = endDate.day();
     const currentYear = endDate.year();
     const currentWeek = endDate.week() - 1;
     const bankAreaChartData = [['date', '資產']];
-
     for(let i = minY;  i <= currentYear; i++){
-        for(let j = (i === minY ? minW : 0); j <= (i === currentYear ? currentWeek - 1 : 52); j++){    
+        for(let j = (i === minY ? minW : 1); j <= (i === currentYear ? currentWeek - (currencyDay != 6) : 52); j++){    
             sum += tempResult[i][j] ?? 0;    
             bankAreaChartData.push([currentDate.endOf("week").format("YYYY-MM-DD"), sum])
             currentDate.add(1, 'week')
         }
-    }   
+    }
             
     if(bankAreaChartData.length === 1)
         bankAreaChartData.push([moment().tz('America/New_York').format("YYYY-MM-DD"), 0]);
