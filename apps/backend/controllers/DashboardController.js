@@ -284,7 +284,7 @@ const getBankAreaChartData = async (req, res) => {
     const currentWeek = endDate.isoWeek();
     const bankAreaChartData = [['date', '資產']];
     for(let i = minY;  i <= currentYear; i++){
-        for(let j = (i === minY ? minW : 1); j <= (i === currentYear ? currentWeek - (currencyDay != 0) : moment.isoWeeksInYear(i)); j++){    
+        for(let j = (i === minY ? minW : 1); j <= (i === currentYear ? currentWeek - (currencyDay != 0) : moment().isoWeeksInYear(i)); j++){    
             sum += tempResult[i][j] ?? 0;    
             bankAreaChartData.push([currentDate.endOf("isoWeek").format("YYYY-MM-DD"), sum])
             currentDate.add(1, 'week')
