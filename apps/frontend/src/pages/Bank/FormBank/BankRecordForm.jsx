@@ -13,7 +13,7 @@ import { useModifyBankRecordMutation } from "../../../features/Bank/BankApiSlice
 
 const BankRecordForm = ({showState, userCurrency, bank, mode='new', formData}) =>{
 
-    const [ currency, setCurrency ] = useState(""); //TODO: when mode equals to modify need to set this value
+    const [ currency, setCurrency ] = useState("");
     const user_id = useSelector(selectCurrentUserId);
     const [ addBankRecord ] = useAddBankRecordMutation();
     const [ modifyBankRecord ] = useModifyBankRecordMutation();
@@ -70,7 +70,7 @@ const BankRecordForm = ({showState, userCurrency, bank, mode='new', formData}) =
                         .max(9000000000000000,"數值過大"),
                         charge: Yup.number()
                         .typeError("必須是數字")
-                        .required("請須填入手續費或零")
+                        .required("請填入手續費或零")
                         .min(0, "不能小於零")
                         .max(2000000000, "數值過大")
                     })}

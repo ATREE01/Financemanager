@@ -52,7 +52,7 @@ const BankForm = ({showState, userCurrency}) => {
                     onSubmit={async (values, actions) => {
                         const result = await addBank({user_id, ...values}).unwrap();
                         if(result.success === 1){
-                            showState.setShowBankForm(!showState.showBankForm);
+                            showState.setShow(!showState.isShow);
                             actions.resetForm();
                             window.alert("新增成功"); 
                         }

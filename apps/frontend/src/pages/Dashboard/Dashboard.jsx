@@ -8,7 +8,7 @@ import { useGetBankAreaChartDataQuery, useGetBankDataQuery, useGetInvtAreaChartD
 import { useGetBankQuery } from "../../features/Bank/BankApiSlice.jsx";
 import { useGetBrokerageQuery } from "../../features/Invt/InvtApiSlice.jsx";
 
-export default function User(){
+export default function Dashboard(){
 
     const pieChartOptions = {
         legend:{position:'top', maxLines:3},

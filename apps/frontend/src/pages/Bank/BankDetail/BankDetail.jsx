@@ -77,17 +77,15 @@ const BankDetail = () => {
     return (
         <div className="bg-slate-100 py-5 min-h-screen">
             <PageLabel title={"金融機構:明細"} />
-            <div className="detail-bank-container">
-                <div className="detail-bank-content mt-4 h-[80vh] w-full flex justify-center">
-                    <div className="table-container">
-                        <DetailTable 
-                            titles={titles}
-                            tableContent={tableContent}
-                        />
-                    </div>
-                    <FormBank userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} bank={{data: bank, isSuccess: bankIsSuccess}}/>
-                    <BankRecordForm showState={{isShow: showModifyForm , setShow:setShowModifyForm}} mode="modify" formData={formData} userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} bank={{data: bank, isSuccess: bankIsSuccess}}/>
+            <div className="detail-bank-content mt-4 h-[80vh] w-full flex justify-center">
+                <div className="table-container">
+                    <DetailTable 
+                        titles={titles}
+                        tableContent={tableContent}
+                    />
                 </div>
+                <FormBank userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} bank={{data: bank, isSuccess: bankIsSuccess}}/>
+                <BankRecordForm showState={{isShow: showModifyForm , setShow:setShowModifyForm}} mode="modify" formData={formData} userCurrency={{isSuccess: userCurIsSuccess, data: userCurrency}} bank={{data: bank, isSuccess: bankIsSuccess}}/>
             </div>
         </div>
     )

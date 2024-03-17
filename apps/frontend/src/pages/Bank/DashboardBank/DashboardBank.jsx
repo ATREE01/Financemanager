@@ -7,7 +7,7 @@ import Chart from "react-google-charts";
 import PageLabel from "../../../components/PageLabel/PageLabel";
 import DetailTable from '../../../components/DetailTable/DetailTable';
 import FormBank from '../FormBank/FormBank';
-import { useGetExchangeRateQuery, useGetUserCurrencyQuery } from '../../../features/Currency/CurrencyApiSlice';
+import { useGetCurTRRecordSumQuery, useGetExchangeRateQuery, useGetUserCurrencyQuery } from '../../../features/Currency/CurrencyApiSlice';
 import { useGetDividendRecordSumQuery, useGetInvtRecordSumQuery } from '../../../features/Invt/InvtApiSlice';
 
 const DashboardBank = () => { 
@@ -18,8 +18,8 @@ const DashboardBank = () => {
         backgroundColor: 'transparent'
     };
 
-    const values = ["currency", "total", "income", "expenditure", "deposit", "withdraw", "transfer_in", "transfer_out", "charge", "invt", "time_deposit", "initialAmount"];
-    const titles = ["銀行名稱", "幣別", "現有金額", "收入", "支出", "存款", "提款", "轉入", "轉出", "手續費",  "證券交易金額", "定存", "初始金額"]
+    const values = ["currency", "total", "income", "expenditure", "deposit", "withdraw", "transfer_in", "transfer_out", "buy", "sell", "charge", "invt", "time_deposit", "initialAmount"];
+    const titles = ["銀行名稱", "幣別", "現有金額", "收入", "支出", "存款", "提款", "轉入", "轉出", "買入", "賣出", "手續費",  "證券交易金額", "定存", "初始金額"]
 
     const user_id = useSelector(selectCurrentUserId);
 
@@ -54,6 +54,10 @@ const DashboardBank = () => {
         isSuccess: userCurIsSuccess,
     } = useGetUserCurrencyQuery({ user_id })
     const {
+        data: curTRRecordSum,
+        isSuccess: curTRRecordSumIsSuccess
+    } = useGetCurTRRecordSumQuery({ user_id })
+    const {
         data: InvtRecSum,
         isSuccess: invtRecSumIsSuccess
     } = useGetInvtRecordSumQuery({ user_id })
@@ -74,7 +78,7 @@ const DashboardBank = () => {
     if(bankIsLoading || recIsLoading || finIsLoading || tiSumIsLoading || exRateIsLoading){
         tableContent = <tr><td>Loading. . .</td></tr>
     }
-    else if(bankIsSuccess && recIsSuccess && finIsSuccess && tiSumIsSuccess && userCurIsSuccess && invtRecSumIsSuccess && dividendReSumIsSuccess && exRateIsSuccess){
+    else if(bankIsSuccess && recIsSuccess && finIsSuccess && tiSumIsSuccess && userCurIsSuccess && curTRRecordSumIsSuccess && invtRecSumIsSuccess && dividendReSumIsSuccess && exRateIsSuccess){
         userCurrency.forEach(element => phraseMap['currency'][element.code] = element.name);
 
         const getExchangeRate = (code) => {
@@ -97,6 +101,8 @@ const DashboardBank = () => {
                 withdraw: 0,
                 transfer_in: 0,
                 transfer_out: 0,
+                buy: 0,
+                sell: 0,
                 charge:0,
                 invt:InvtRecSum[item['bank_id']] ?? 0,
                 time_deposit: 0
@@ -109,15 +115,18 @@ const DashboardBank = () => {
             }, {});
             bankData[item['bank_id']]['income'] +=  (finRecord[item['bank_id']]?.['inSum'] ?? 0) + (tiSum[item['bank_id']]?.['intTot'] ?? 0) + getDividend(item.bank_id);// int-Interest
             bankData[item['bank_id']]['expenditure'] += (finRecord[item['bank_id']]?.['expSum'] ?? 0);
-            bankData[item['bank_id']]['charge'] += (bankRecord[item['bank_id']]?.charge ?? 0) + (finRecord[item['bank_id']]?.charge ?? 0);
+            bankData[item['bank_id']]['buy'] += curTRRecordSum['buy'][item['bank_id']] ?? 0;
+            bankData[item['bank_id']]['sell'] += curTRRecordSum['sell'][item['bank_id']] ?? 0;
+            bankData[item['bank_id']]['charge'] += (bankRecord[item['bank_id']]?.charge ?? 0) + (finRecord[item['bank_id']]?.charge ?? 0) + (curTRRecordSum[item['bank_id']]?.charge ?? 0);
             bankData[item['bank_id']]['time_deposit'] += (tiSum[item['bank_id']]?.['amoTot'] ?? 0);
             Object.keys(result).forEach(key => { bankData[item['bank_id']][key] += result[key];}) // add the value to each bank
             // have to add a documentation about how to value been calculated.
             bankData[item['bank_id']]["total"] += bankData[item['bank_id']]["income"] + bankData[item['bank_id']]["deposit"] + bankData[item['bank_id']]["transfer_in"]
             - bankData[item['bank_id']]["expenditure"] - bankData[item['bank_id']]["withdraw"] - bankData[item['bank_id']]["transfer_out"] - bankData[item['bank_id']]['charge']
-            + bankData[item['bank_id']]['invt'] - (tiSum[item['bank_id']]?.['amoTot'] ?? 0);  // amoTot-amountTot
+            + bankData[item['bank_id']]['invt'] - (tiSum[item['bank_id']]?.['amoTot'] ?? 0) + bankData[item['bank_id']]['buy'] - bankData[item['bank_id']]['sell']; // amoTot-amountTot
 
-            bankChartData.push([ phraseMap["banks"][item['bank_id']], (bankData[item.bank_id]['total'] + bankData[item.bank_id]['time_deposit']) * getExchangeRate(item.currency) ])
+            const value = (bankData[item.bank_id]['total'] + bankData[item.bank_id]['time_deposit']) * getExchangeRate(item.currency);
+            bankChartData.push([ phraseMap["banks"][item['bank_id']], value > 0 ? value : 0]);
             return (
                 <tr key={item.bank_id}>
                     <td className="table-data-cell" >{[[phraseMap['banks'][item.bank_id]]]}</td>   

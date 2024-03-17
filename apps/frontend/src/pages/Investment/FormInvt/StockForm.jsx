@@ -24,9 +24,10 @@ const StockForm = ({showState}) => {
                         stock_name:""
                     }}
                     validationSchema={Yup.object().shape({
-                        stock_symbol: Yup.string() //TODO: ADD REGEX validate
+                        stock_symbol: Yup.string()
                         .required("請輸入代號")
-                        .max(20, "代號過長!"),
+                        .max(30, "代號過長!")
+                        .matches(/^[a-zA-Z0-9]*:[a-zA-Z0-9]*$/, "請確認輸入格式"),
                         stock_name: Yup.string()
                         .required("請輸入名出")
                         .max(20, "名稱過長!")
