@@ -28,7 +28,7 @@ const updateStockMarketValue = () => {
             LEFT JOIN StockPrice SP ON SR.stock_symbol = SP.stock_symbol\
             LEFT JOIN StockList SL ON SR.stock_symbol = SL.stock_symbol\
             LEFT JOIN Currency C ON SL.currency = C.code\
-            WHERE SR.user_id = ? ND SL.user_id = ?\
+            WHERE SR.user_id = ? AND SL.user_id = ?\
             GROUP BY SR.stock_symbol\
         ) AS subquery\
    "
@@ -54,7 +54,7 @@ const updateStockMarketValue = () => {
         connection.end();
     })
 }
-cron.schedule('0 8 * * 0', () => { // TODO: change back to saturday 10PM
+cron.schedule('0 22 * * 0', () => { // TODO: change back to saturday 10PM
     updateStockMarketValue()
 }, {
     timezone: "Asia/Taipei"
@@ -76,7 +76,7 @@ const getBankAreaChartData = async (req, res) => {
     const sql1 = "\
         SELECT\
             YEAR(date) Y,\
-            WEEK(date) W,\
+            WEEK(date, 3) W,\
             ROUND(final_amount) AS final_amount\
         FROM (\
             SELECT\
@@ -98,7 +98,7 @@ const getBankAreaChartData = async (req, res) => {
 
     const sql2 = "\
         SELECT\
-        YEAR(date) Y, WEEK(date) W,\
+        YEAR(date) Y, WEEK(date, 3) W,\
         SUM(ROUND(final_amount)) AS final_amount\
         FROM (\
             SELECT\
@@ -121,7 +121,7 @@ const getBankAreaChartData = async (req, res) => {
     const sql3 = "\
         SELECT\
         YEAR(date) Y,\
-        WEEK(date) W,\
+        WEEK(date, 3) W,\
         ROUND(final_amount) AS final_amount\
         FROM (\
             SELECT\
@@ -135,7 +135,7 @@ const getBankAreaChartData = async (req, res) => {
     ";
     const sql4 = "\
         SELECT\
-        YEAR(date) Y, week(date) W,\
+        YEAR(date) Y, week(date, 3) W,\
         ROUND(final_amount) AS final_amount\
         FROM (\
             SELECT\
@@ -147,6 +147,41 @@ const getBankAreaChartData = async (req, res) => {
             GROUP BY YEAR(DR.date), WEEK(DR.date)\
         ) AS subquery;\
     ";
+    const sql5 = "\
+        SELECT\
+        YEAR(date) Y, WEEK(date, 3) W,\
+        buy_bank_id AS bank_id,\
+        SUM(amount) AS final_amount\
+        FROM (\
+            SELECT\
+                CTR.date,\
+                CTR.buy_bank_id,\
+                SUM(CTR.buy_amount * C.ExchangeRate) AS amount \
+            FROM CurTRRecord CTR\
+            LEFT JOIN Bank B ON B.bank_id = CTR.buy_bank_id\
+            LEFT JOIN Currency C ON C.code = B.currency\
+            WHERE CTR.user_id = ?\
+            GROUP BY YEAR(CTR.date), WEEk(CTR.date)\
+        ) AS subquery; \
+    ";
+    const sql6 = "\
+        SELECT\
+        YEAR(date) Y, WEEK(date, 3) W,\
+        sell_bank_id AS bank_id,\
+        SUM(amount) AS final_amount\
+        FROM (\
+            SELECT\
+                CTR.date,\
+                CTR.sell_bank_id,\
+                SUM(-(CTR.sell_amount + CTR.charge) * C.ExchangeRate) AS amount\
+            FROM CurTRRecord CTR\
+            LEFT JOIN Bank B ON B.bank_id = CTR.sell_bank_id\
+            LEFT JOIN Currency C ON C.code = B.currency\
+            WHERE CTR.user_id = ?\
+            GROUP BY YEAR(CTR.date), WEEk(CTR.date)\
+        ) AS subquery;\
+    "
+
 
     const connection = mysql.createConnection(dbconfig)
     const query = (sql) => {
@@ -163,13 +198,15 @@ const getBankAreaChartData = async (req, res) => {
     
     let tempResult = {};
     let minY = moment().year(), minW = moment().week();
-
+    
     const checkExist = (Y, W) => {
         if(!tempResult[Y])
             tempResult[Y] = {}
         if(!tempResult[Y][W])
-            tempResult[Y][W] = 0;
+           tempResult[Y][W] = 0;
     }
+    checkExist(minY, minW);
+
 
     const getMin = (Y, W) => {
         if(Y < minY){
@@ -215,6 +252,24 @@ const getBankAreaChartData = async (req, res) => {
             checkExist(element.Y, element.W);
             tempResult[element.Y][element.W] += element.final_amount;
         })
+        return query(sql5);
+    })
+    .then(result => {
+        console.log(result);
+        result.forEach(element => {
+            getMin(element.Y, element.W);
+            checkExist(element.Y, element.W);
+            tempResult[element.Y][element.W] += element.final_amount;
+        })
+        return query(sql6);
+    })
+    .then(result => {
+        console.log(result);
+        result.forEach(element => {
+            getMin(element.Y, element.W);
+            checkExist(element.Y, element.W);
+            tempResult[element.Y][element.W] += element.final_amount;
+        })
     })
     .catch(error => {
         console.log(error);
@@ -223,23 +278,24 @@ const getBankAreaChartData = async (req, res) => {
     .finally(() => {
         connection.end();
     })
-    const startDate = moment().year(minY).week(minW + 1).endOf('week');
+    const startDate = moment().year(2024).isoWeek(minW).endOf('isoWeek');
     const endDate = moment().tz('Asia/Taipei');
     const currentDate = moment(startDate);
     const currencyDay = endDate.day();
     const currentYear = endDate.year();
-    const currentWeek = endDate.week() - 1;
+    const currentWeek = endDate.isoWeek();
     const bankAreaChartData = [['date', '資產']];
     for(let i = minY;  i <= currentYear; i++){
-        for(let j = (i === minY ? minW : 1); j <= (i === currentYear ? currentWeek - (currencyDay != 6) : 52); j++){    
+        for(let j = (i === minY ? minW : 1); j <= (i === currentYear ? currentWeek - (currencyDay != 0) : moment.isoWeeksInYear(i)); j++){    
             sum += tempResult[i][j] ?? 0;    
-            bankAreaChartData.push([currentDate.endOf("week").format("YYYY-MM-DD"), sum])
+            bankAreaChartData.push([currentDate.endOf("isoWeek").format("YYYY-MM-DD"), sum])
             currentDate.add(1, 'week')
         }
     }
             
     if(bankAreaChartData.length === 1)
-        bankAreaChartData.push([moment().tz('America/New_York').format("YYYY-MM-DD"), 0]);
+        bankAreaChartData.push([moment().tz('America/New_York').format("YYYY-MM-DD"), sum]);
+
     res.send(bankAreaChartData)
 }
 
@@ -290,7 +346,7 @@ const getBankData = (req, res) => {
     const sql3 = "\
         SELECT\
         bank_id,\
-        SUM(CASE WHEN action = 'sell' THEN total ELSE 0 END) - SUM(CASE WHEN action = 'buy' THEN total ELSE 0 END) AS amount\
+        SUM(CASE WHEN action = 'sell' THEN total ELSE 0 END) - SUM(CASE WHEN action = 'buy' THEN total ELSE 0 END) AS final_amount\
         FROM StockRecord\
         WHERE user_id = ?\
         GROUP BY bank_id;\
@@ -309,9 +365,40 @@ const getBankData = (req, res) => {
         ) AS subquery\
         LEFT JOIN Currency ON subquery.currency = Currency.code;\
     ";
+    const sql5 = "\
+        SELECT\
+        buy_bank_id AS bank_id,\
+        SUM(amount) AS final_amount\
+        FROM (\
+            SELECT\
+                CurTRRecord.buy_bank_id,\
+                SUM(CurTRRecord.buy_amount * C.ExchangeRate) AS amount \
+            FROM CurTRRecord\
+            LEFT JOIN Bank B ON B.bank_id = CurTRRecord.buy_bank_id\
+            LEFT JOIN Currency C ON C.code = B.currency\
+            WHERE CurTRRecord.user_id = ? \
+            GROUP BY CurTRRecord.buy_bank_id\
+        ) AS subquery; \
+    ";
+    const sql6 = "\
+        SELECT\
+        sell_bank_id AS bank_id,\
+        SUM(amount) AS final_amount\
+        FROM (\
+            SELECT\
+                CurTRRecord.sell_bank_id,\
+                SUM(-(CurTRRecord.sell_amount + CurTRRecord.charge) * C.ExchangeRate) AS amount \
+            FROM CurTRRecord\
+            LEFT JOIN Bank B ON B.bank_id = CurTRRecord.sell_bank_id\
+            LEFT JOIN Currency C ON C.code = B.currency\
+            WHERE CurTRRecord.user_id = ? \
+            GROUP BY CurTRRecord.sell_bank_id\
+        ) AS subquery; \
+    "
 
     const connection = mysql.createConnection(dbconfig)
     let bankData = {};
+
     query(connection, sql0, [data.user_id])
     .then(result => {
         result.forEach(element => {
@@ -333,9 +420,21 @@ const getBankData = (req, res) => {
     })
     .then((result) => {
         result.forEach(element => {
-            bankData[element.bank_id] += element.amount;
+            bankData[element.bank_id] += element.final_amount;
         });
         return query(connection, sql4, [data.user_id]);
+    })
+    .then((result) => {
+        result.forEach(element => {
+            bankData[element.bank_id] += element.final_amount;
+        });
+        return query(connection, sql5, [data.user_id]);
+    })
+    .then((result) => {
+        result.forEach(element => {
+            bankData[element.bank_id] += element.final_amount;
+        });
+        return query(connection, sql6, [data.user_id]);
     })
     .then((result) => {
         result.forEach(element => {

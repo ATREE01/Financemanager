@@ -38,6 +38,111 @@ const getExchangeRate = (req, res) => {
         }
         res.json(result);
     })
+    connection.end();
+}
+
+const getCurTRRecord = (req, res) => {
+    const data = req.query;
+    const sql = "SELECT * FROM CurTRRecord WHERE user_id = ?;";
+    const connection = mysql.createConnection(dbconfig);
+    connection.query(sql, [data.user_id], (error, result) => {
+        if(error){
+            console.log(error);
+            return res.sendStatus(500);
+        }
+        res.json(result);
+    })
+    connection.end();
+}
+
+const query = async (connection, sql, values) => {
+    return new Promise((resolve, reject) => {
+        connection.query(sql, values, (error, result) => {
+            if(error){
+                console.log(error);
+                reject(500);
+            }
+            resolve(result);
+        })
+    })
+}
+
+const getCurTRRecordSum = (req, res) => {
+    const data = req.query;    
+    const sql1 = "SELECT buy_bank_id, SUM(buy_amount), sum(charge) AS total_buy FROM CurTRRecord WHERE user_id = ? GROUP BY buy_bank_id;"
+    const sql2 = "SELECT sell_bank_id, SUM(sell_amount) AS total_sell FROM CurTRRecord WHERE user_id = ? GROUP BY sell_bank_id;"
+    const connection = mysql.createConnection(dbconfig);
+    const values = [data.user_id];
+    let final_result = {
+        buy: {},
+        sell: {},
+        charge: {}
+    };
+    query(connection, sql1, values)
+    .then(result => {
+        result.forEach((record) => {
+            final_result['buy'][record.buy_bank_id] = record.total_buy;
+            final_result['charge'][record.buy_bank_id] = record;
+        })
+        return query(connection, sql2, values);
+    })
+    .then(result => {
+        result.forEach(record => {
+            final_result['sell'][record.sell_bank_id] = record.total_sell;
+        })
+        res.json(final_result);
+    })
+    .catch(() => {
+        return res.sendStatus(500);
+    })
+    .finally(() => {
+        connection.end();
+    })
+
+
+
+}
+
+const addCurTRRecord = (req, res) => {
+    const data = req.body;
+    const sql = "INSERT INTO CurTRRecord (user_id, date, buy_bank_id, sell_bank_id, buy_amount, sell_amount, ExchangeRate, charge) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
+    const connection = mysql.createConnection(dbconfig);
+    connection.query(sql, [data.user_id, data.date, data.buyBank, data.sellBank, data.buyAmount, data.sellAmount, data.exchangeRate, data.charge], (error, result) => {
+        if(error){
+            console.log(error);
+            return res.sendStatus(500);
+        }
+        res.json({success: 1});
+    })
+    connection.end();
+}
+
+const modifyCurTRRecord = (req, res) => {
+    const data = req.body;
+    const sql = "UPDATE CurTRRecord SET date = ?, buy_bank_id = ?, sell_bank_id = ?, buy_amount = ?, sell_amount = ?, ExchangeRate = ?, charge = ? WHERE ID = ?;";
+    const connection = mysql.createConnection(dbconfig);
+    connection.query(sql, [data.date, data.buyBank, data.sellBank, data.buyAmount, data.sellAmount, data.exchangeRate, data.charge, data.ID], (error, result) => {
+        if(error){
+            console.log(error);
+            return res.sendStatus(500);
+        }
+        res.json({success: 1});
+    })
+    connection.end();
+}
+
+const deleteCurTRRecord = (req, res) => {
+    const data = req.query;
+    const sql = "DELETE FROM CurTRRecord WHERE ID = ?;";
+    const connection = mysql.createConnection(dbconfig);
+    connection.query(sql, [data.ID], (error, result) => {
+        if(error){
+            console.log(error);
+            return res.sendStatus(500);
+        }
+        res.json({success: 1});
+    })
+    connection.end();
 }
 
 const getUserCurrency = (req, res) => {
@@ -69,7 +174,7 @@ const addUserCurrency = (req, res) => {
 }
 
 const deleteUserCurrency = (req, res) =>{
-    const data = req.body;
+    const data = req.query;
     const connection = mysql.createConnection(dbconfig);
     const sql = 'DELETE FROM UserCurrencyList WHERE user_id = ? AND code = ?';
     connection.query(sql, [data.user_id, data.code], (error, result) => {
@@ -84,6 +189,11 @@ const deleteUserCurrency = (req, res) =>{
 
 module.exports = {
     getExchangeRate,
+    getCurTRRecord,
+    getCurTRRecordSum,
+    addCurTRRecord,
+    modifyCurTRRecord,
+    deleteCurTRRecord,
     getUserCurrency,
     addUserCurrency,
     deleteUserCurrency
