@@ -255,7 +255,6 @@ const getBankAreaChartData = async (req, res) => {
         return query(sql5);
     })
     .then(result => {
-        console.log(result);
         result.forEach(element => {
             getMin(element.Y, element.W);
             checkExist(element.Y, element.W);
@@ -263,8 +262,7 @@ const getBankAreaChartData = async (req, res) => {
         })
         return query(sql6);
     })
-    .then(result => {
-        console.log(result);
+    .then(result => {   
         result.forEach(element => {
             getMin(element.Y, element.W);
             checkExist(element.Y, element.W);
