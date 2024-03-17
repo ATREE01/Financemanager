@@ -75,7 +75,20 @@ CREATE TABLE IF NOT EXISTS `Currency`(
 	`ID` INT NOT NULL AUTO_INCREMENT,
 	`code` VARCHAR(16),
 	`name` NVARCHAR(16),
-	`ExchangeRate` float,
+	`ExchangeRate` FLOAT,
+	PRIMARY KEY(`ID`)
+);
+
+CREATE TABLE IF NOT EXISTS `CurTRRecord`(
+	`ID` INT NOT NULl AUTO_INCREMENT,
+	`user_id` INT,
+	`date` VARCHAR(32),
+	`buy_bank_id` VARCHAR(64),
+	`sell_bank_id` VARCHAR(64),
+	`buy_amount` VARCHAR(64),
+	`sell_amount` VARCHAR(64),
+	`ExchangeRate` FLOAT,
+	`charge` INT,
 	PRIMARY KEY(`ID`)
 );
 

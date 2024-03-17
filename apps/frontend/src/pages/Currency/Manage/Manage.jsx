@@ -1,10 +1,10 @@
-import PageLabel from "../../components/PageLabel/PageLabel";
-import DetailTable from "../../components/DetailTable/DetailTable";
-import { useDeleteUserCurrencyMutation, useGetExchangeRateQuery, useGetUserCurrencyQuery, useAddUserCurrencyMutation } from "../../features/Currency/CurrencyApiSlice";
+import PageLabel from "../../../components/PageLabel/PageLabel";
+import DetailTable from "../../../components/DetailTable/DetailTable";
+import { useDeleteUserCurrencyMutation, useGetExchangeRateQuery, useGetUserCurrencyQuery, useAddUserCurrencyMutation } from "../../../features/Currency/CurrencyApiSlice";
 import { useSelector } from "react-redux";
-import { selectCurrentUserId } from "../../features/Auth/AuthSlice";
+import { selectCurrentUserId } from "../../../features/Auth/AuthSlice";
 
-const Currency = () => {
+const Manage = () => {
 
     const titles = ["勾選", "代號", "名稱", "匯率"]
 
@@ -68,7 +68,7 @@ const Currency = () => {
             <PageLabel title={"外幣管理"}/>
             <div className="curreny-container max-h-full">
                 <div className="currency-content h-full mt-4 flex flex-col items-center">
-                    <div className="table-container w-2/5">
+                    <div className="table-container max-w-80">
                         {CurrencyContent}
                     </div>
                 </div>
@@ -77,4 +77,4 @@ const Currency = () => {
     )
 }
 
-export default Currency;
+export default Manage;

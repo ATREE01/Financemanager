@@ -51,8 +51,17 @@ export const SidebarData =[
         ]
     },
     {
-        title: "外幣管理",
-        path: "Currency"
+        title: "外幣",
+        childrens: [
+            {
+                title: "外幣買賣",
+                path: "Currency/Transaction"
+            },
+            {
+                title: "外幣管理",
+                path: "Currency/Manage"
+            },
+        ]
     },
     {
         title: "使用說明",
