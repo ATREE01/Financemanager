@@ -13,7 +13,7 @@ const DashboardApiSlice = apiSlice.injectEndpoints({
                 method: "GET",
                 params: { ...args }
             }),
-            providesTags:['BankRecord', "IncExpRecord"]
+            providesTags:['BankRecord', "IncExpRecord", "CurTRRecord"]
         }),
         getBankData: builder.query({
             query: args => ({

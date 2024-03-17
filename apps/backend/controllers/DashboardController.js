@@ -151,7 +151,7 @@ const getBankAreaChartData = async (req, res) => {
         SELECT\
         YEAR(date) Y, WEEK(date, 3) W,\
         buy_bank_id AS bank_id,\
-        SUM(amount) AS final_amount\
+        amount AS final_amount\
         FROM (\
             SELECT\
                 CTR.date,\
@@ -168,7 +168,7 @@ const getBankAreaChartData = async (req, res) => {
         SELECT\
         YEAR(date) Y, WEEK(date, 3) W,\
         sell_bank_id AS bank_id,\
-        SUM(amount) AS final_amount\
+        amount AS final_amount\
         FROM (\
             SELECT\
                 CTR.date,\
@@ -181,7 +181,6 @@ const getBankAreaChartData = async (req, res) => {
             GROUP BY YEAR(CTR.date), WEEk(CTR.date)\
         ) AS subquery;\
     "
-
 
     const connection = mysql.createConnection(dbconfig)
     const query = (sql) => {
@@ -197,8 +196,7 @@ const getBankAreaChartData = async (req, res) => {
     }
     
     let tempResult = {};
-    let minY = moment().year(), minW = moment().week();
-    
+    let minY = moment().year(), minW = moment().isoWeek();
     const checkExist = (Y, W) => {
         if(!tempResult[Y])
             tempResult[Y] = {}
@@ -206,7 +204,6 @@ const getBankAreaChartData = async (req, res) => {
            tempResult[Y][W] = 0;
     }
     checkExist(minY, minW);
-
 
     const getMin = (Y, W) => {
         if(Y < minY){
@@ -276,7 +273,7 @@ const getBankAreaChartData = async (req, res) => {
     .finally(() => {
         connection.end();
     })
-    const startDate = moment().year(2024).isoWeek(minW).endOf('isoWeek');
+    const startDate = moment().year(minY).isoWeek(minW).endOf('isoWeek');
     const endDate = moment().tz('Asia/Taipei');
     const currentDate = moment(startDate);
     const currencyDay = endDate.day();
@@ -293,7 +290,6 @@ const getBankAreaChartData = async (req, res) => {
             
     if(bankAreaChartData.length === 1)
         bankAreaChartData.push([moment().tz('America/New_York').format("YYYY-MM-DD"), sum]);
-
     res.send(bankAreaChartData)
 }
 

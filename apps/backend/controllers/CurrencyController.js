@@ -69,8 +69,8 @@ const query = async (connection, sql, values) => {
 
 const getCurTRRecordSum = (req, res) => {
     const data = req.query;    
-    const sql1 = "SELECT buy_bank_id, SUM(buy_amount), sum(charge) AS total_buy FROM CurTRRecord WHERE user_id = ? GROUP BY buy_bank_id;"
-    const sql2 = "SELECT sell_bank_id, SUM(sell_amount) AS total_sell FROM CurTRRecord WHERE user_id = ? GROUP BY sell_bank_id;"
+    const sql1 = "SELECT buy_bank_id, SUM(buy_amount) total_buy, sum(charge) charge FROM CurTRRecord WHERE user_id = ? GROUP BY buy_bank_id;"
+    const sql2 = "SELECT sell_bank_id, SUM(sell_amount) total_sell FROM CurTRRecord WHERE user_id = ? GROUP BY sell_bank_id;"
     const connection = mysql.createConnection(dbconfig);
     const values = [data.user_id];
     let final_result = {
@@ -80,16 +80,19 @@ const getCurTRRecordSum = (req, res) => {
     };
     query(connection, sql1, values)
     .then(result => {
+        console.log(result);
         result.forEach((record) => {
             final_result['buy'][record.buy_bank_id] = record.total_buy;
-            final_result['charge'][record.buy_bank_id] = record;
+            final_result['charge'][record.buy_bank_id] = record.charge;
         })
         return query(connection, sql2, values);
     })
     .then(result => {
+        console.log(result);
         result.forEach(record => {
             final_result['sell'][record.sell_bank_id] = record.total_sell;
         })
+        console.log(final_result);
         res.json(final_result);
     })
     .catch(() => {
