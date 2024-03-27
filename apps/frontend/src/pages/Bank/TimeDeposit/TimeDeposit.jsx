@@ -20,8 +20,7 @@ const TimeDeposit = () =>{
     const handleNewRecordClick = () => setShowRecordForm(!showRecordForm);
     const handleModifyRecordClick = () => setShowModifyForm(!showModifyForm);
 
-
-    const titles = ["金融機構", "種類", "幣別", "總金額", "利率", "開始日期", "結束日期","累計利息"]
+    const titles = ["金融機構", "種類", "幣別", "總金額", "利率", "開始日期", "結束日期"]
     const {
         data: banks,
         isSuccess: bankIsSuccess
@@ -58,7 +57,7 @@ const TimeDeposit = () =>{
             "all-deposit-all-withdraw": "整存整付",
             "all-deposit-part-interest": "存本取息"
         },
-        currency:{//TODO: This have to be add by query after the foreign currency function is implemented
+        currency:{
             "TWD": "台幣" 
         }
     }
@@ -78,7 +77,6 @@ const TimeDeposit = () =>{
                     <td className="table-data-cell number">{item.interest}</td>
                     <td className="table-data-cell number">{item.startDate}</td>
                     <td className="table-data-cell number">{item.endDate}</td>
-                    <td className="table-data-cell number">{item.accInterest}</td>
                     <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-[1px] border-black rounded" onClick={() => {setFormData(item); setShowModifyForm(!showModifyForm) }}>修改</button></td>
                     <td className="table-btn"><button className="bg-slate-300 hover:bg-slate-500 border-[1px] border-black rounded" onClick={() => deleteRecord(item.ID)}>刪除</button></td>
                 </tr>

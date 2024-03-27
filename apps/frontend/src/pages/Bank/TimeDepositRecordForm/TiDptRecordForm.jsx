@@ -51,7 +51,6 @@ const TiDptRecordForm = ({showState, bank, userCurrency, mode="new", formData}) 
                         interest: mode === 'new' ? "" : formData.interest || "",
                         startDate: mode === 'new' ? new Date().toISOString().split('T')[0] : formData.startDate || "",
                         endDate: mode === 'new' ? "" : formData.endDate || "",
-                        accInterest: mode === 'new' ? 0 : formData.accInterest ?? 0
                     }}
                     validationSchema={Yup.object().shape({
                         bank:Yup.string()
@@ -69,7 +68,6 @@ const TiDptRecordForm = ({showState, bank, userCurrency, mode="new", formData}) 
                         endDate:Yup.date()
                         .required("請選結束擇日期")
                         .min(Yup.ref("startDate"), '結束日期不能早於開始日期'),
-
                     })}
                     onSubmit={async (values, actions) => {
                         let result;
@@ -129,10 +127,6 @@ const TiDptRecordForm = ({showState, bank, userCurrency, mode="new", formData}) 
                                 <Field className='form-input' name='endDate' type='date' />
                             </div>
                             <ErrorMessage className="form-ErrorMessage" name='endDate' component="div"/>   
-                            <div className="form-InputBar">
-                                <label className="form-label">累積利息</label>
-                                <Field className="form-input" name='accInterest'/>
-                            </div>
                             <div className='form-btn'>
                                 <button className="bg-slate-300 hover:bg-slate-500 border-2 border-black rounded-full" disabled={!props.dirty || !props.isValid}  type='submit' >提交</button>
                             </div>

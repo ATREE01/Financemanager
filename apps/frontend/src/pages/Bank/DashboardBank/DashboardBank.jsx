@@ -11,7 +11,7 @@ import { useGetCurTRRecordSumQuery, useGetExchangeRateQuery, useGetUserCurrencyQ
 import { useGetDividendRecordSumQuery, useGetInvtRecordSumQuery } from '../../../features/Invt/InvtApiSlice';
 
 const DashboardBank = () => { 
-
+    //TODO: add the function for user to modify their initinal amount of each bank
     const pieChartOptions = {
         legend:{position:'top', maxLines:3},
         pieSliceText:"percentage",
@@ -113,7 +113,7 @@ const DashboardBank = () => {
                 acc[key] = obj[key];
                 return acc;
             }, {});
-            bankData[item['bank_id']]['income'] +=  (finRecord[item['bank_id']]?.['inSum'] ?? 0) + (tiSum[item['bank_id']]?.['intTot'] ?? 0) + getDividend(item.bank_id);// int-Interest
+            bankData[item['bank_id']]['income'] +=  (finRecord[item['bank_id']]?.['inSum'] ?? 0) + getDividend(item.bank_id);// int-Interest
             bankData[item['bank_id']]['expenditure'] += (finRecord[item['bank_id']]?.['expSum'] ?? 0);
             bankData[item['bank_id']]['buy'] += curTRRecordSum['buy'][item['bank_id']] ?? 0;
             bankData[item['bank_id']]['sell'] += curTRRecordSum['sell'][item['bank_id']] ?? 0;

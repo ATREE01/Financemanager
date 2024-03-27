@@ -67,7 +67,6 @@ CREATE TABLE IF NOT EXISTS `TimeDepositRecord`(
 	`interest` VARCHAR(255),
 	`startDate` VARCHAR(255),
 	`endDate` VARCHAR(255),
-	`accInterest` INT,
 	PRIMARY KEY(`ID`)
 );
 

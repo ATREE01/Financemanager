@@ -54,7 +54,7 @@ const updateStockMarketValue = () => {
         connection.end();
     })
 }
-cron.schedule('0 22 * * 0', () => { // TODO: change back to saturday 10PM
+cron.schedule('0 22 * * 0', () => {
     updateStockMarketValue()
 }, {
     timezone: "Asia/Taipei"
@@ -62,9 +62,10 @@ cron.schedule('0 22 * * 0', () => { // TODO: change back to saturday 10PM
 
 const getBankAreaChartData = async (req, res) => {
     const data = req.query;
-    // incexp record with finance method
+    // data from bank with initial amount
     const sql0 = "\
-        SELECT SUM(cur_sum) AS initSum\
+        SELECT\
+            COALESCE(SUM(cur_sum), 0) AS initSum\
         FROM (\
             SELECT SUM(B.initialAmount) * C.ExchangeRate AS cur_sum\
             FROM Bank B\
@@ -73,6 +74,7 @@ const getBankAreaChartData = async (req, res) => {
             GROUP BY B.currency\
         ) AS subquery;\
     ";
+    // data from income expenditure record
     const sql1 = "\
         SELECT\
             YEAR(date) Y,\
@@ -95,7 +97,7 @@ const getBankAreaChartData = async (req, res) => {
             WHERE IER.user_id = ? AND IER.method <> 'cash'\
             GROUP BY YEAR(IER.date), WEEK(IER.date)\
         ) AS subquery;";
-
+    //data from bank record
     const sql2 = "\
         SELECT\
         YEAR(date) Y, WEEK(date, 3) W,\
@@ -118,6 +120,7 @@ const getBankAreaChartData = async (req, res) => {
         ) AS subquery\
         GROUP BY YEAR(date), WEEK(date);\
     ";
+    // data from StockRecord
     const sql3 = "\
         SELECT\
         YEAR(date) Y,\
@@ -133,6 +136,7 @@ const getBankAreaChartData = async (req, res) => {
         ) AS subquery\
         GROUP BY YEAR(date), WEEK(date);\
     ";
+    //data from Dividened record
     const sql4 = "\
         SELECT\
         YEAR(date) Y, week(date, 3) W,\
@@ -147,6 +151,7 @@ const getBankAreaChartData = async (req, res) => {
             GROUP BY YEAR(DR.date), WEEK(DR.date)\
         ) AS subquery;\
     ";
+    // data from buy currecny transaction record
     const sql5 = "\
         SELECT\
         YEAR(date) Y, WEEK(date, 3) W,\
@@ -164,6 +169,7 @@ const getBankAreaChartData = async (req, res) => {
             GROUP BY YEAR(CTR.date), WEEk(CTR.date)\
         ) AS subquery; \
     ";
+    // data from sell currecny transaction record
     const sql6 = "\
         SELECT\
         YEAR(date) Y, WEEK(date, 3) W,\
@@ -287,9 +293,8 @@ const getBankAreaChartData = async (req, res) => {
             currentDate.add(1, 'week')
         }
     }
-            
     if(bankAreaChartData.length === 1)
-        bankAreaChartData.push([moment().tz('America/New_York').format("YYYY-MM-DD"), sum]);
+        bankAreaChartData.push([moment().tz('America/New_York').format("YYYY-MM-DD"), 0]);
     res.send(bankAreaChartData)
 }
 
