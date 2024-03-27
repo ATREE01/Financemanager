@@ -1,12 +1,21 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom';
 
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useSelector } from "react-redux";
+import { selectCurrentUserId } from "../../features/Auth/AuthSlice";
 
 export default function Register(){
     const navigate = useNavigate();
+
+    const user_id = useSelector(selectCurrentUserId);
+    useEffect(() => {
+        if(user_id !== null){
+            navigate('/', { replace : true });
+        }
+    }, [])
 
     const formik = useFormik({
         initialValues:{

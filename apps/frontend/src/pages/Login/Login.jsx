@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { setCredentials } from "../../features/Auth/AuthSlice";
+import { selectCurrentUserId, setCredentials } from "../../features/Auth/AuthSlice";
 import { useLoginMutation } from "../../features/Auth/AuthApiSlice";
 
 export default function Login(){
+
+    const user_id = useSelector(selectCurrentUserId);
+    useEffect(() => {
+        if(user_id !== null){
+            navigate('/', { replace : true });
+        }
+    }, [])
 
     const [ login ] = useLoginMutation()
     const dispatch = useDispatch();

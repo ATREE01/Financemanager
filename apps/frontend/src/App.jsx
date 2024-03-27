@@ -30,9 +30,9 @@ export default function App(){
         <Route path ="/" element={<NavBar />}>
           <Route element={<PersistLogin/>}>
             <Route path="/" element={<Home />} />
+            <Route path="Login" element ={<Login/>} />
+            <Route path="Register" element ={<Register/>} />
           </Route> 
-          <Route path="Register" element ={<Register/>} />
-          <Route path="Login" element ={<Login/>} />
           {/* private route */}
           <Route element={<PersistLogin/>}>   
             <Route element={<RequireAuth />}>
