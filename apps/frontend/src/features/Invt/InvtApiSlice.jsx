@@ -81,7 +81,7 @@ export const InvtApiSlice = apiSlice.injectEndpoints({
                 method: "POST",
                 body: { ...credentials }
             }),
-            invalidatesTags: ['StockRecord']
+            invalidatesTags: ['StockRecord', "Stock"]
         }),
         modifyStockRecord: builder.mutation({
             query: args => ({

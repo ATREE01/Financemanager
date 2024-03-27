@@ -7,7 +7,7 @@ apiSlice.enhanceEndpoints({
 
 const DashboardApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
-        getBankAreaChartData: builder.query({//TODO: maybe add tag to this and invt
+        getBankAreaChartData: builder.query({
             query: args => ({
                 url: "/api/Dashboard/getBankAreaChartData",
                 method: "GET",

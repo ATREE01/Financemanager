@@ -21,7 +21,6 @@ const PersistLogin = () => {
                     },
                 });
                 if(result.status !== 200){
-                    console.log(result)
                     throw new Error("Unauthorized")
                 }
                 const json = await result.json();

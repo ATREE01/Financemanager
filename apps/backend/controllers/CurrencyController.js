@@ -80,7 +80,6 @@ const getCurTRRecordSum = (req, res) => {
     };
     query(connection, sql1, values)
     .then(result => {
-        console.log(result);
         result.forEach((record) => {
             final_result['buy'][record.buy_bank_id] = record.total_buy;
             final_result['charge'][record.buy_bank_id] = record.charge;
@@ -88,11 +87,9 @@ const getCurTRRecordSum = (req, res) => {
         return query(connection, sql2, values);
     })
     .then(result => {
-        console.log(result);
         result.forEach(record => {
             final_result['sell'][record.sell_bank_id] = record.total_sell;
         })
-        console.log(final_result);
         res.json(final_result);
     })
     .catch(() => {
@@ -101,8 +98,6 @@ const getCurTRRecordSum = (req, res) => {
     .finally(() => {
         connection.end();
     })
-
-
 
 }
 

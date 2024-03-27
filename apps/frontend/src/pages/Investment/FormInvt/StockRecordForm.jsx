@@ -82,8 +82,7 @@ const StockRecordForm = ({showState, bank, brokerage, userCurrency, stkList, act
                         tax:mode === "new" ? (action === 'buy' ? undefined : 0 ) : formData?.tax ?? 0,
                         note: mode === "new" ? "" : formData?.note ?? 0,
                     }}
-                    //    B.brokerage_id, B.stock_symbol, B.total, B.buy_stock_price,
-                    validationSchema={Yup.object().shape({ // TODO: change the notOneOf to oneOf to avoid XSS
+                    validationSchema={Yup.object().shape({
                         brokerage: Yup.string()
                         .oneOf(brkgOption, "請選擇券商"),
                         type: Yup.string()

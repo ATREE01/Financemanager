@@ -20,7 +20,7 @@ export default function NavBar(){
     return (
         !token ? 
         <>  {/* not logged in */}
-            <div className="topbar w-full fixed top-0 h-[35px] flex items-center z-30 bg-primary-200">
+            <div className="topbar w-full fixed top-0 h-[35px] flex items-center z-30 bg-primary-200 ">
                 <div className="Link p-2 font-bold "><NavLink to='/'> Home</NavLink></div>
                 <div className="flex-1"></div>
                 <div className="flex">
@@ -53,7 +53,7 @@ export default function NavBar(){
                 </div>
             </div>
 
-            <nav className={`sidebar fixed top-0 w-[200px] h-screen bg-primary-200 text-center float-left overflow-auto transition-all duration-250 z-50 ${activate ? "left-0": "left-[-200px]"}`}>
+            <nav className={`sidebar fixed top-0 w-[200px] h-screen bg-primary-200 text-center float-left overflow-auto transition-all duration-250 z-50 scrollBar ${activate ? "left-0": "left-[-200px]"}`}>
                 <div className="sidebar-header h-[35px] bg-primary-400 flex justify-end">
                     <NavLink to="#" className="sidebar-toggle m-1 rounded hover:bg-primary-600 flex items-center" onClick={showSidebar} > <i className="text-xl bi bi-list"></i></NavLink>
                 </div>
