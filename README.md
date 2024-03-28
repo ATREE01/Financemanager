@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# This is my finance manage app made by react and express
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## How to deploy 
 
-## Available Scripts
+### Deploy for development 
 
-In the project directory, you can run:
+1. Using Docker Desktop to run the docker-compose.yaml in the backend folder and then connect to localhost:8080, use the schema.sql to create tables in the database.
+<br/>
 
-### `npm start`
+2. Make a .env file and make sure the format is the same as .env.example and the parameter of database must be the same with that in docker-compose.yaml.
+<br/>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+3. You can either use the command `pnpm run dev` in the root folder to run both the frontend and backend or go to backend folder and run `pnpm start` and go to frontend folder and run `pnpm run dev`.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Deploy for test in docker in local
 
-### `npm test`
+1. Set the `host` in .env file to database
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. Chnage the setting in `./apps/frontend/nginx/nginx.conf` to 
+```
+server {
+    listen 80;
+    listen [::]:80;
 
-### `npm run build`
+    server_name localhost;
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    location /api {
+        proxy_pass http://backend:3000/api;
+    }
+}
+```
+3. Compose up the `docker-compose.yml` in root folder.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Deploy for production
+2. Make a .env file and make sure the format is the same as .env.example and the parameter of database must be the same with that in docker-compose.yaml.
 
-### `npm run eject`
+1. Chnage the setting in `./apps/frontend/nginx/nginx.conf` to the following.
+Rememeber to change the domain name. 
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    server_name "your domain";
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
 
-## Learn More
+    location /api {
+        proxy_pass http://backend:3000/api;
+    }
+}
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+2. Compose up the docker-compose.yml in root folder.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+3. Execute the following command
+```bash
+docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d "your domain"
+```
+you can set the following comand as a routine so that the website can renew the certificate automatically. 
+```bash
+docker compose run --rm certbot renew
+```
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+4. After the certbot told you that you successfully get certificatechange the setting in `./apps/frontend/nginx/nginx.conf` to the following and then restart the `docker-compose.yml`.
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
 
-### Analyzing the Bundle Size
+    server_name "your domain";
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
 
-### Making a Progressive Web App
+    location / {
+        return 301 https:/"your domain"$request_uri;
+    }
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
 
-### Advanced Configuration
+    server_name "your domain";
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+    ssl_certificate /etc/letsencrypt/live/"your domain"/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/"your domain"/privkey.pem;
 
-### Deployment
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+    location /api {
+        proxy_pass http://backend:3000/api;
+    }
+}
 
-### `npm run build` fails to minify
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+5. The website should be deploy successfully.
