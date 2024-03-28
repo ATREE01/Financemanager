@@ -12,7 +12,7 @@
 
 3. You can either use the command `pnpm run dev` in the root folder to run both the frontend and backend or go to backend folder and run `pnpm start` and go to frontend folder and run `pnpm run dev`.
 
-### Deploy for test in docker in local
+### Deploy for test in docker locally
 
 1. Set the `host` in .env file to database
 
