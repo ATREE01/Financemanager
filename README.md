@@ -17,7 +17,7 @@
 1. Set the `host` in .env file to database
 
 2. Chnage the setting in `./apps/frontend/nginx/nginx.conf` to 
-```
+```nginx
 server {
     listen 80;
     listen [::]:80;
