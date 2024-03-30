@@ -7,7 +7,7 @@ services:
       - financemanager_db:/var/lib/mysql
     environment:
       - MARIADB_DATABASE=financemanager
-      - MARIADB_USER=root
+      - MARIADB_USER=user
       - MARIADB_PASSWORD=password
       - MARIADB_ROOT_PASSWORD=password
       - TZ=Asia/Taipei
