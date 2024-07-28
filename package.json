@@ -7,12 +7,41 @@
     "dev:frontend": "pnpm -F frontend dev",
     "dev:backend": "pnpm -F backend start",
     "dev": "concurrently \"pnpm dev:frontend\" \"pnpm dev:backend\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "test:ci": "lerna run test:ci",
+    "lint": "eslint --fix -c .eslintrc.js \"{apps,packages}/**/*.{tsx,cjs,ts,js}\"",
+    "format": "prettier -w \"apps/**/*.ts\" \"packages/**/*.ts\"",
+    "preview": "concurrently \"pnpm ts-node proxy.ts\" \"cd ./apps/frontend && cross-env node .output/server/index.mjs\" \"pnpm -F backend start:prod\"",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@types/node": "^20.14.12",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-vue": "^9.27.0",
+    "husky": "^8.0.3",
+    "lerna": "^8.1.7",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  },
+  "lint-staged": {
+    "{apps,packages}/**/*.{js,ts,tsx,json,yaml,css}": [
+      "prettier -w"
+    ],
+    "{apps,packages}/**/*.{tsx,cjs,ts,js}": [
+      "eslint --fix"
+    ]
   }
 }

@@ -1,3 +1,5 @@
-.VSCodeCOunter
+.vscode/
 node_modules
 .env
+.nx
+dist
