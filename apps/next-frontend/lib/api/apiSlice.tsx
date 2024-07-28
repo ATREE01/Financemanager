@@ -17,9 +17,6 @@ const baseQuery = fetchBaseQuery({
 const baseQueryWithReAuth: BaseQueryFn<
   {
     url: string;
-    method: string;
-    body?: unknown;
-    params?: unknown;
   }, // Args
   unknown, // Result
   FetchBaseQueryError // Error
