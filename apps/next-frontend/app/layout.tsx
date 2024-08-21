@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import Navigation from "./components/navigation";
+import InitialStoreData from "./middleware/InitialStoreData";
 import PersistLogin from "./middleware/PersistLogin";
 import StoreProvider from "./StoreProvider";
 
@@ -25,8 +26,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <StoreProvider>
           <PersistLogin>
-            <Navigation />
-            {children}
+            <InitialStoreData>
+              <Navigation />
+              {children}
+            </InitialStoreData>
           </PersistLogin>
         </StoreProvider>
       </body>
