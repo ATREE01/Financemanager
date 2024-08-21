@@ -10,8 +10,5 @@ export class CreateCategoryDto implements CreateCategory {
   type: CategoryType;
 
   @IsString()
-  userId: string;
-
-  @IsString()
   name: string;
 }
