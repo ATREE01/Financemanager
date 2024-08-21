@@ -1,6 +1,16 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-import { Profile } from '../profile/entities/profile.entity';
+import { Bank } from '@/src/bank/entities/bank.entity';
+import { Category } from '@/src/category/entities/category.entity';
+import { UserCurrency } from '@/src/currency/user-currency/entities/user-currency.entity';
+import { IncExpRecord } from '@/src/inc-exp/entities/inc-exp-record.entity';
+import { Profile } from '@/src/user/profile/entities/profile.entity';
 
 @Entity('User')
 export class User {
@@ -16,4 +26,16 @@ export class User {
     eager: true,
   })
   profile: Profile;
+
+  @OneToMany(() => Bank, (bank) => bank.user)
+  bank?: Bank[];
+
+  @OneToMany(() => UserCurrency, (userCurrency) => userCurrency.user)
+  currency?: UserCurrency[];
+
+  @OneToMany(() => Category, (category) => category.user)
+  category?: Category[];
+
+  @OneToMany(() => IncExpRecord, (incExpRecord) => incExpRecord.user)
+  incExpRecords?: IncExpRecord[];
 }
