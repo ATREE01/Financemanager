@@ -4,7 +4,6 @@ import {
   Controller,
   ForbiddenException,
   Get,
-  InternalServerErrorException,
   NotFoundException,
   Post,
   Req,
@@ -15,6 +14,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 
+import { CurrencyService } from '../currency/currency.service';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
@@ -27,6 +27,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly currencyService: CurrencyService,
   ) {}
 
   @Post('register')
@@ -35,17 +36,19 @@ export class AuthController {
       throw new ConflictException();
     }
 
-    try {
-      const hashedPassword = bcrypt.hashSync(registerDto.password, 10);
-      const user = await this.userService.createUser({
-        username: registerDto.username,
-        email: registerDto.email,
-        hashedPassword: hashedPassword,
-      });
-      return user;
-    } catch (e) {
-      throw new InternalServerErrorException();
-    }
+    const hashedPassword = bcrypt.hashSync(registerDto.password, 10);
+
+    const user = await this.userService.createUser({
+      username: registerDto.username,
+      email: registerDto.email,
+      hashedPassword: hashedPassword,
+    });
+
+    // when a user is registered, create the default user currency
+
+    const currency = await this.currencyService.getByCode('TWD');
+    if (!currency) throw new NotFoundException('Currency not found');
+    await this.currencyService.createUserCurrency(user.id, currency.id);
   }
 
   @UseGuards(LocalAuthGuard)
@@ -73,7 +76,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Req() res: Response) {
+  async logout(@Res() res: Response) {
     res.clearCookie('jwt');
     return res.status(200).json({ message: 'Logout successful' });
   }
