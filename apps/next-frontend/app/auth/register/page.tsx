@@ -63,7 +63,7 @@ export default function Register() {
                 });
                 if (response.ok === true) {
                   window.alert("註冊成功");
-                  router.push("/login");
+                  router.push("/auth/login");
                 } else if (response.ok === false) {
                   if (response.status === 409) {
                     setDupEmailError(true);

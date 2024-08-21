@@ -53,7 +53,6 @@ export default function App() {
                 dispatch(setCredentials({ ...result }));
                 router.push("/");
               } catch (error) {
-                console.log(error);
                 setLoginError(true);
               }
             }}
@@ -106,7 +105,7 @@ export default function App() {
                                     </div>
                                 </div>
                                 <a href="#" className="text-sm font-medium text-primary-600 hover:underline ">忘記密碼?</a>
-                            </div> */}
+                  </div> */}
                 {loginError && (
                   <div
                     className="p-2 my-2 text-sm text-red-800 rounded-lg bg-red-50 "
