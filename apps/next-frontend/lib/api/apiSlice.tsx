@@ -7,6 +7,7 @@ import { RootState } from "../store";
 
 const baseQuery = fetchBaseQuery({
   credentials: "include",
+  baseUrl: "/api",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.accessToken;
     if (token) headers.set("authorization", `Bearer ${token}`);
@@ -23,11 +24,7 @@ const baseQueryWithReAuth: BaseQueryFn<
 > = async (arg, api, extraOptions) => {
   let result = await baseQuery(arg, api, extraOptions);
   if (result?.error?.status === 401) {
-    const refreshResult = await baseQuery(
-      "/api/auth/Refresh",
-      api,
-      extraOptions,
-    );
+    const refreshResult = await baseQuery("auth/Refresh", api, extraOptions);
 
     if (refreshResult?.data) {
       const data = refreshResult.data as { user: User; accessToken: string };
