@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Bank,
   Category,
@@ -158,19 +156,16 @@ export default function IncExpRecordForm({
               note: values.note === "" ? null : values.note,
             } as CreateIncExpRecord;
             try {
-              try {
-                if (mode === "new") {
-                  await createIncExpRecord(body).unwrap();
-                } else if (mode === "modify") {
-                  await modifyIncExpRecord({
-                    id: (formData as IncExpRecord).id,
-                    data: body,
-                  }).unwrap();
-                }
-                window.alert(`${mode === "new" ? "新增成功" : "修改成功"}`);
-              } catch (e) {
-                window.alert("伺服器錯誤，請稍後再試");
+              console.log(body);
+              if (mode === "new") {
+                await createIncExpRecord(body).unwrap();
+              } else if (mode === "modify") {
+                await modifyIncExpRecord({
+                  id: (formData as IncExpRecord).id,
+                  data: body,
+                }).unwrap();
               }
+              window.alert(`${mode === "new" ? "新增成功" : "修改成功"}`);
               setMethod("");
               actions.resetForm();
               showState.setShow(false);
@@ -189,14 +184,11 @@ export default function IncExpRecordForm({
                   name="type"
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                     props.handleChange(e);
-                    props.setFieldValue("category", "default");
+                    props.setFieldValue("categoryId", "deafult");
                     setType(e.target.value);
                   }}
                 >
-                  <option disabled value="">
-                    {" "}
-                    -- 請選擇 --{" "}
-                  </option>
+                  <option value="">-- 請選擇 --</option>
                   <option value="income">收入</option>
                   <option value="expense">支出</option>
                 </Field>
@@ -222,10 +214,7 @@ export default function IncExpRecordForm({
                   className={styles["form-select"]}
                   name="categoryId"
                 >
-                  <option disabled value="">
-                    {" "}
-                    -- 請選擇類別 --{" "}
-                  </option>
+                  <option value="default">-- 請選擇類別 --</option>
                   {type === "income" ? incomeCategoryNode : ""}
                   {type === "expense" ? expenseCategoryNode : ""}
                 </Field>
@@ -259,10 +248,7 @@ export default function IncExpRecordForm({
                     props.setFieldValue("bank", "default");
                   }}
                 >
-                  <option disabled value="">
-                    {" "}
-                    -- 請選擇 --{" "}
-                  </option>
+                  <option value="">-- 請選擇 --</option>
                   <option value="cash">現金交易</option>
                   <option value="finance">金融交易</option>
                 </Field>
@@ -289,10 +275,7 @@ export default function IncExpRecordForm({
                         setBankCurrency(banks[index].currency.name);
                       }}
                     >
-                      <option disabled value="">
-                        {" "}
-                        -- 請選擇 --{" "}
-                      </option>
+                      <option value="">-- 請選擇 --</option>
                       {bankNode}
                     </Field>
                   </div>
@@ -330,10 +313,7 @@ export default function IncExpRecordForm({
                       className={styles["form-select"]}
                       name="currencyId"
                     >
-                      <option disabled value="">
-                        {" "}
-                        -- 請選擇 --{" "}
-                      </option>
+                      <option value="">-- 請選擇 --</option>
                       {userCurrenciesNode}
                     </Field>
                   </div>

@@ -1,5 +1,3 @@
-"use Client";
-
 import { ShowState } from "@financemanager/financemanager-webiste-types";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { ErrorMessage, Field, Form, Formik } from "formik";

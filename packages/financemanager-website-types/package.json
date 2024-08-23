@@ -19,6 +19,12 @@
     "build": "unbuild"
   },
   "devDependencies": {
+    "@types/react": "^18.3.3",
+    "type": "^2.7.3",
     "unbuild": "^2.0.0"
+  },
+  "dependencies": {
+    "@financemanager/financemanager-webiste-types": "file:",
+    "react": "^18.3.1"
   }
 }

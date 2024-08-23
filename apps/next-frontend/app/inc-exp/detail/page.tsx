@@ -4,7 +4,7 @@ import { IncExpRecord } from "@financemanager/financemanager-webiste-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import ConditionFilter from "@/app/components/condition-filter/condition-filter";
+import ConditionFilter from "@/app/components/condition-filter";
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import DurationFilter from "@/app/components/duration-filter";
@@ -26,14 +26,13 @@ export default function Detail() {
 
   const router = useRouter();
 
-  const [duration, setDuration] = useState("default");
+  const [startDate, setStartDate] = useState(new Date("1900-01-01"));
+  const [endDate, setEndDate] = useState(new Date());
   const [type, setType] = useState("default");
   const [category, setCategory] = useState("default");
   const [currency, setCurrency] = useState("default");
   const [method, setMethod] = useState("default");
   const [bank, setBank] = useState("default");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [formData, setFormData] = useState<IncExpRecord | null>(null);
   const [showModifyForm, setShowModifyForm] = useState(false);
 
@@ -66,36 +65,9 @@ export default function Detail() {
   const phraseMap = usePhraseMap();
   const incExpRecords = useIncExpRecords().filter((record) => {
     const recordDate = new Date(record.date);
-    const now = new Date();
-    let isWithinDuration = true;
-
-    switch (duration) {
-      case "7":
-        isWithinDuration =
-          now.getTime() - recordDate.getTime() < 8 * 24 * 60 * 60 * 1000;
-        break;
-      case "30":
-        isWithinDuration =
-          now.getTime() - recordDate.getTime() < 31 * 24 * 60 * 60 * 1000;
-        break;
-      case "90":
-        isWithinDuration =
-          now.getTime() - recordDate.getTime() < 91 * 24 * 60 * 60 * 1000;
-        break;
-      case "ytd":
-        isWithinDuration = recordDate.getFullYear() === now.getFullYear();
-        break;
-      case "customize":
-        isWithinDuration =
-          recordDate.getTime() >= new Date(startDate).getTime() &&
-          recordDate.getTime() <= new Date(endDate).getTime();
-        break;
-      default:
-        isWithinDuration = true;
-    }
-
     return (
-      isWithinDuration &&
+      startDate <= recordDate &&
+      recordDate <= endDate &&
       (type === "default" || record.type === type) &&
       (category === "default" || record.category.id === category) &&
       (currency === "default" || record.currency.id.toString() === currency) &&
@@ -185,37 +157,34 @@ export default function Detail() {
     <main className="pt-[--navbar-height]">
       <div className="bg-slate-100">
         <PageLabel title={"收支紀錄:明細"} />
-        <div className="Detail-Inc-Exp-container">
-          {/* TODO: add a column to display the total amount base on the filter */}
-          <div className="h-[90vh] w-full flex flex-col justify-start items-center">
-            <DurationFilter
-              duration={{ data: duration, setData: setDuration }}
-              startDate={{ data: startDate, setData: setStartDate }}
-              endDate={{ data: endDate, setData: setEndDate }}
+        {/* TODO: add a column to display the total amount base on the filter */}
+        <div className="h-[90vh] w-full flex flex-col justify-start items-center">
+          <DurationFilter
+            startDate={{ data: startDate, setData: setStartDate }}
+            endDate={{ data: endDate, setData: setEndDate }}
+          />
+          <div className="m-4 h-12 w-[65vw] flex justify-center">
+            <ConditionFilter options={typeOptions} setFilter={setType} />
+            <ConditionFilter
+              options={categoryOptions}
+              setFilter={setCategory}
             />
-            <div className="h-16 w-4/5 flex justify-center">
-              <ConditionFilter options={typeOptions} setFilter={setType} />
-              <ConditionFilter
-                options={categoryOptions}
-                setFilter={setCategory}
-              />
-              <ConditionFilter
-                options={currencyOptions}
-                setFilter={setCurrency}
-              />
-              <ConditionFilter options={methodOptions} setFilter={setMethod} />
-              <ConditionFilter options={banksOptions} setFilter={setBank} />
-            </div>
-
-            <DetailTable titles={titles} tableContent={tableContent} />
-            <IncExpFormManager
-              modifyShowState={{
-                isShow: showModifyForm,
-                setShow: setShowModifyForm,
-              }}
-              formData={formData}
+            <ConditionFilter
+              options={currencyOptions}
+              setFilter={setCurrency}
             />
+            <ConditionFilter options={methodOptions} setFilter={setMethod} />
+            <ConditionFilter options={banksOptions} setFilter={setBank} />
           </div>
+
+          <DetailTable titles={titles} tableContent={tableContent} />
+          <IncExpFormManager
+            modifyShowState={{
+              isShow: showModifyForm,
+              setShow: setShowModifyForm,
+            }}
+            formData={formData}
+          />
         </div>
       </div>
     </main>
