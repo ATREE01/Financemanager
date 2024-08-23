@@ -10,9 +10,9 @@ export default function ConditionFilter({
 }) {
   return (
     <>
-      <div className="m-2 text-black flex-1  flex justify-center items-center ">
+      <div className="h-full text-black font-bold flex-1 flex justify-center items-center ">
         <select
-          className="h-4/5, w-[88%] rounded-lg border-[1px] border-slate-300 bg-primary-100"
+          className="h-4/5 w-[88%] rounded-full border-[1px] border-slate-300 bg-primary-100 text-center"
           onChange={(e) => {
             setFilter(e.target.value);
           }}
