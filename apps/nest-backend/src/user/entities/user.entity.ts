@@ -7,6 +7,8 @@ import {
 } from 'typeorm';
 
 import { Bank } from '@/src/bank/entities/bank.entity';
+import { BankRecord } from '@/src/bank/entities/bank-reocrd.entity';
+import { TimeDepositRecord } from '@/src/bank/entities/time-deposit-record.entity';
 import { Category } from '@/src/category/entities/category.entity';
 import { UserCurrency } from '@/src/currency/user-currency/entities/user-currency.entity';
 import { IncExpRecord } from '@/src/inc-exp/entities/inc-exp-record.entity';
@@ -38,4 +40,13 @@ export class User {
 
   @OneToMany(() => IncExpRecord, (incExpRecord) => incExpRecord.user)
   incExpRecords?: IncExpRecord[];
+
+  @OneToMany(() => BankRecord, (bankRecord) => bankRecord.user)
+  bankRecords?: BankRecord[];
+
+  @OneToMany(
+    () => TimeDepositRecord,
+    (timeDepositRecord) => timeDepositRecord.user,
+  )
+  timeDepositRecords?: TimeDepositRecord[];
 }
