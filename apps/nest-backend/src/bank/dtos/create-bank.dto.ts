@@ -5,10 +5,6 @@ import { IsNumber, IsString, MaxLength } from 'class-validator';
 export class CreateBankDto implements CreateBank {
   @ApiProperty()
   @IsString()
-  userId: string;
-
-  @ApiProperty()
-  @IsString()
   @MaxLength(16)
   name: string;
 

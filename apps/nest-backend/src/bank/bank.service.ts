@@ -1,35 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 
+import { CreateBankRecordDto } from './dtos/create-bank-record.dto';
+import { CreateTimeDepositRecordDto } from './dtos/create-time-deposit-record.dto';
 import { Bank } from './entities/bank.entity';
+import { BankRecord } from './entities/bank-reocrd.entity';
+import { TimeDepositRecord } from './entities/time-deposit-record.entity';
 
 @Injectable()
 export class BankService {
   constructor(
     @InjectRepository(Bank)
     private readonly bankRepository: Repository<Bank>,
+    @InjectRepository(BankRecord)
+    private readonly bankRecordRepository: Repository<BankRecord>,
+    @InjectRepository(TimeDepositRecord)
+    private readonly timeDepositRecordRepository: Repository<TimeDepositRecord>,
   ) {}
 
-  async createBank(bank: {
-    userId: string;
-    name: string;
-    currencyId: number;
-  }): Promise<Bank> {
-    return await this.bankRepository.save(
-      this.bankRepository.create({
-        user: {
-          id: bank.userId,
-        },
-        name: bank.name,
-        currency: {
-          id: bank.currencyId,
-        },
-      }),
-    );
-  }
-
-  async getByUserId(userId: string): Promise<Bank[]> {
+  async getBankByUserId(userId: string): Promise<Bank[]> {
     return await this.bankRepository.find({
       where: {
         user: {
@@ -49,5 +39,163 @@ export class BankService {
         name,
       },
     });
+  }
+
+  async createBank(
+    userId: string,
+    bank: {
+      name: string;
+      currencyId: number;
+    },
+  ): Promise<Bank> {
+    return await this.bankRepository.save(
+      this.bankRepository.create({
+        user: {
+          id: userId,
+        },
+        name: bank.name,
+        currency: {
+          id: bank.currencyId,
+        },
+      }),
+    );
+  }
+
+  async getBankRecordsByUserId(id: string): Promise<BankRecord[]> {
+    return await this.bankRecordRepository.find({
+      where: {
+        user: {
+          id,
+        },
+      },
+      relations: {
+        bank: {
+          currency: true,
+        },
+      },
+    });
+  }
+
+  async createBankRecord(
+    userId: string,
+    createBankRecordDto: CreateBankRecordDto,
+  ) {
+    return await this.bankRecordRepository.save(
+      this.bankRecordRepository.create({
+        user: {
+          id: userId,
+        },
+        type: createBankRecordDto.type,
+        date: new Date(createBankRecordDto.date),
+        bank: {
+          id: createBankRecordDto.bankId,
+        },
+        amount: createBankRecordDto.amount,
+        charge: createBankRecordDto.charge,
+        note: createBankRecordDto.note,
+      }),
+    );
+  }
+
+  async modifyBankRecord(id: number, createBankRecordDto: CreateBankRecordDto) {
+    return await this.bankRecordRepository.update(id, {
+      type: createBankRecordDto.type,
+      date: new Date(createBankRecordDto.date),
+      bank: {
+        id: createBankRecordDto.bankId,
+      },
+      amount: createBankRecordDto.amount,
+      charge: createBankRecordDto.charge,
+      note: createBankRecordDto.note,
+    });
+  }
+  async deleteBankRecord(id: number) {
+    return await this.bankRecordRepository.delete(id);
+  }
+
+  async checkRecordOwnership(id: number, userId: string): Promise<boolean> {
+    const result = await this.bankRecordRepository.findOne({
+      where: {
+        id,
+        user: {
+          id: userId,
+        },
+      },
+    });
+    return result ? true : false;
+  }
+
+  async getTimeDepositRecordsByUserId(
+    userId: string,
+  ): Promise<TimeDepositRecord[]> {
+    const now = new Date().toISOString().split('T')[0];
+    const result = await this.timeDepositRecordRepository.find({
+      where: {
+        user: {
+          id: userId,
+        },
+        startDate: LessThanOrEqual(now),
+        endDate: MoreThanOrEqual(now),
+      },
+      relations: {
+        bank: {
+          currency: true,
+        },
+      },
+    });
+    return result;
+  }
+
+  async createTimeDepositRecord(
+    userId: string,
+    createTimeDepositRecordDto: CreateTimeDepositRecordDto,
+  ): Promise<TimeDepositRecord> {
+    return await this.timeDepositRecordRepository.save(
+      this.timeDepositRecordRepository.create({
+        name: createTimeDepositRecordDto.name,
+        user: {
+          id: userId,
+        },
+        bank: {
+          id: createTimeDepositRecordDto.bankId,
+        },
+        amount: createTimeDepositRecordDto.amount,
+        interestRate: createTimeDepositRecordDto.interestRate,
+        startDate: createTimeDepositRecordDto.startDate,
+        endDate: createTimeDepositRecordDto.endDate,
+      }),
+    );
+  }
+
+  async modifyTimeDepositRecord(
+    id: number,
+    createTimeDepositRecordDto: CreateTimeDepositRecordDto,
+  ) {
+    return await this.timeDepositRecordRepository.update(id, {
+      name: createTimeDepositRecordDto.name,
+      amount: createTimeDepositRecordDto.amount,
+      interestRate: createTimeDepositRecordDto.interestRate,
+      startDate: createTimeDepositRecordDto.startDate,
+      endDate: createTimeDepositRecordDto.endDate,
+    });
+  }
+
+  async deleteTimeDepositRecord(id: number) {
+    return await this.timeDepositRecordRepository.delete(id);
+  }
+
+  async checkTimeDepositRecordOwnership(
+    id: number,
+    userId: string,
+  ): Promise<boolean> {
+    const result = await this.timeDepositRecordRepository.findOne({
+      where: {
+        id,
+        user: {
+          id: userId,
+        },
+      },
+    });
+    return result ? true : false;
   }
 }
