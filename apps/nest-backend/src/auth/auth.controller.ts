@@ -117,10 +117,4 @@ export class AuthController {
       accessToken: tokens.accessToken,
     });
   }
-
-  // @UseGuards(JwtAuthGuard)
-  // @Get('profile')
-  // async profile(@Request() req){
-  //     return { message: "HELLO WORLD"};
-  // }
 }

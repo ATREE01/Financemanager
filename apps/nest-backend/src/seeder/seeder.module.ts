@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-import { dbConfig } from '../config/db-ocnfiguration';
+import { dbConfig } from '../config/db-configuration';
 import { CurrencyModule } from '../currency/currency.module';
 import { SeederService } from './seeder.service';
 

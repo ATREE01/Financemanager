@@ -10,7 +10,10 @@ export class IncExpRecord {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.incExpRecords)
+  @ManyToOne(() => User, (user) => user.incExpRecords, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   user: User;
 
   @Column({
@@ -21,10 +24,13 @@ export class IncExpRecord {
   @Column()
   type: string;
 
-  @ManyToOne(() => Category, (category) => category.incExpRecords)
+  @ManyToOne(() => Category, (category) => category.incExpRecords, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   category: Category;
 
-  @ManyToOne(() => Currency, (currency) => currency.incExpRecords)
+  @ManyToOne(() => Currency, (currency) => currency.incExpRecords, {})
   currency: Currency;
 
   @Column()

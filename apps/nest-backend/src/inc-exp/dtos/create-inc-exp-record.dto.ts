@@ -1,14 +1,26 @@
-import { CreateIncExpRecord } from '@financemanager/financemanager-webiste-types';
+import {
+  CreateIncExpRecord,
+  IncExpMethodType,
+  IncExpRecordType,
+} from '@financemanager/financemanager-webiste-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 
 export class CreateIncExpRecordDto implements CreateIncExpRecord {
   @ApiProperty()
+  @IsString()
   date: string;
 
   @ApiProperty()
   @IsString()
-  type: string;
+  @IsEnum(IncExpRecordType)
+  type: IncExpRecordType;
 
   @ApiProperty()
   @IsString()
@@ -25,7 +37,8 @@ export class CreateIncExpRecordDto implements CreateIncExpRecord {
 
   @ApiProperty()
   @IsString()
-  method: string;
+  @IsEnum(IncExpMethodType)
+  method: IncExpMethodType;
 
   @ApiProperty()
   @IsOptional()
