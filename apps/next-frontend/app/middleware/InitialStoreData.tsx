@@ -1,11 +1,18 @@
 "use client";
 
-import { PhraseMap } from "@financemanager/financemanager-webiste-types";
 import { useEffect } from "react";
 
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useGetBanksQuery } from "@/lib/features/Bank/BankApiSlice";
-import { setBanks } from "@/lib/features/Bank/BankSlice";
+import {
+  useGetBankRecordsQuery,
+  useGetBanksQuery,
+  useGetTimeDepositRecordsQuery,
+} from "@/lib/features/Bank/BankApiSlice";
+import {
+  setBankRecords,
+  setBanks,
+  setTimeDepositRecords,
+} from "@/lib/features/Bank/BankSlice";
 import { useGetCategoriesQuery } from "@/lib/features/Category/CategoryApiSlice";
 import { setCategories } from "@/lib/features/Category/CategorySlice";
 import {
@@ -16,7 +23,7 @@ import {
   setCurrencies,
   setUserCurrencies,
 } from "@/lib/features/Currency/CurrencySlice";
-import { useGetIncExpRecordQuery } from "@/lib/features/IncExp/IncExpApiSlice";
+import { useGetIncExpRecordsQuery } from "@/lib/features/IncExp/IncExpApiSlice";
 import { setIncExpRecords } from "@/lib/features/IncExp/IncExpSlice";
 import { setPhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 import { useAppDispatch } from "@/lib/hook";
@@ -26,76 +33,100 @@ export default function InitialStoreData({
 }: {
   children: React.ReactNode;
 }) {
-  const userId = useUserId() as string;
   const dispatch = useAppDispatch();
 
   const {
     data: categories,
     isSuccess: categoryIsSuccess,
     isLoading: categoryIsLoading,
-  } = useGetCategoriesQuery(userId);
+    refetch: refetchCategories,
+  } = useGetCategoriesQuery();
   const {
     data: banks,
     isSuccess: bankIsSuccess,
     isLoading: bankIsLoading,
-  } = useGetBanksQuery(userId);
+    refetch: refetchBanks,
+  } = useGetBanksQuery();
+  const {
+    data: bankRecords,
+    isSuccess: bankRecordIsSuccess,
+    isLoading: bankRecordIsLoading,
+    refetch: refetchBankRecords,
+  } = useGetBankRecordsQuery();
+  const {
+    data: timeDepositRecords,
+    isSuccess: timeDepositRecordIsSuccess,
+    isLoading: timeDepositRecordIsLoading,
+    refetch: refetchTimeDepositRecords,
+  } = useGetTimeDepositRecordsQuery();
   const {
     data: currencies,
     isSuccess: currencyIsSuccess,
     isLoading: currencyIsLoading,
+    refetch: refetchCurrencies,
   } = useGetCurrenciesQuery();
   const {
     data: userCurrencies,
     isSuccess: userCurrencyIsSuccess,
     isLoading: userCurrencyIsLoading,
-  } = useGetUserCurrencyQuery(userId);
+    refetch: refetchUserCurrencies,
+  } = useGetUserCurrencyQuery();
   const {
     data: incExpRecord,
     isSuccess: incExpRecordIsSuccess,
     isLoading: incExpRecordIsLoading,
-  } = useGetIncExpRecordQuery(userId);
+    refetch: refetchIncExpRecord,
+  } = useGetIncExpRecordsQuery();
 
-  // TODO: make sure that this is the right way to do it.
+  const userId = useUserId();
+  useEffect(() => {
+    refetchBankRecords();
+    refetchCategories();
+    refetchBanks();
+    refetchTimeDepositRecords();
+    refetchCurrencies();
+    refetchUserCurrencies();
+    refetchIncExpRecord();
+  }, [userId]);
+
   useEffect(() => {
     if (categoryIsSuccess) dispatch(setCategories(categories));
-  }, [dispatch, categories, categoryIsSuccess]);
+  }, [categories]);
 
   useEffect(() => {
-    if (bankIsSuccess) {
-      dispatch(setBanks(banks));
-    }
-  }, [dispatch, banks, bankIsSuccess]);
+    if (bankIsSuccess) dispatch(setBanks(banks));
+  }, [banks]);
+
+  useEffect(() => {
+    if (bankRecordIsSuccess) dispatch(setBankRecords(bankRecords));
+  }, [bankRecords]);
+
+  useEffect(() => {
+    if (timeDepositRecordIsSuccess)
+      dispatch(setTimeDepositRecords(timeDepositRecords));
+  }, [timeDepositRecords]);
 
   useEffect(() => {
     if (currencyIsSuccess) dispatch(setCurrencies(currencies));
-  }, [dispatch, currencies, currencyIsSuccess]);
+  }, [currencies]);
 
   useEffect(() => {
     if (userCurrencyIsSuccess) dispatch(setUserCurrencies(userCurrencies));
-  }, [dispatch, userCurrencies, userCurrencyIsSuccess]);
+  }, [userCurrencies]);
 
   useEffect(() => {
     if (incExpRecordIsSuccess) dispatch(setIncExpRecords(incExpRecord));
-  }, [dispatch, incExpRecord, incExpRecordIsSuccess]);
-
-  const phraseMap = {
-    type: {
-      income: "收入",
-      expense: "支出",
-    },
-    method: {
-      cash: "現金",
-      finance: "金融",
-    },
-  } as PhraseMap;
+  }, [incExpRecord]);
 
   useEffect(() => {
-    dispatch(setPhraseMap(phraseMap));
+    dispatch(setPhraseMap());
   });
 
   const isLoading =
     categoryIsLoading &&
     bankIsLoading &&
+    bankRecordIsLoading &&
+    timeDepositRecordIsLoading &&
     currencyIsLoading &&
     userCurrencyIsLoading &&
     incExpRecordIsLoading;
