@@ -26,10 +26,10 @@ export const CategoryApiSlice = apiSlice
           income: Category[];
           expense: Category[];
         },
-        string
+        void
       >({
-        query: (userId) => ({
-          url: `/users/${userId}/categories`,
+        query: () => ({
+          url: `/users/categories`,
           method: "GET",
         }),
         transformResponse: (response: {

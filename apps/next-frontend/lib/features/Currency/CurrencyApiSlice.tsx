@@ -1,4 +1,5 @@
 import {
+  CreateUserCurrency,
   Currency,
   UserCurrency,
 } from "@financemanager/financemanager-webiste-types";
@@ -15,18 +16,42 @@ export const CurrencyApiSlice = apiSlice
         query: () => ({
           url: "/currencies",
           method: "GET",
-          providesTags: [{ type: "Currency", id: "List" }],
         }),
+        providesTags: [{ type: "Currency", id: "List" }],
       }),
-      getUserCurrency: builder.query<UserCurrency[], string>({
-        query: (userId) => ({
-          url: `/users/${userId}/currencies`,
+      getUserCurrency: builder.query<UserCurrency[], void>({
+        query: () => ({
+          url: `/users/currencies`,
           method: "GET",
-          providesTags: [{ type: "UserCurrency", id: "List" }],
         }),
+        transformResponse: (response: UserCurrency[]) => {
+          return response.sort((a, b) => a.currency.id - b.currency.id);
+        },
+        providesTags: [{ type: "UserCurrency", id: "List" }],
+      }),
+      createUserCurrency: builder.mutation<UserCurrency, CreateUserCurrency>({
+        query: (data) => ({
+          url: "/users/currencies",
+          method: "POST",
+          body: {
+            ...data,
+          },
+        }),
+        invalidatesTags: [{ type: "UserCurrency", id: "List" }],
+      }),
+      deleteUserCurrency: builder.mutation<void, number>({
+        query: (id) => ({
+          url: `/users/currencies/${id}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: [{ type: "UserCurrency", id: "List" }],
       }),
     }),
   });
 
-export const { useGetCurrenciesQuery, useGetUserCurrencyQuery } =
-  CurrencyApiSlice;
+export const {
+  useGetCurrenciesQuery,
+  useGetUserCurrencyQuery,
+  useCreateUserCurrencyMutation,
+  useDeleteUserCurrencyMutation,
+} = CurrencyApiSlice;

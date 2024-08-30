@@ -11,9 +11,9 @@ export const IncExpApiSlice = apiSlice
   })
   .injectEndpoints({
     endpoints: (builder) => ({
-      getIncExpRecord: builder.query<IncExpRecord[], string>({
-        query: (userId) => ({
-          url: `/users/${userId}/inc-exp`,
+      getIncExpRecords: builder.query<IncExpRecord[], void>({
+        query: () => ({
+          url: `/users/inc-exp`,
           method: "GET",
         }),
         keepUnusedDataFor: 600,
@@ -56,7 +56,7 @@ export const IncExpApiSlice = apiSlice
   });
 
 export const {
-  useGetIncExpRecordQuery,
+  useGetIncExpRecordsQuery,
   useCreateIncExpRecordMutation,
   useModifyIncExpRecordMutation,
   useDeleteIncExpRecordMutation,

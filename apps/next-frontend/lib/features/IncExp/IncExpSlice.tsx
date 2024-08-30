@@ -1,4 +1,7 @@
-import { IncExpRecord } from "@financemanager/financemanager-webiste-types";
+import {
+  IncExpMethodType,
+  IncExpRecord,
+} from "@financemanager/financemanager-webiste-types";
 import { createSlice } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 
@@ -8,6 +11,7 @@ const IncExpApiSlice = createSlice({
   name: "IncExpRecord",
   initialState: {
     incExpRecords: [] as IncExpRecord[],
+    incExpFinRecords: [] as IncExpRecord[],
   },
   reducers: {
     setIncExpRecords: (
@@ -18,6 +22,9 @@ const IncExpApiSlice = createSlice({
       },
     ) => {
       state.incExpRecords = action.payload;
+      state.incExpFinRecords = action.payload.filter(
+        (record) => record.method === IncExpMethodType.FINANCE,
+      );
     },
   },
 });
@@ -28,3 +35,5 @@ export const { setIncExpRecords } = IncExpApiSlice.actions;
 
 export const useIncExpRecords = () =>
   useSelector((state: RootState) => state.incExpRecord.incExpRecords);
+export const useIncExpFinRecords = () =>
+  useSelector((state: RootState) => state.incExpRecord.incExpFinRecords);

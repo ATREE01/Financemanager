@@ -1,23 +1,35 @@
-import { PhraseMap } from "@financemanager/financemanager-webiste-types";
+import {
+  BankRecordType,
+  IncExpRecordType,
+  PhraseMap,
+} from "@financemanager/financemanager-webiste-types";
 import { createSlice } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 
 import { RootState } from "@/lib/store";
-
 const PhraseMapSlice = createSlice({
   name: "PhraseMap",
   initialState: {
     phraseMap: {} as PhraseMap,
   },
   reducers: {
-    setPhraseMap: (
-      state,
-      action: {
-        type: string;
-        payload: PhraseMap;
-      },
-    ) => {
-      state.phraseMap = action.payload;
+    setPhraseMap: (state) => {
+      state.phraseMap = {
+        type: {
+          [IncExpRecordType.INCOME]: "收入",
+          [IncExpRecordType.EXPENSE]: "支出",
+        },
+        method: {
+          cash: "現金",
+          finance: "金融",
+        },
+        bankRecordType: {
+          [BankRecordType.DEPOSIT]: "存款",
+          [BankRecordType.WITHDRAW]: "提款",
+          [BankRecordType.TRANSFERIN]: "轉入",
+          [BankRecordType.TRANSFEROUT]: "轉出",
+        },
+      } as PhraseMap;
     },
   },
 });
