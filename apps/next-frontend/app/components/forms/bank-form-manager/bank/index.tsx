@@ -1,36 +1,33 @@
 "use client";
 
-import {
-  CurrencyTypes,
-  ShowState,
-} from "@financemanager/financemanager-webiste-types";
+import { ShowState } from "@financemanager/financemanager-webiste-types";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
 import styles from "@/app/components/forms/form.module.css";
-import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { useCreateBankMutation } from "@/lib/features/Bank/BankApiSlice";
+import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
 
 export default function BankForm({ showState }: { showState: ShowState }) {
-  // this component can only be used when userId is available so it's always is a string.
-  const userId = useUserId() as string;
-
   const onClick = () => showState.setShow(!showState.isShow);
-
   const [createBank] = useCreateBankMutation();
 
-  // currencyContent = userCurrency.data.map((item, index) => {
-  //     currencyOption.push(item.code);
-  //     return <option key={index} value={item.code}>{item.name}</option>
-  // })
+  const userCurrencies = useUserCurrencies();
+  const currencyIds = userCurrencies.map((userCurrency) =>
+    userCurrency.currency.id.toString(),
+  );
+
+  const userCurrencyNode = userCurrencies.map((userCurrency) => (
+    <option key={userCurrency.currency.id} value={userCurrency.currency.id}>
+      {userCurrency.currency.name}
+    </option>
+  ));
 
   return (
     <>
-      {showState.isShow ? (
-        <div className="form-scrim" onClick={onClick}></div>
-      ) : (
-        ""
+      {showState.isShow && (
+        <div className={styles["form-scrim"]} onClick={onClick}></div>
       )}
       <div
         className={`text-black ${styles["form-container"]} ${showState.isShow ? styles["activate"] : ""}`}
@@ -42,23 +39,19 @@ export default function BankForm({ showState }: { showState: ShowState }) {
         <Formik
           initialValues={{
             name: "",
-            currency: "default",
+            currency: "",
           }}
           validationSchema={Yup.object().shape({
             name: Yup.string()
               .required("請輸入名稱")
               .max(16, "長度最長為16個字"),
-            currency: Yup.string().oneOf(
-              Object.values(CurrencyTypes),
-              "請選擇幣別",
-            ), //TODO: change to enum
+            currency: Yup.string().oneOf(currencyIds, "請選擇幣別"),
           })}
           onSubmit={async (values, actions) => {
             try {
               await createBank({
                 name: values.name,
-                currency: values.currency,
-                userId: userId,
+                currencyId: Number(values.currency),
               }).unwrap();
               showState.setShow(!showState.isShow);
               actions.resetForm();
@@ -87,11 +80,10 @@ export default function BankForm({ showState }: { showState: ShowState }) {
                   as="select"
                   name="currency"
                 >
-                  <option value="default" disabled>
+                  <option value="" disabled>
                     -- 請選擇 --
                   </option>
-                  <option value="TWD">台幣</option>
-                  {/* {currencyContent} */}
+                  {userCurrencyNode}
                 </Field>
               </div>
               <div className={styles["form-btn"]}>
