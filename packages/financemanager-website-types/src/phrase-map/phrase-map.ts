@@ -5,4 +5,7 @@ export interface PhraseMap {
   method: {
     [key: string]: string;
   };
+  bankRecordType: {
+    [key: string]: string;
+  };
 }
