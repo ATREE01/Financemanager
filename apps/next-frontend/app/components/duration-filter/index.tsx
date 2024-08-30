@@ -39,59 +39,61 @@ export default function DurationFilter({
         endDate.setData(new Date(end));
         break;
       case "default":
+        startDate.setData(new Date("1900-01-01"));
+        endDate.setData(new Date());
         break;
     }
-  }, [duration, start, end, startDate, endDate]);
+  }, [duration, start, end]);
 
   return (
-    <div className="flex flex-wrap justify-center z-10 text-black font-bold text-md">
-      <div
-        className={`w-24 h-8 rounded-xl m-2 px-2 flex items-center justify-center border-[1px] border-slate-300 bg-primary-100 cursor-pointer hover:brightness-75 ${duration === "default" ? "brightness-75" : ""}`}
+    <div className="flex flex-wrap gap-2 justify-center z-10 text-black font-bold text-md">
+      <button
+        className="w-24 px-4 py-2 bg-primary-100 text-gray-700 rounded-lg hover:bg-primary-400 focus:bg-primary-400"
         onClick={() => {
           setDuration("default");
           setShow(false);
         }}
       >
         不限
-      </div>
-      <div
-        className={`w-24 h-8 rounded-xl m-2 px-2 flex items-center justify-center border-[1px] border-slate-300 bg-primary-100 cursor-pointer hover:brightness-75 ${duration === "week" ? "brightness-75" : ""}`}
+      </button>
+      <button
+        className="w-24 px-4 py-2 bg-primary-100 text-gray-700 rounded-lg hover:bg-primary-400 focus:bg-primary-400"
         onClick={() => {
           setDuration("week");
           setShow(false);
         }}
       >
         近一周
-      </div>
-      <div
-        className={`w-24 h-8 rounded-xl m-2 px-2 flex items-center justify-center border-[1px] border-slate-300 bg-primary-100 cursor-pointer hover:brightness-75 ${duration === "month" ? "brightness-75" : ""}`}
+      </button>
+      <button
+        className="w-24 px-4 py-2 bg-primary-100 text-gray-700 rounded-lg hover:bg-primary-400 focus:bg-primary-400"
         onClick={() => {
           setDuration("month");
           setShow(false);
         }}
       >
         近一個月
-      </div>
-      <div
-        className={`w-24 h-8 rounded-xl m-2 px-2 flex items-center justify-center border-[1px] border-slate-300 bg-primary-100 cursor-pointer hover:brightness-75 ${duration === "3month" ? "brightness-75" : ""}`}
+      </button>
+      <button
+        className="w-24 px-4 py-2 bg-primary-100 text-gray-700 rounded-lg hover:bg-primary-400 focus:bg-primary-400"
         onClick={() => {
           setDuration("3months");
           setShow(false);
         }}
       >
         近三個月
-      </div>
-      <div
-        className={`w-24 h-8 rounded-xl m-2 px-2 flex items-center justify-center border-[1px] border-slate-300 bg-primary-100 cursor-pointer hover:brightness-75 ${duration === "ytd" ? "brightness-75" : ""}`}
+      </button>
+      <button
+        className="w-24 px-4 py-2 bg-primary-100 text-gray-700 rounded-lg hover:bg-primary-400 focus:bg-primary-400"
         onClick={() => {
           setDuration("ytd");
           setShow(false);
         }}
       >
         今年至今
-      </div>
+      </button>
       <div
-        className={`w-24 h-8 rounded-xl m-2 px-2 flex items-center justify-center border-[1px] border-slate-300 bg-primary-100 relative cursor-pointer`}
+        className="flex items-center justify-center w-24 px-4 py-2 bg-primary-100 text-gray-700 rounded-lg  focus:bg-primary-400 relative"
         onClick={() => {
           setDuration("customize");
           setShow(!show);
@@ -100,7 +102,7 @@ export default function DurationFilter({
         自訂
         {duration === "customize" && show && (
           <div
-            className="absolute top-10 bg-white p-4 rounded-lg shadow-lg w-64"
+            className="absolute top-12 bg-white p-4 rounded-lg shadow-lg w-64 z-10"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">

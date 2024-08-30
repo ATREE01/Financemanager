@@ -1,5 +1,3 @@
-import styles from "./index.module.css";
-
 export default function DetailTable({
   titles,
   tableContent,
@@ -8,19 +6,24 @@ export default function DetailTable({
   tableContent: JSX.Element[] | null;
 }) {
   return (
-    <div className="h-[65vh] w-[90vw] overflow-auto text-black">
-      <table className="w-full">
-        <thead>
-          <tr className="w-full bg-primary-200 overflow-auto">
-            {titles.map((item, index) => (
-              <th className={styles["table-data-cell"]} key={index}>
-                {item}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{tableContent}</tbody>
-      </table>
+    <div className="w-[90%] overflow-auto text-black">
+      <div className="overflow-x-auto">
+        <table className="container mx-auto p-4 min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+          <thead>
+            <tr className="whitespace-nowrap">
+              {titles.map((item) => (
+                <th
+                  key={item}
+                  className="py-3 px-4 bg-blue-500 text-white text-center text-sm font-medium "
+                >
+                  {item}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>{tableContent}</tbody>
+        </table>
+      </div>
     </div>
   );
 }

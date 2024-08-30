@@ -10,20 +10,18 @@ export default function ConditionFilter({
 }) {
   return (
     <>
-      <div className="h-full text-black font-bold flex-1 flex justify-center items-center ">
-        <select
-          className="h-4/5 w-[88%] rounded-full border-[1px] border-slate-300 bg-primary-100 text-center"
-          onChange={(e) => {
-            setFilter(e.target.value);
-          }}
-        >
-          {options.map((item, index) => (
-            <option className="filter-option" key={index} value={item.value}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <select
+        className="w-full py-2 text-black font-bold bg-blue-100 rounded-lg focus:ring-2 focus:primary-500 text-center"
+        onChange={(e) => {
+          setFilter(e.target.value);
+        }}
+      >
+        {options.map((item, index) => (
+          <option key={index} value={item.value}>
+            {item.name}
+          </option>
+        ))}
+      </select>
     </>
   );
 }

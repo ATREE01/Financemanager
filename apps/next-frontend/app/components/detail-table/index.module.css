@@ -25,21 +25,17 @@
   width: 100%;
 }
 
-.table-title {
-  width: 100%;
-  background-color: rgb(161, 235, 253);
-  overflow: auto;
-}
-
 .table-data-cell {
   white-space: nowrap; /*這個東西可以讓她不會換行*/
-  min-width: 3em;
   max-width: 20em;
-  height: 1rem;
-  font-size: 0.9rem;
-  padding-right: 0.2em;
-  border: 1px solid;
   overflow: auto;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  color: #4a5568;
+  font-size: 0.875rem;
+  text-align: center;
 }
 
 .table-data-center {
@@ -48,14 +44,6 @@
 
 .table-data-cell.number {
   text-align: right;
-}
-
-.table-recordCol-title::-webkit-scrollbar {
-  display: none;
-}
-
-.table-data-cell::-webkit-scrollbar {
-  display: none;
 }
 
 .table-btn {
