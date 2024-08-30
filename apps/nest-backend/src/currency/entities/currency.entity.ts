@@ -15,7 +15,9 @@ export class Currency {
   @Column()
   name: string;
 
-  @Column()
+  @Column({
+    type: 'float',
+  })
   exchangeRate: number;
 
   @OneToMany(() => UserCurrency, (userCurrnecy) => userCurrnecy.currency)
