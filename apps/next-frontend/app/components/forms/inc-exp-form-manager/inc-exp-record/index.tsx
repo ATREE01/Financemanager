@@ -2,7 +2,9 @@ import {
   Bank,
   Category,
   CreateIncExpRecord,
+  IncExpMethodType,
   IncExpRecord,
+  IncExpRecordType,
   ShowState,
 } from "@financemanager/financemanager-webiste-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
@@ -30,23 +32,23 @@ export default function IncExpRecordForm({
 
   const [type, setType] = useState<string>("");
   const [method, setMethod] = useState<string>("");
-  const [bankCurrency, setBankCurrency] = useState<string | null>(null); // this is to indicate the currency of selected bank
+  const [bank, setBank] = useState<Bank | null>(null); // this is to indicate the currency of selected bank
 
   useEffect(() => {
     setType(formData?.type ?? "");
     setMethod(formData?.method ?? "");
-    setBankCurrency(formData?.bank?.currency.name ?? null);
+    setBank(formData?.bank ?? null);
   }, [formData]);
 
   const mode = formData === undefined ? "new" : "modify";
 
   const initialValues = {
     type: formData?.type || "",
-    date: formData?.date || "",
+    date: formData?.date || new Date().toISOString().split("T")[0],
     categoryId: formData?.category.id || "",
     currencyId: formData?.currency.id || "",
     amount: formData?.amount || "",
-    method: formData?.method || "",
+    method: formData?.method || "default",
     bankId: formData?.bank?.id || "",
     charge: formData?.charge || "",
     note: formData?.note || "",
@@ -117,24 +119,38 @@ export default function IncExpRecordForm({
           enableReinitialize
           initialValues={initialValues}
           validationSchema={Yup.object().shape({
-            type: Yup.string().oneOf(["income", "expense"], "請選擇類別"),
+            type: Yup.string()
+              .required("請選擇類別")
+              .oneOf(Object.values(IncExpRecordType), "請選擇類別"),
             amount: Yup.number()
               .required("請填入金額")
               .typeError("只能填入數字")
-              .min(0, "請填入大於零的數字")
+              .moreThan(0, "請填入大於零的數字")
               .max(2000000000, "數值過大"),
             currencyId: Yup.number().when("method", {
-              is: "cash",
-              then: () => Yup.number().oneOf(currencyIds, "請選擇幣別"),
+              is: IncExpMethodType.CASH,
+              then: () =>
+                Yup.number()
+                  .required("請選擇幣別")
+                  .oneOf(currencyIds, "請選擇幣別"),
             }),
-            categoryId: Yup.string().oneOf(categoryIds, "請選擇種類"),
-            method: Yup.string().oneOf(["cash", "finance"], "請選擇方式"),
-            bankId: Yup.string().when("method", {
-              is: (method: string) => method === "finance",
-              then: () => Yup.string().oneOf(bankIds, "請選擇金融機構"),
+            categoryId: Yup.string()
+              .required("請選擇種類")
+              .oneOf(categoryIds, "請選擇種類"),
+            method: Yup.string()
+              .required("請選擇方式")
+              .oneOf(Object.values(IncExpMethodType), "請選擇方式"),
+            bankId: Yup.string().when("_", {
+              is: () => method === IncExpMethodType.FINANCE,
+              then: () =>
+                Yup.string()
+                  .required("請選擇金融機構")
+                  .oneOf(bankIds, "請選擇金融機構"),
             }),
-            charge: Yup.number().when("method", {
-              is: (method: string) => method === "finance",
+            charge: Yup.number().when("_", {
+              is: () =>
+                type === IncExpRecordType.EXPENSE &&
+                method === IncExpMethodType.FINANCE,
               then: () =>
                 Yup.number()
                   .required("請填入手續費或0")
@@ -144,11 +160,15 @@ export default function IncExpRecordForm({
           })}
           onSubmit={async (values, actions) => {
             // showState.setShow(!showState.isShow);
+            console.log(values);
             const body = {
               date: values.date,
               type: values.type,
               categoryId: values.categoryId,
-              currencyId: Number(values.currencyId),
+              currencyId:
+                method === IncExpMethodType.CASH
+                  ? Number(values.currencyId)
+                  : Number(bank?.currency.id),
               amount: Number(values.amount),
               method: values.method,
               bankId: values.bankId === "" ? null : values.bankId,
@@ -156,7 +176,6 @@ export default function IncExpRecordForm({
               note: values.note === "" ? null : values.note,
             } as CreateIncExpRecord;
             try {
-              console.log(body);
               if (mode === "new") {
                 await createIncExpRecord(body).unwrap();
               } else if (mode === "modify") {
@@ -185,12 +204,14 @@ export default function IncExpRecordForm({
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                     props.handleChange(e);
                     props.setFieldValue("categoryId", "deafult");
+                    if (e.target.value === IncExpRecordType.INCOME)
+                      props.setFieldValue("charge", "");
                     setType(e.target.value);
                   }}
                 >
                   <option value="">-- 請選擇 --</option>
-                  <option value="income">收入</option>
-                  <option value="expense">支出</option>
+                  <option value={IncExpRecordType.INCOME}>收入</option>
+                  <option value={IncExpRecordType.EXPENSE}>支出</option>
                 </Field>
               </div>
               <ErrorMessage
@@ -214,9 +235,9 @@ export default function IncExpRecordForm({
                   className={styles["form-select"]}
                   name="categoryId"
                 >
-                  <option value="default">-- 請選擇類別 --</option>
-                  {type === "income" ? incomeCategoryNode : ""}
-                  {type === "expense" ? expenseCategoryNode : ""}
+                  <option value="">-- 請選擇類別 --</option>
+                  {type === IncExpRecordType.INCOME ? incomeCategoryNode : ""}
+                  {type === IncExpRecordType.EXPENSE ? expenseCategoryNode : ""}
                 </Field>
               </div>
               <ErrorMessage
@@ -244,13 +265,13 @@ export default function IncExpRecordForm({
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                     props.handleChange(e);
                     setMethod(e.target.value);
-                    if (e.target.value !== "cash") setBankCurrency(null);
+                    if (e.target.value !== IncExpMethodType.CASH) setBank(null);
                     props.setFieldValue("bank", "default");
                   }}
                 >
-                  <option value="">-- 請選擇 --</option>
-                  <option value="cash">現金交易</option>
-                  <option value="finance">金融交易</option>
+                  <option value="default">-- 請選擇 --</option>
+                  <option value={IncExpMethodType.CASH}>現金交易</option>
+                  <option value={IncExpMethodType.FINANCE}>金融交易</option>
                 </Field>
               </div>
               <ErrorMessage
@@ -259,7 +280,7 @@ export default function IncExpRecordForm({
                 component="div"
               />
 
-              {method === "finance" || method === "credit" ? ( //  This is part will appear when the method financial is selected
+              {method === IncExpMethodType.FINANCE ? (
                 <>
                   <div className={styles["form-InputBar"]}>
                     <label className={styles["form-label"]}>金融機構</label>
@@ -272,7 +293,7 @@ export default function IncExpRecordForm({
                         const index = banks.findIndex(
                           (item) => item.id === e.target.value,
                         );
-                        setBankCurrency(banks[index].currency.name);
+                        setBank(banks[index]);
                       }}
                     >
                       <option value="">-- 請選擇 --</option>
@@ -282,7 +303,7 @@ export default function IncExpRecordForm({
                   <div className="-my-2 text-center text-xl">
                     幣別:
                     <span className="font-bold text-xl text-rose-600">
-                      {bankCurrency}
+                      {bank?.currency.name}
                     </span>
                   </div>
                   <ErrorMessage
@@ -290,21 +311,21 @@ export default function IncExpRecordForm({
                     name="bankId"
                     component="div"
                   />
-                  <div className={styles["form-InputBar"]}>
-                    <label className={styles["form-label"]}>手續費</label>
-                    <Field className={styles["form-input"]} name="charge" />
-                  </div>
-                  <ErrorMessage
-                    className={styles["form-ErrorMessage"]}
-                    name="charge"
-                    component="div"
-                  />
+                  {props.values.type === IncExpRecordType.EXPENSE && (
+                    <>
+                      <div className={styles["form-InputBar"]}>
+                        <label className={styles["form-label"]}>手續費</label>
+                        <Field className={styles["form-input"]} name="charge" />
+                      </div>
+                      <ErrorMessage
+                        className={styles["form-ErrorMessage"]}
+                        name="charge"
+                        component="div"
+                      />
+                    </>
+                  )}
                 </>
               ) : (
-                ""
-              )}
-
-              {method !== "finance" && method !== "credit" ? (
                 <>
                   <div className={styles["form-InputBar"]}>
                     <label className={styles["form-label"]}>幣別</label>
@@ -323,9 +344,8 @@ export default function IncExpRecordForm({
                     component="div"
                   />
                 </>
-              ) : (
-                ""
               )}
+
               <div className={styles["form-InputBar"]}>
                 <label className={styles["form-label"]}>備註</label>
                 <Field

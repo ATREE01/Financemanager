@@ -50,7 +50,7 @@ export default function Detail() {
   ];
 
   const [deleteIncExpRecord] = useDeleteIncExpRecordMutation();
-  async function delectRecord(id: number) {
+  async function deleteRecord(id: number) {
     const ans = window.confirm("確定要刪除此筆紀錄嗎?");
     if (ans) {
       try {
@@ -75,37 +75,32 @@ export default function Detail() {
       (bank === "default" || record.bank?.id === bank)
     );
   });
+
   const categories = useCategories();
   const userCurrencies = useUserCurrencies();
   const banks = useBanks();
 
   const tableContent = incExpRecords.map((record) => {
     return (
-      <tr key={record.id}>
+      <tr key={record.id} className="border-b hover:bg-gray-100">
         <td className={styles["table-data-cell"]}>{record.date}</td>
-        <td className={`${styles["table-data-cell"]} text-center`}>
+        <td className={`${styles["table-data-cell"]}`}>
           {phraseMap.type[record.type]}
         </td>
-        <td className={`${styles["table-data-cell"]} text-center`}>
-          {record.category.name}
-        </td>
-        <td className={`${styles["table-data-cell"]} text-right`}>
-          {record.amount}
-        </td>
-        <td className={`${styles["table-data-cell"]} text-center`}>
-          {record.currency.name}
-        </td>
-        <td className={`${styles["table-data-cell"]} text-center`}>
+        <td className={styles["table-data-cell"]}>{record.category.name}</td>
+        <td className={styles["table-data-cell"]}>{record.amount}</td>
+        <td className={styles["table-data-cell"]}>{record.currency.name}</td>
+        <td className={styles["table-data-cell"]}>
           {phraseMap.method[record.method]}
         </td>
-        <td className={`${styles["table-data-cell"]} text-center`}>
+        <td className={styles["table-data-cell"]}>
           {record.bank?.name ?? "X"}
         </td>
-        <td className={`${styles["table-data-cell"]}`}>{record.charge}</td>
+        <td className={styles["table-data-cell"]}>{record.charge}</td>
         <td className={styles["table-data-cell"]}>{record.note}</td>
-        <td className={`${styles["table-data-cell"]} text-center`}>
+        <td className={styles["table-data-cell"]}>
           <button
-            className="bg-slate-300 hover:bg-slate-500 border-[1px] border-black rounded m-[1px]"
+            className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors duration-200 mx-1"
             onClick={() => {
               setFormData(record);
               setShowModifyForm(!showModifyForm);
@@ -114,8 +109,8 @@ export default function Detail() {
             修改
           </button>
           <button
-            className="bg-slate-300 hover:bg-slate-500 border-[1px] border-black rounded m-[1px]"
-            onClick={() => delectRecord(record.id)}
+            className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition-colors duration-200 mx-1"
+            onClick={() => deleteRecord(record.id)}
           >
             刪除
           </button>
@@ -136,6 +131,7 @@ export default function Detail() {
       name: category.name,
     })),
   ];
+
   const currencyOptions = [
     { value: "default", name: "幣別" },
     ...userCurrencies.map((userCurrency) => ({
@@ -158,23 +154,33 @@ export default function Detail() {
       <div className="bg-slate-100">
         <PageLabel title={"收支紀錄:明細"} />
         {/* TODO: add a column to display the total amount base on the filter */}
-        <div className="h-[90vh] w-full flex flex-col justify-start items-center">
+        <div className="h-[80vh] w-full flex flex-col justify-start items-center">
           <DurationFilter
             startDate={{ data: startDate, setData: setStartDate }}
             endDate={{ data: endDate, setData: setEndDate }}
           />
-          <div className="m-4 h-12 w-[65vw] flex justify-center">
-            <ConditionFilter options={typeOptions} setFilter={setType} />
-            <ConditionFilter
-              options={categoryOptions}
-              setFilter={setCategory}
-            />
-            <ConditionFilter
-              options={currencyOptions}
-              setFilter={setCurrency}
-            />
-            <ConditionFilter options={methodOptions} setFilter={setMethod} />
-            <ConditionFilter options={banksOptions} setFilter={setBank} />
+          <div className="w-[60vw] my-2 flex flex-wrap items-center justify-center gap-2">
+            <div className="flex-1">
+              <ConditionFilter options={typeOptions} setFilter={setType} />
+            </div>
+            <div className="flex-1">
+              <ConditionFilter
+                options={categoryOptions}
+                setFilter={setCategory}
+              />
+            </div>
+            <div className="flex-1">
+              <ConditionFilter
+                options={currencyOptions}
+                setFilter={setCurrency}
+              />
+            </div>
+            <div className="flex-1">
+              <ConditionFilter options={methodOptions} setFilter={setMethod} />
+            </div>
+            <div className="flex-1">
+              <ConditionFilter options={banksOptions} setFilter={setBank} />
+            </div>
           </div>
 
           <DetailTable titles={titles} tableContent={tableContent} />

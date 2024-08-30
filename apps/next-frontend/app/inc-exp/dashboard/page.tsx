@@ -1,15 +1,17 @@
 "use client";
 
+import { IncExpRecordType } from "@financemanager/financemanager-webiste-types";
 import { useState } from "react";
 import { Chart } from "react-google-charts";
 
 import ConditionFilter from "@/app/components/condition-filter";
 import DurationFilter from "@/app/components/duration-filter";
+import IncExpFormManager from "@/app/components/forms/inc-exp-form-manager";
 import PageLabel from "@/app/components/page-label";
 import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
 import { useIncExpRecords } from "@/lib/features/IncExp/IncExpSlice";
 
-export default function DashboardIncExp() {
+export default function Dashboard() {
   const pieChartOptions = {
     legend: { position: "top", maxLines: 3 },
     pieSliceText: "percentage",
@@ -40,10 +42,11 @@ export default function DashboardIncExp() {
     );
   });
 
+  // TODO: add the sum of charge.
   const categorySum = {
     income: incExpRecords.reduce(
       (acc, record) => {
-        if (record.type === "income")
+        if (record.type === IncExpRecordType.INCOME)
           acc[record.category.name] =
             acc[record.category.name] + record.amount || record.amount;
         return acc;
@@ -52,7 +55,7 @@ export default function DashboardIncExp() {
     ),
     expense: incExpRecords.reduce(
       (acc, record) => {
-        if (record.type === "expense")
+        if (record.type === IncExpRecordType.EXPENSE)
           acc[record.category.name] =
             acc[record.category.name] + record.amount || record.amount;
         return acc;
@@ -73,7 +76,7 @@ export default function DashboardIncExp() {
       <div className="text-black">
         <div className="w-full flex flex-col items-center">
           <div>
-            <div className="w-60 h-16">
+            <div className="w-60 h-16 flex items-center">
               <ConditionFilter
                 options={currencyOptions}
                 setFilter={setCurrency}
@@ -108,6 +111,8 @@ export default function DashboardIncExp() {
               />
             </div>
           </div>
+
+          <IncExpFormManager modifyShowState={null} />
         </div>
       </div>
     </main>

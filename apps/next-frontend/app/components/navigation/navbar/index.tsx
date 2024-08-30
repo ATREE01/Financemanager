@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
 
+import { apiSlice } from "@/lib/api/apiSlice";
 import { useLogOutMutation } from "@/lib/features/Auth/AuthApiSlice";
 import { resetCredentials, useUsername } from "@/lib/features/Auth/AuthSlice";
 import { useAppDispatch } from "@/lib/hook";
@@ -64,7 +65,8 @@ export default function NavBar({ sidebar }: { sidebar: Sidebar }) {
                 onClick={async () => {
                   await logOut({});
                   dispatch(resetCredentials());
-                  router.push("/");
+                  dispatch(apiSlice.util.resetApiState());
+                  router.replace("/");
                 }}
               >
                 Logout
