@@ -6,7 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { catchError, firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 
+import { CreateCurrencyTransactionRecordDto } from './dtos/create-currency-transaction-record.dto';
 import { Currency } from './entities/currency.entity';
+import { CurrencyTransactionRecord } from './entities/currency-transaction-record.entity';
 import { UserCurrency } from './user-currency/entities/user-currency.entity';
 @Injectable()
 export class CurrencyService {
@@ -17,6 +19,8 @@ export class CurrencyService {
     private readonly currencyRepository: Repository<Currency>,
     @InjectRepository(UserCurrency)
     private readonly userCurrencyRepository: Repository<UserCurrency>,
+    @InjectRepository(CurrencyTransactionRecord)
+    private readonly currencyTransactionRecordRepository: Repository<CurrencyTransactionRecord>,
     private readonly httpService: HttpService,
   ) {}
 
@@ -81,6 +85,8 @@ export class CurrencyService {
     return await this.currencyRepository.findOne({ where: { code } });
   }
 
+  //  userCurrencies functions
+
   async getUserCurrencies(userId: string): Promise<UserCurrency[]> {
     return await this.userCurrencyRepository.find({
       where: {
@@ -121,6 +127,96 @@ export class CurrencyService {
       where: {
         user: { id: userId },
         currency: { id: id },
+      },
+    }));
+  }
+
+  // currency transaction record functions
+
+  async getTransactionRecordsByUserId(
+    userId: string,
+  ): Promise<CurrencyTransactionRecord[]> {
+    return await this.currencyTransactionRecordRepository.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      relations: {
+        fromBank: true,
+        toBank: true,
+        fromCurrency: true,
+        toCurrency: true,
+      },
+    });
+  }
+
+  async createTransactionRecord(
+    userid: string,
+    createTransactionRecordDto: CreateCurrencyTransactionRecordDto,
+  ) {
+    return await this.currencyTransactionRecordRepository.save(
+      this.currencyTransactionRecordRepository.create({
+        user: {
+          id: userid,
+        },
+        type: createTransactionRecordDto.type,
+        date: new Date(createTransactionRecordDto.date),
+        fromBank: createTransactionRecordDto.fromBankId
+          ? { id: createTransactionRecordDto.fromBankId }
+          : null,
+        toBank: createTransactionRecordDto.toBankId
+          ? { id: createTransactionRecordDto.toBankId }
+          : null,
+        fromCurrency: createTransactionRecordDto.fromCurrencyId
+          ? { id: createTransactionRecordDto.fromCurrencyId }
+          : null,
+        toCurrency: createTransactionRecordDto.toCurrencyId
+          ? { id: createTransactionRecordDto.toCurrencyId }
+          : null,
+        fromAmount: createTransactionRecordDto.fromAmount,
+        toAmount: createTransactionRecordDto.toAmount,
+        exchangeRate: createTransactionRecordDto.exchangeRate,
+        charge: createTransactionRecordDto.charge,
+      }),
+    );
+  }
+
+  async updateTransactionRecord(
+    id: number,
+    createTransactionRecordDto: CreateCurrencyTransactionRecordDto,
+  ) {
+    await this.currencyTransactionRecordRepository.update(id, {
+      type: createTransactionRecordDto.type,
+      date: new Date(createTransactionRecordDto.date),
+      fromBank: createTransactionRecordDto.fromBankId
+        ? { id: createTransactionRecordDto.fromBankId }
+        : null,
+      toBank: createTransactionRecordDto.toBankId
+        ? { id: createTransactionRecordDto.toBankId }
+        : null,
+      fromCurrency: createTransactionRecordDto.fromCurrencyId
+        ? { id: createTransactionRecordDto.fromCurrencyId }
+        : null,
+      toCurrency: createTransactionRecordDto.toCurrencyId
+        ? { id: createTransactionRecordDto.toCurrencyId }
+        : null,
+      fromAmount: createTransactionRecordDto.fromAmount,
+      toAmount: createTransactionRecordDto.toAmount,
+      exchangeRate: createTransactionRecordDto.exchangeRate,
+      charge: createTransactionRecordDto.charge,
+    });
+  }
+
+  async deleteTransactionRecord(id: number) {
+    await this.currencyTransactionRecordRepository.delete(id);
+  }
+
+  async checkTransactionRecordOwnership(id: number, userId: string) {
+    return !!(await this.currencyTransactionRecordRepository.findOne({
+      where: {
+        user: { id: userId },
+        id,
       },
     }));
   }
