@@ -34,7 +34,7 @@ export const IncExpApiSlice = apiSlice
         }),
         invalidatesTags: [{ type: "IncExp", id: "LIST" }],
       }),
-      modifyIncExpRecord: builder.mutation<
+      updateIncExpRecord: builder.mutation<
         IncExpRecord,
         { id: number; data: CreateIncExpRecord }
       >({
@@ -58,6 +58,6 @@ export const IncExpApiSlice = apiSlice
 export const {
   useGetIncExpRecordsQuery,
   useCreateIncExpRecordMutation,
-  useModifyIncExpRecordMutation,
+  useUpdateIncExpRecordMutation,
   useDeleteIncExpRecordMutation,
 } = IncExpApiSlice;

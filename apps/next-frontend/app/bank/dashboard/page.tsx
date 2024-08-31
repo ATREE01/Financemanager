@@ -3,6 +3,7 @@
 import {
   Bank,
   BankRecordType,
+  CurrencyTransactionRecordType,
   IncExpRecordType,
 } from "@financemanager/financemanager-webiste-types";
 import Chart from "react-google-charts";
@@ -16,6 +17,7 @@ import {
   useBanks,
   useTimeDepositRecords,
 } from "@/lib/features/Bank/BankSlice";
+import { useCurrencyTransactionRecord } from "@/lib/features/Currency/CurrencySlice";
 import { useIncExpFinRecords } from "@/lib/features/IncExp/IncExpSlice";
 
 const DashboardBank = () => {
@@ -30,13 +32,9 @@ const DashboardBank = () => {
   // this record only contains income expense record with method equals to finance
   const incExpRecords = useIncExpFinRecords();
   const timeDepositRecords = useTimeDepositRecords();
-
-  //exchange rate
-
-  // cur TR records
+  const currencyTransactionRecords = useCurrencyTransactionRecord();
 
   // inv record sum
-
   // dividend record sum
 
   // const getExchangeRate = (code) => {
@@ -143,13 +141,29 @@ const DashboardBank = () => {
     bankData[bankId].total -= record.amount;
   });
 
+  currencyTransactionRecords.forEach((record) => {
+    const fromBankId = record.fromBank?.id as string;
+    const toBankId = record.toBank?.id as string;
+    switch (record.type) {
+      case CurrencyTransactionRecordType.ONLINE:
+        bankData[fromBankId].sell += record.fromAmount;
+        bankData[fromBankId].total -= record.fromAmount;
+        bankData[toBankId].buy += record.toAmount;
+        bankData[toBankId].total += record.toAmount;
+        break;
+    }
+  });
+
   // TODO: need to multiply exchange rate
   const bankChartData: Array<Array<string | number>> = [["bank", "amount"]];
+
   const tableContent = banks.map((bank) => {
-    bankChartData.push([
-      bank.name,
-      bankData[bank.id].total + bankData[bank.id].timeDeposit,
-    ]);
+    if (bankData[bank.id].total + bankData[bank.id].timeDeposit >= 0)
+      bankChartData.push([
+        bank.name,
+        (bankData[bank.id].total + bankData[bank.id].timeDeposit) *
+          bank.currency.exchangeRate,
+      ]);
     return (
       <tr key={bank.id} className="border-b hover:bg-gray-100">
         <td className={styles["table-data-cell"]}>{bank.name}</td>
@@ -166,24 +180,21 @@ const DashboardBank = () => {
   return (
     <div className="pt-[--navbar-height] bg-slate-100 py-5 min-h-screen">
       <PageLabel title={"金融機構:總覽"} />
-      <div className="dash-bank-container mt-4 max-h-full flex justify-center">
-        <div className="dash-bank-content w-[95%] flex flex-wrap justify-center">
-          <div className="text-center text-black">
-            <div className="text-3xl font-bold">資產分布(台)</div>
-            <Chart
-              chartType="PieChart"
-              data={bankChartData}
-              options={pieChartOptions}
-              width={"20rem"}
-              height={"20rem"}
-            />
-          </div>
-          <div className="flex-1 overflow-auto mt-[5vh] min-w-[50%] max-h-[70vh] flex items-center scrollBar">
-            <DetailTable titles={titles} tableContent={tableContent} />
-          </div>
-
-          <BankFormManager modifyShowState={null} />
+      <div className="mt-4 px-10 max-h-full flex flex-wrap justify-center">
+        <div className="text-center text-black">
+          <div className="text-3xl font-bold">資產分布(台)</div>
+          <Chart
+            chartType="PieChart"
+            data={bankChartData}
+            options={pieChartOptions}
+            width={"20rem"}
+            height={"20rem"}
+          />
         </div>
+        <div className="flex-1 min-w-[50vh] flex flex-col items-center">
+          <DetailTable titles={titles} tableContent={tableContent} />
+        </div>
+        <BankFormManager updateShowState={null} />
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import {
   BankRecordType,
+  CurrencyTransactionRecordType,
+  IncExpMethodType,
   IncExpRecordType,
   PhraseMap,
 } from "@financemanager/financemanager-webiste-types";
@@ -20,14 +22,18 @@ const PhraseMapSlice = createSlice({
           [IncExpRecordType.EXPENSE]: "支出",
         },
         method: {
-          cash: "現金",
-          finance: "金融",
+          [IncExpMethodType.CASH]: "現金",
+          [IncExpMethodType.FINANCE]: "金融",
         },
         bankRecordType: {
           [BankRecordType.DEPOSIT]: "存款",
           [BankRecordType.WITHDRAW]: "提款",
           [BankRecordType.TRANSFERIN]: "轉入",
           [BankRecordType.TRANSFEROUT]: "轉出",
+        },
+        currencyTransactionRecordType: {
+          [CurrencyTransactionRecordType.ONLINE]: "線上換匯",
+          [CurrencyTransactionRecordType.COUNTER]: "臨櫃換匯",
         },
       } as PhraseMap;
     },

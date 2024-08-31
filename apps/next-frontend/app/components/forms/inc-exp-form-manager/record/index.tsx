@@ -17,7 +17,7 @@ import { useCategories } from "@/lib/features/Category/CategorySlice";
 import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
 import {
   useCreateIncExpRecordMutation,
-  useModifyIncExpRecordMutation,
+  useUpdateIncExpRecordMutation,
 } from "@/lib/features/IncExp/IncExpApiSlice";
 
 export default function IncExpRecordForm({
@@ -28,7 +28,7 @@ export default function IncExpRecordForm({
   formData?: IncExpRecord | null;
 }) {
   const [createIncExpRecord] = useCreateIncExpRecordMutation();
-  const [modifyIncExpRecord] = useModifyIncExpRecordMutation();
+  const [updateIncExpRecord] = useUpdateIncExpRecordMutation();
 
   const [type, setType] = useState<string>("");
   const [method, setMethod] = useState<string>("");
@@ -50,7 +50,7 @@ export default function IncExpRecordForm({
     amount: formData?.amount || "",
     method: formData?.method || "default",
     bankId: formData?.bank?.id || "",
-    charge: formData?.charge || "",
+    charge: formData?.charge !== null ? formData?.charge : "",
     note: formData?.note || "",
   };
 
@@ -160,7 +160,6 @@ export default function IncExpRecordForm({
           })}
           onSubmit={async (values, actions) => {
             // showState.setShow(!showState.isShow);
-            console.log(values);
             const body = {
               date: values.date,
               type: values.type,
@@ -179,7 +178,7 @@ export default function IncExpRecordForm({
               if (mode === "new") {
                 await createIncExpRecord(body).unwrap();
               } else if (mode === "modify") {
-                await modifyIncExpRecord({
+                await updateIncExpRecord({
                   id: (formData as IncExpRecord).id,
                   data: body,
                 }).unwrap();
@@ -196,7 +195,7 @@ export default function IncExpRecordForm({
           {(props) => (
             <Form>
               <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>類別 </label>
+                <label className={styles["form-label"]}>類別</label>
                 <Field
                   as="select"
                   className={styles["form-select"]}

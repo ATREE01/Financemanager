@@ -11,7 +11,7 @@ import * as Yup from "yup";
 import styles from "@/app/components/forms/form.module.css";
 import {
   useCreateBankRecordMutation,
-  useModifyBankRecordMutation,
+  useUpdateBankRecordMutation,
 } from "@/lib/features/Bank/BankApiSlice";
 import { useBanks } from "@/lib/features/Bank/BankSlice";
 
@@ -26,7 +26,7 @@ export default function BankRecordFrom({
   const onClick = () => showState.setShow(!showState.isShow);
 
   const [createBankRecord] = useCreateBankRecordMutation();
-  const [modifyBankRecord] = useModifyBankRecordMutation();
+  const [updateBankRecord] = useUpdateBankRecordMutation();
 
   const [bankCurrency, setBankCurrency] = useState<string>("");
 
@@ -87,7 +87,7 @@ export default function BankRecordFrom({
               .min(0, "不能小於0")
               .max(9000000000000000, "數值過大"),
             charge: Yup.number().when("type", {
-              is: (type: string) => type === BankRecordType.TRANSFERIN,
+              is: (type: string) => type !== BankRecordType.TRANSFERIN,
               then: () =>
                 Yup.number()
                   .typeError("必須是數字")
@@ -109,7 +109,7 @@ export default function BankRecordFrom({
               if (mode === "new") {
                 await createBankRecord(body).unwrap();
               } else if (mode === "modify") {
-                await modifyBankRecord({
+                await updateBankRecord({
                   id: (formData as BankRecord).id,
                   data: body,
                 }).unwrap();

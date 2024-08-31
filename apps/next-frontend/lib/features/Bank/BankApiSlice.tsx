@@ -58,7 +58,7 @@ const BankApiSlice = apiSlice
         }),
         invalidatesTags: [{ type: "BankRecord", id: "LIST" }],
       }),
-      modifyBankRecord: builder.mutation<
+      updateBankRecord: builder.mutation<
         boolean,
         { id: number; data: CreateBankRecord }
       >({
@@ -140,7 +140,7 @@ export const {
   useGetBanksQuery,
   useGetBankRecordsQuery,
   useCreateBankRecordMutation,
-  useModifyBankRecordMutation,
+  useUpdateBankRecordMutation,
   useDeleteBankRecordMutation,
   useGetTimeDepositRecordsQuery,
   useCreateTimeDepositRecordMutation,

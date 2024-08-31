@@ -9,10 +9,10 @@ import BankRecordFrom from "@/app/components/forms/bank-form-manager/record";
 import styles from "@/app/components/forms/form.module.css";
 
 export default function BankFormManager({
-  modifyShowState,
+  updateShowState,
   formData,
 }: {
-  modifyShowState: ShowState | null;
+  updateShowState: ShowState | null;
   formData?: BankRecord | null;
 }) {
   const [show, setShow] = useState(false);
@@ -54,8 +54,8 @@ export default function BankFormManager({
 
       {
         /* show the form to modify data */
-        modifyShowState && (
-          <BankRecordFrom showState={modifyShowState} formData={formData} />
+        updateShowState && (
+          <BankRecordFrom showState={updateShowState} formData={formData} />
         )
       }
     </>

@@ -8,10 +8,10 @@ import styles from "@/app/components/forms/form.module.css";
 import TimeDepositRecordForm from "@/app/components/forms/time-deposit-manager/record/index";
 
 export default function TimeDepositRecordFormManager({
-  modifyShowState,
+  updateShowState,
   formData,
 }: {
-  modifyShowState: ShowState | null;
+  updateShowState: ShowState | null;
   formData?: TimeDepositRecord | null;
 }) {
   const [show, setShow] = useState(false);
@@ -48,9 +48,9 @@ export default function TimeDepositRecordFormManager({
 
       {
         /* show the form to modifydata */
-        modifyShowState && (
+        updateShowState && (
           <TimeDepositRecordForm
-            showState={modifyShowState}
+            showState={updateShowState}
             formData={formData}
           />
         )

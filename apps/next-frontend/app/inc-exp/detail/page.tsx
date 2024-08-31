@@ -34,7 +34,7 @@ export default function Detail() {
   const [method, setMethod] = useState("default");
   const [bank, setBank] = useState("default");
   const [formData, setFormData] = useState<IncExpRecord | null>(null);
-  const [showModifyForm, setShowModifyForm] = useState(false);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
 
   const titles = [
     "日期",
@@ -96,14 +96,14 @@ export default function Detail() {
         <td className={styles["table-data-cell"]}>
           {record.bank?.name ?? "X"}
         </td>
-        <td className={styles["table-data-cell"]}>{record.charge}</td>
+        <td className={styles["table-data-cell"]}>{record.charge ?? "X"}</td>
         <td className={styles["table-data-cell"]}>{record.note}</td>
         <td className={styles["table-data-cell"]}>
           <button
             className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors duration-200 mx-1"
             onClick={() => {
               setFormData(record);
-              setShowModifyForm(!showModifyForm);
+              setShowUpdateForm(!showUpdateForm);
             }}
           >
             修改
@@ -154,7 +154,7 @@ export default function Detail() {
       <div className="bg-slate-100">
         <PageLabel title={"收支紀錄:明細"} />
         {/* TODO: add a column to display the total amount base on the filter */}
-        <div className="h-[80vh] w-full flex flex-col justify-start items-center">
+        <div className="h-[80vh] pt-2 w-full flex flex-col justify-start items-center">
           <DurationFilter
             startDate={{ data: startDate, setData: setStartDate }}
             endDate={{ data: endDate, setData: setEndDate }}
@@ -184,10 +184,11 @@ export default function Detail() {
           </div>
 
           <DetailTable titles={titles} tableContent={tableContent} />
+
           <IncExpFormManager
-            modifyShowState={{
-              isShow: showModifyForm,
-              setShow: setShowModifyForm,
+            updateShowState={{
+              isShow: showUpdateForm,
+              setShow: setShowUpdateForm,
             }}
             formData={formData}
           />

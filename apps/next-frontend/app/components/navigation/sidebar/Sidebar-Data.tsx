@@ -38,11 +38,11 @@ export const SidebarData = [
     childrens: [
       {
         title: "股票總覽",
-        path: "/investment/dashboard-stock",
+        path: "/investment/dashboard",
       },
       {
         title: "股票明細",
-        path: "/investment/stock-detail",
+        path: "/investment/detail",
       },
       {
         title: "股息",

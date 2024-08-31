@@ -6,13 +6,13 @@ import { useState } from "react";
 
 import styles from "@/app/components/forms/form.module.css";
 import CategoryForm from "@/app/components/forms/inc-exp-form-manager/category";
-import IncExpRecordForm from "@/app/components/forms/inc-exp-form-manager/inc-exp-record";
+import IncExpRecordForm from "@/app/components/forms/inc-exp-form-manager/record";
 
 export default function IncExpFormManager({
-  modifyShowState,
+  updateShowState,
   formData,
 }: {
-  modifyShowState: ShowState | null;
+  updateShowState: ShowState | null;
   formData?: IncExpRecord | null;
 }) {
   const [show, setShow] = useState(false);
@@ -56,8 +56,8 @@ export default function IncExpFormManager({
 
       {
         /* show the form to modifydata */
-        modifyShowState && (
-          <IncExpRecordForm showState={modifyShowState} formData={formData} />
+        updateShowState && (
+          <IncExpRecordForm showState={updateShowState} formData={formData} />
         )
       }
     </>

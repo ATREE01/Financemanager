@@ -8,4 +8,7 @@ export interface PhraseMap {
   bankRecordType: {
     [key: string]: string;
   };
+  currencyTransactionRecordType: {
+    [key: string]: string;
+  };
 }

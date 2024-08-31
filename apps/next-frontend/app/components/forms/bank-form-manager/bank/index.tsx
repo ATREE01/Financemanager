@@ -23,7 +23,7 @@ export default function BankForm({ showState }: { showState: ShowState }) {
       {userCurrency.currency.name}
     </option>
   ));
-
+  //TODO: make the user can reorder the bank.
   return (
     <>
       {showState.isShow && (
@@ -39,7 +39,7 @@ export default function BankForm({ showState }: { showState: ShowState }) {
         <Formik
           initialValues={{
             name: "",
-            currency: "",
+            currency: "default",
           }}
           validationSchema={Yup.object().shape({
             name: Yup.string()
@@ -80,7 +80,7 @@ export default function BankForm({ showState }: { showState: ShowState }) {
                   as="select"
                   name="currency"
                 >
-                  <option value="" disabled>
+                  <option value="default" disabled>
                     -- 請選擇 --
                   </option>
                   {userCurrencyNode}

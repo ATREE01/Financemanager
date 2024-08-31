@@ -11,11 +11,11 @@ import { useDeleteTimeDepositRecordMutation } from "@/lib/features/Bank/BankApiS
 import { useTimeDepositRecords } from "@/lib/features/Bank/BankSlice";
 
 export default function TimeDeposit() {
-  const [modifyShow, setModifyShow] = useState(false);
+  const [updateShow, setupdateShow] = useState(false);
 
   const [formData, setFormData] = useState<TimeDepositRecord>();
-
   const [deleteTimeDepositRecord] = useDeleteTimeDepositRecordMutation();
+
   async function deleteRecord(id: number) {
     const ans = window.confirm("確定要刪除此筆紀錄嗎?");
     if (ans) {
@@ -55,7 +55,7 @@ export default function TimeDeposit() {
             className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors duration-200 mx-1"
             onClick={() => {
               setFormData(record);
-              setModifyShow(!modifyShow);
+              setupdateShow(!updateShow);
             }}
           >
             修改
@@ -78,7 +78,7 @@ export default function TimeDeposit() {
         <DetailTable titles={tableTitles} tableContent={tableContent} />
 
         <TimeDepositRecordFormManager
-          modifyShowState={{ isShow: modifyShow, setShow: setModifyShow }}
+          updateShowState={{ isShow: updateShow, setShow: setupdateShow }}
           formData={formData}
         />
       </div>

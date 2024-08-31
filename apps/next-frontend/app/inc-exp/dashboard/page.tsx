@@ -73,47 +73,46 @@ export default function Dashboard() {
   return (
     <main className="bg-slate-100 pt-[--navbar-height]">
       <PageLabel title={"收支紀錄:總覽"} />
-      <div className="text-black">
-        <div className="w-full flex flex-col items-center">
-          <div>
-            <div className="w-60 h-16 flex items-center">
-              <ConditionFilter
-                options={currencyOptions}
-                setFilter={setCurrency}
-              />
-            </div>
+
+      <div className="w-full flex flex-col items-center text-black">
+        <div>
+          <div className="w-60 h-16 flex items-center">
+            <ConditionFilter
+              options={currencyOptions}
+              setFilter={setCurrency}
+            />
           </div>
-
-          <DurationFilter
-            startDate={{ data: startDate, setData: setStartDate }}
-            endDate={{ data: endDate, setData: setEndDate }}
-          />
-
-          <div className="pie-chart-container flex flex-wrap justify-center m-4 text-center">
-            <div className="DIE-pie-chart-block w-96 h-[50vh]">
-              <div className="text-3xl font-bold text-center">收入</div>
-              <Chart
-                chartType="PieChart"
-                data={incSumData}
-                options={pieChartOptions}
-                width={"25rem"}
-                height={"50vh"}
-              />
-            </div>
-            <div className="DIE-pie-chart-block w-96 h-[50vh]">
-              <div className="text-3xl font-bold text-center">支出</div>
-              <Chart
-                chartType="PieChart"
-                data={expSumData}
-                options={pieChartOptions}
-                width={"25rem"}
-                height={"50vh"}
-              />
-            </div>
-          </div>
-
-          <IncExpFormManager modifyShowState={null} />
         </div>
+
+        <DurationFilter
+          startDate={{ data: startDate, setData: setStartDate }}
+          endDate={{ data: endDate, setData: setEndDate }}
+        />
+
+        <div className="pie-chart-container flex flex-wrap justify-center m-4 text-center">
+          <div className="DIE-pie-chart-block w-96 h-[50vh]">
+            <div className="text-3xl font-bold text-center">收入</div>
+            <Chart
+              chartType="PieChart"
+              data={incSumData}
+              options={pieChartOptions}
+              width={"25rem"}
+              height={"50vh"}
+            />
+          </div>
+          <div className="DIE-pie-chart-block w-96 h-[50vh]">
+            <div className="text-3xl font-bold text-center">支出</div>
+            <Chart
+              chartType="PieChart"
+              data={expSumData}
+              options={pieChartOptions}
+              width={"25rem"}
+              height={"50vh"}
+            />
+          </div>
+        </div>
+
+        <IncExpFormManager updateShowState={null} />
       </div>
     </main>
   );

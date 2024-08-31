@@ -17,10 +17,12 @@ import { useGetCategoriesQuery } from "@/lib/features/Category/CategoryApiSlice"
 import { setCategories } from "@/lib/features/Category/CategorySlice";
 import {
   useGetCurrenciesQuery,
-  useGetUserCurrencyQuery,
+  useGetCurrencyTransactionRecordsQuery,
+  useGetUserCurrenciesQuery,
 } from "@/lib/features/Currency/CurrencyApiSlice";
 import {
   setCurrencies,
+  setCurrencyTransactionRecord,
   setUserCurrencies,
 } from "@/lib/features/Currency/CurrencySlice";
 import { useGetIncExpRecordsQuery } from "@/lib/features/IncExp/IncExpApiSlice";
@@ -70,7 +72,13 @@ export default function InitialStoreData({
     isSuccess: userCurrencyIsSuccess,
     isLoading: userCurrencyIsLoading,
     refetch: refetchUserCurrencies,
-  } = useGetUserCurrencyQuery();
+  } = useGetUserCurrenciesQuery();
+  const {
+    data: currencyTransactionRecords,
+    isSuccess: currencyTransactionRecordIsSuccess,
+    isLoading: currencyTransactionRecordIsLoading,
+    refetch: refetchCurrencyTransactionRecords,
+  } = useGetCurrencyTransactionRecordsQuery();
   const {
     data: incExpRecord,
     isSuccess: incExpRecordIsSuccess,
@@ -86,6 +94,7 @@ export default function InitialStoreData({
     refetchTimeDepositRecords();
     refetchCurrencies();
     refetchUserCurrencies();
+    refetchCurrencyTransactionRecords();
     refetchIncExpRecord();
   }, [userId]);
 
@@ -115,6 +124,11 @@ export default function InitialStoreData({
   }, [userCurrencies]);
 
   useEffect(() => {
+    if (currencyTransactionRecordIsSuccess)
+      dispatch(setCurrencyTransactionRecord(currencyTransactionRecords));
+  }, [currencyTransactionRecords]);
+
+  useEffect(() => {
     if (incExpRecordIsSuccess) dispatch(setIncExpRecords(incExpRecord));
   }, [incExpRecord]);
 
@@ -129,6 +143,7 @@ export default function InitialStoreData({
     timeDepositRecordIsLoading &&
     currencyIsLoading &&
     userCurrencyIsLoading &&
+    currencyTransactionRecordIsLoading &&
     incExpRecordIsLoading;
 
   return (

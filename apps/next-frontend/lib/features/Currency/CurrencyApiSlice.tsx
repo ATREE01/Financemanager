@@ -1,6 +1,8 @@
 import {
+  CreateCurrencyTransactionRecord,
   CreateUserCurrency,
   Currency,
+  CurrencyTransactionRecord,
   UserCurrency,
 } from "@financemanager/financemanager-webiste-types";
 
@@ -8,7 +10,7 @@ import { apiSlice } from "@/lib/api/apiSlice";
 
 export const CurrencyApiSlice = apiSlice
   .enhanceEndpoints({
-    addTagTypes: ["UserCurrency", "Currency"],
+    addTagTypes: ["UserCurrency", "Currency", "CurrencyTransactionRecord"],
   })
   .injectEndpoints({
     endpoints: (builder) => ({
@@ -19,7 +21,8 @@ export const CurrencyApiSlice = apiSlice
         }),
         providesTags: [{ type: "Currency", id: "List" }],
       }),
-      getUserCurrency: builder.query<UserCurrency[], void>({
+      // userCurrency
+      getUserCurrencies: builder.query<UserCurrency[], void>({
         query: () => ({
           url: `/users/currencies`,
           method: "GET",
@@ -46,12 +49,75 @@ export const CurrencyApiSlice = apiSlice
         }),
         invalidatesTags: [{ type: "UserCurrency", id: "List" }],
       }),
+      // currecy transaction records
+      getCurrencyTransactionRecords: builder.query<
+        CurrencyTransactionRecord[],
+        void
+      >({
+        query: () => ({
+          url: "/currencies/transaction/records",
+          method: "GET",
+        }),
+        providesTags: (result) => {
+          return result
+            ? [
+                ...result.map((record) => ({
+                  type: "CurrencyTransactionRecord" as const,
+                  id: record.id,
+                })),
+                { type: "CurrencyTransactionRecord", id: "List" },
+              ]
+            : [{ type: "CurrencyTransactionRecord", id: "List" }];
+        },
+      }),
+      createCurrencyTransactionRecord: builder.mutation<
+        CurrencyTransactionRecord,
+        CreateCurrencyTransactionRecord
+      >({
+        query: (data) => ({
+          url: "/currencies/transaction/records",
+          method: "POST",
+          body: {
+            ...data,
+          },
+        }),
+        invalidatesTags: [{ type: "CurrencyTransactionRecord", id: "List" }],
+      }),
+      updateCurrencyTransactionRecord: builder.mutation<
+        CurrencyTransactionRecord,
+        {
+          id: number;
+          data: CreateCurrencyTransactionRecord;
+        }
+      >({
+        query: ({ id, data }) => ({
+          url: `/currencies/transaction/records/${id}`,
+          method: "PUT",
+          body: {
+            ...data,
+          },
+        }),
+        invalidatesTags: [{ type: "CurrencyTransactionRecord", id: "List" }],
+      }),
+      deleteCurrencyTransactionRecord: builder.mutation<void, number>({
+        query: (id) => ({
+          url: `/currencies/transaction/records/${id}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, id) => [
+          { type: "CurrencyTransactionRecord", id: id },
+        ],
+      }),
     }),
   });
 
 export const {
   useGetCurrenciesQuery,
-  useGetUserCurrencyQuery,
+  useGetUserCurrenciesQuery,
   useCreateUserCurrencyMutation,
   useDeleteUserCurrencyMutation,
+  useGetCurrencyTransactionRecordsQuery,
+  useCreateCurrencyTransactionRecordMutation,
+  useUpdateCurrencyTransactionRecordMutation,
+  useDeleteCurrencyTransactionRecordMutation,
 } = CurrencyApiSlice;

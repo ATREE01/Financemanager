@@ -18,7 +18,7 @@ import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 
 export default function Detail() {
-  const [showModifyForm, setShowModifyForm] = useState(false);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [formData, setFormData] = useState<BankRecord | null>(null);
 
   const [startDate, setStartDate] = useState(new Date("1900-01-01"));
@@ -105,7 +105,7 @@ export default function Detail() {
             className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors duration-200 mx-1"
             onClick={() => {
               setFormData(record);
-              setShowModifyForm(!showModifyForm);
+              setShowUpdateForm(!showUpdateForm);
             }}
           >
             修改
@@ -124,8 +124,7 @@ export default function Detail() {
   return (
     <main className="bg-slate-100 py-5 min-h-screen pt-[--navbar-height]">
       <PageLabel title={"金融機構:明細"} />
-
-      <div className="h-[80vh] w-full flex flex-col items-center ">
+      <div className="h-[80vh] w-full flex flex-col items-center pt-2">
         <DurationFilter
           startDate={{ data: startDate, setData: setStartDate }}
           endDate={{ data: endDate, setData: setEndDate }}
@@ -146,11 +145,13 @@ export default function Detail() {
           </div>
         </div>
 
-        <DetailTable titles={titles} tableContent={tableContent} />
+        <div className="w-[90vw]">
+          <DetailTable titles={titles} tableContent={tableContent} />
+        </div>
         <BankFormManager
-          modifyShowState={{
-            isShow: showModifyForm,
-            setShow: setShowModifyForm,
+          updateShowState={{
+            isShow: showUpdateForm,
+            setShow: setShowUpdateForm,
           }}
           formData={formData}
         />

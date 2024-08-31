@@ -102,6 +102,7 @@
 .form-btn {
   text-align: center;
   user-select: none;
+  margin: 0.5em;
 }
 
 .form-btn button {
