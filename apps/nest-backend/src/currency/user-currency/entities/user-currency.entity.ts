@@ -8,7 +8,7 @@ export class UserCurrency {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Currency, (currency) => currency.userCurrency, {
+  @ManyToOne(() => Currency, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

@@ -97,7 +97,7 @@ export class BankService {
     );
   }
 
-  async modifyBankRecord(id: number, createBankRecordDto: CreateBankRecordDto) {
+  async updateBankRecord(id: number, createBankRecordDto: CreateBankRecordDto) {
     return await this.bankRecordRepository.update(id, {
       type: createBankRecordDto.type,
       date: new Date(createBankRecordDto.date),
@@ -167,7 +167,7 @@ export class BankService {
     );
   }
 
-  async modifyTimeDepositRecord(
+  async updateTimeDepositRecord(
     id: number,
     createTimeDepositRecordDto: CreateTimeDepositRecordDto,
   ) {

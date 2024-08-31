@@ -10,7 +10,6 @@ import {
 import { BankRecord } from '@/src/bank/entities/bank-reocrd.entity';
 import { TimeDepositRecord } from '@/src/bank/entities/time-deposit-record.entity';
 import { Currency } from '@/src/currency/entities/currency.entity';
-import { IncExpRecord } from '@/src/inc-exp/entities/inc-exp-record.entity';
 import { User } from '@/src/user/entities/user.entity';
 
 @Entity('Banks')
@@ -29,10 +28,7 @@ export class Bank {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  user?: User;
-
-  @OneToMany(() => IncExpRecord, (incExpRecord) => incExpRecord.bank)
-  incExpRecords?: IncExpRecord[];
+  user: User;
 
   @OneToMany(() => BankRecord, (bankRecord) => bankRecord.bank)
   bankRecords?: BankRecord[];

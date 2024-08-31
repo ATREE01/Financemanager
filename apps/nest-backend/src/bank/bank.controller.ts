@@ -51,7 +51,7 @@ export class BankController {
 
   @UseGuards(JwtAuthGuard)
   @Put('records/:id')
-  async modifyBankRecord(
+  async updateBankRecord(
     @Req() req: Request,
     @Param('id') id: number,
     @Body() createBankRecordDto: CreateBankRecordDto,
@@ -60,7 +60,7 @@ export class BankController {
     const yes = await this.bankService.checkRecordOwnership(id, userId);
     if (!yes) throw new BadRequestException();
     try {
-      return await this.bankService.modifyBankRecord(id, createBankRecordDto);
+      return await this.bankService.updateBankRecord(id, createBankRecordDto);
     } catch (e) {
       throw new InternalServerErrorException();
     }
@@ -98,7 +98,7 @@ export class BankController {
 
   @UseGuards(JwtAuthGuard)
   @Put('time-deposit/records/:id')
-  async modifyTimeDepositRecord(
+  async updateTimeDepositRecord(
     @Req() req: Request,
     @Param('id') id: number,
     @Body() createTimeDepositRecordDto: CreateTimeDepositRecordDto,
@@ -110,7 +110,7 @@ export class BankController {
     );
     if (!yes) throw new BadRequestException();
     try {
-      return await this.bankService.modifyTimeDepositRecord(
+      return await this.bankService.updateTimeDepositRecord(
         id,
         createTimeDepositRecordDto,
       );

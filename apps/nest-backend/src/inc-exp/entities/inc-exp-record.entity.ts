@@ -24,13 +24,13 @@ export class IncExpRecord {
   @Column()
   type: string;
 
-  @ManyToOne(() => Category, (category) => category.incExpRecords, {
+  @ManyToOne(() => Category, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   category: Category;
 
-  @ManyToOne(() => Currency, (currency) => currency.incExpRecords, {})
+  @ManyToOne(() => Currency, {})
   currency: Currency;
 
   @Column()
@@ -39,7 +39,7 @@ export class IncExpRecord {
   @Column()
   method: string;
 
-  @ManyToOne(() => Bank, (bank) => bank.incExpRecords, {
+  @ManyToOne(() => Bank, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
     nullable: true,

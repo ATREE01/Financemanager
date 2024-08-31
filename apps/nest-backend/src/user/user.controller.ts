@@ -70,7 +70,7 @@ export class UserController {
     const id = (req.user as UserInfo).userId;
     const result = {
       income: await this.categoryService.getIncomeByUserId(id),
-      expense: await this.categoryService.getExpenseBuUserId(id),
+      expense: await this.categoryService.getExpenseByUserId(id),
     };
     return result;
   }

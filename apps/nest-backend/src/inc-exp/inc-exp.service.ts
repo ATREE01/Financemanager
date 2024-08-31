@@ -22,7 +22,9 @@ export class IncExpService {
       relations: {
         category: true,
         currency: true,
-        bank: true,
+        bank: {
+          currency: true,
+        },
       },
     });
   }
@@ -47,7 +49,7 @@ export class IncExpService {
     );
   }
 
-  async modifyIncExpRecord(id: number, incExpRecordDto: CreateIncExpRecordDto) {
+  async updateIncExpRecord(id: number, incExpRecordDto: CreateIncExpRecordDto) {
     return await this.incExpRepository.update(id, {
       date: new Date(incExpRecordDto.date),
       type: incExpRecordDto.type,

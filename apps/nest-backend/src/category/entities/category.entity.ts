@@ -3,12 +3,10 @@ import {
   Column,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 
-import { IncExpRecord } from '@/src/inc-exp/entities/inc-exp-record.entity';
 import { User } from '@/src/user/entities/user.entity';
 
 @Entity('Categories')
@@ -33,7 +31,4 @@ export class Category {
     onUpdate: 'CASCADE',
   })
   user?: User;
-
-  @OneToMany(() => IncExpRecord, (incExpRecord) => incExpRecord.category)
-  incExpRecords?: IncExpRecord[];
 }

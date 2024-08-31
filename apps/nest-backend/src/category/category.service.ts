@@ -41,7 +41,7 @@ export class CategoryService {
     });
   }
 
-  async getExpenseBuUserId(userId: string): Promise<Category[]> {
+  async getExpenseByUserId(userId: string): Promise<Category[]> {
     return await this.categoryRepository.find({
       where: {
         type: CategoryType.EXPENSE,

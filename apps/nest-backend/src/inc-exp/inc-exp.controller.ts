@@ -36,10 +36,10 @@ export class IncExpController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  async modifyIncExpRecord(
+  async udpateIncExpRecord(
     @Req() req: Request,
     @Param('id') id: number,
-    @Body() modifyIncExpRecordDto: CreateIncExpRecordDto,
+    @Body() updateIncExpRecordDto: CreateIncExpRecordDto,
   ) {
     const yes = await this.incExpService.checkRecordOwnership(
       (req.user as UserInfo).userId,
@@ -49,9 +49,9 @@ export class IncExpController {
       throw new BadRequestException();
     }
     try {
-      return await this.incExpService.modifyIncExpRecord(
+      return await this.incExpService.updateIncExpRecord(
         id,
-        modifyIncExpRecordDto,
+        updateIncExpRecordDto,
       );
     } catch (e) {
       throw new InternalServerErrorException();
