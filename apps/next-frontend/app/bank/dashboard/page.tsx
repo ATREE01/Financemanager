@@ -191,7 +191,7 @@ const DashboardBank = () => {
             height={"20rem"}
           />
         </div>
-        <div className="flex-1 min-w-[50vh] flex flex-col items-center">
+        <div className="flex-1 min-w-[50vw] flex flex-col items-center overflow-auto">
           <DetailTable titles={titles} tableContent={tableContent} />
         </div>
         <BankFormManager updateShowState={null} />

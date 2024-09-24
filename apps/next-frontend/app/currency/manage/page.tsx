@@ -65,7 +65,7 @@ export default function CurrencyManage() {
     <main className="pt-[--navbar-height] bg-slate-100">
       <PageLabel title={"外幣管理"} />
       <div className="flex justify-center pt-1">
-        <div className="w-1/2 h-[80vh]">
+        <div className="w-full h-[80vh] sm:w-[80vw] lg:w-[35vw] p-4">
           <DetailTable titles={tableTitles} tableContent={tableContent} />
         </div>
       </div>

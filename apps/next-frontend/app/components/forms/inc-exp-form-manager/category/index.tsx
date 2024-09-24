@@ -1,9 +1,11 @@
-import { ShowState } from "@financemanager/financemanager-webiste-types";
+import {
+  IncExpRecordType,
+  ShowState,
+} from "@financemanager/financemanager-webiste-types";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
-import styles from "@/app/components/forms/form.module.css";
 import { useCreateCategoryMutation } from "@/lib/features/Category/CategoryApiSlice";
 
 export default function CategoryForm({ showState }: { showState: ShowState }) {
@@ -15,24 +17,27 @@ export default function CategoryForm({ showState }: { showState: ShowState }) {
   return (
     <>
       {showState.isShow ? (
-        <div className={styles["form-scrim"]} onClick={onClick}></div>
+        <div className="form-scrim" onClick={onClick}></div>
       ) : (
         ""
       )}
       <div
-        className={`text-black ${styles["form-container"]} ${showState.isShow ? styles["activate"] : ""}`}
+        className={`text-black form-container ${showState.isShow ? "activate" : ""}`}
       >
-        <div className={styles["close-btn"]}>
+        <div className="close-btn">
           <i className="bi bi-x-circle-fill" onClick={onClick}></i>
         </div>
-        <div className={styles["form-title"]}>新增自訂種類</div>
+        <div className="form-title">新增種類</div>
         <Formik
           initialValues={{
             type: "default",
             name: "",
           }}
           validationSchema={Yup.object().shape({
-            type: Yup.string().oneOf(["income", "expense"], "請選擇類別"),
+            type: Yup.string().oneOf(
+              [IncExpRecordType.INCOME, IncExpRecordType.EXPENSE],
+              "請選擇類別",
+            ),
             name: Yup.string()
               .required("請輸入名稱")
               .max(16, "最多只能輸入16個字"),
@@ -52,41 +57,37 @@ export default function CategoryForm({ showState }: { showState: ShowState }) {
         >
           {(props) => (
             <Form>
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>類別 </label>
-                <Field
-                  as="select"
-                  className={styles["form-select"]}
-                  name="type"
-                >
+              <div className="form-InputBar">
+                <label className="form-label">類別 </label>
+                <Field as="select" className="form-select" name="type">
                   <option disabled value="default">
                     {" "}
                     -- 請選擇 --{" "}
                   </option>
-                  <option value="income">收入</option>
-                  <option value="expense">支出</option>
+                  <option value={IncExpRecordType.INCOME}>收入</option>
+                  <option value={IncExpRecordType.EXPENSE}>支出</option>
                 </Field>
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="type"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>名稱</label>
+              <div className="form-InputBar">
+                <label className="form-label">名稱</label>
                 <Field
                   as="input"
-                  className={styles["form-input"]}
+                  className="form-input"
                   name="name"
                   placeholder="類別名稱"
                 />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="name"
                 component="div"
               />
-              <div className={styles["form-btn"]}>
+              <div className="form-btn">
                 <button
                   className="bg-slate-300 enabled:hover:bg-slate-500 border-2 border-black rounded-full disabled:opacity-25"
                   disabled={!props.dirty || !props.isValid}

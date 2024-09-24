@@ -4,7 +4,6 @@ import {
 } from "@financemanager/financemanager-webiste-types";
 import { useState } from "react";
 
-import styles from "@/app/components/forms/form.module.css";
 import TimeDepositRecordForm from "@/app/components/forms/time-deposit-manager/record/index";
 
 export default function TimeDepositRecordFormManager({
@@ -22,9 +21,9 @@ export default function TimeDepositRecordFormManager({
 
   return (
     <>
-      <div className={`text-black ${styles["record-btn-container"]}`}>
+      <div className="text-black record-btn-container">
         <div
-          className={`${styles["record-btn"]} ${show ? styles["up-right"] : ""}`}
+          className={`record-btn ${show ? "up-right" : ""}`}
           onClick={handleNewRecordClick}
         >
           <i className="bi bi-pen"></i>
@@ -38,7 +37,7 @@ export default function TimeDepositRecordFormManager({
             <div className={`record-btn ${show ? styles["left-down"] : ""}` } onClick={handleManageCategoryClick}>
                         <i className="bi bi-gear"></i>
                     </div> */}
-        <div className={styles["record-btn"]} onClick={handleShowClick}>
+        <div className="record-btn" onClick={handleShowClick}>
           <i className="bi bi-layers"></i>
         </div>
       </div>

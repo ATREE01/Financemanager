@@ -5,8 +5,6 @@ import {
 import { useState } from "react";
 
 import CurrencyTransactionRecordForm from "@/app/components/forms/currency-transaction-form-manager/record";
-import styles from "@/app/components/forms/form.module.css";
-
 export default function CurrenyTransactionFormManager({
   updateShowState,
   formData,
@@ -22,15 +20,15 @@ export default function CurrenyTransactionFormManager({
 
   return (
     <>
-      <div className={`text-black ${styles["record-btn-container"]}`}>
+      <div className={`text-black record-btn-container`}>
         <div
-          className={`${styles["record-btn"]} ${show ? styles["up-right"] : ""}`}
+          className={`record-btn ${show ? "up-right" : ""}`}
           onClick={handleNewRecordClick}
         >
           <i className="bi bi-pen"></i>
         </div>
 
-        <div className={styles["record-btn"]} onClick={handleShowClick}>
+        <div className="record-btn" onClick={handleShowClick}>
           <i className="bi bi-layers"></i>
         </div>
       </div>

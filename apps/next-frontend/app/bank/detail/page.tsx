@@ -122,7 +122,7 @@ export default function Detail() {
   });
 
   return (
-    <main className="bg-slate-100 py-5 min-h-screen pt-[--navbar-height]">
+    <main className="bg-slate-100 pt-[--navbar-height] pb-5">
       <PageLabel title={"金融機構:明細"} />
       <div className="h-[80vh] w-full flex flex-col items-center pt-2">
         <DurationFilter
@@ -145,7 +145,7 @@ export default function Detail() {
           </div>
         </div>
 
-        <div className="w-[90vw]">
+        <div className="w-[90vw] max-h-[60vh] overflow-auto">
           <DetailTable titles={titles} tableContent={tableContent} />
         </div>
         <BankFormManager

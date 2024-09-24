@@ -94,7 +94,7 @@ export default function CurrencyTransaction() {
     <main className="pt-[--navbar-height] bg-slate-100">
       <PageLabel title={"外幣交易"} />
 
-      <div className="h-[80vh] w-full flex flex-col items-center pt-2">
+      <div className="h-[80vh] w-full flex flex-col items-center py-10">
         <CurrenyTransactionFormManager
           updateShowState={{
             isShow: showUpdateForm,
@@ -102,8 +102,9 @@ export default function CurrencyTransaction() {
           }}
           formData={formData}
         />
-
-        <DetailTable titles={tableTitles} tableContent={tableContent} />
+        <div className="w-[90%] h-[60vh]">
+          <DetailTable titles={tableTitles} tableContent={tableContent} />
+        </div>
       </div>
     </main>
   );

@@ -8,7 +8,6 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
 
-import styles from "@/app/components/forms/form.module.css";
 import {
   useCreateTimeDepositRecordMutation,
   useModifyTimeDepositRecordMutation,
@@ -57,16 +56,14 @@ export default function TimeDepositRecordForm({
 
   return (
     <>
-      {showState.isShow && (
-        <div className={styles["form-scrim"]} onClick={onClick}></div>
-      )}
+      {showState.isShow && <div className="form-scrim" onClick={onClick}></div>}
       <div
-        className={`text-black ${styles["form-container"]} ${showState.isShow ? styles["activate"] : ""}`}
+        className={`text-black form-container ${showState.isShow ? "activate" : ""}`}
       >
-        <div className={styles["close-btn"]}>
+        <div className="close-btn">
           <i className="bi bi-x-circle-fill" onClick={onClick}></i>
         </div>
-        <div className={styles["form-title"]}>
+        <div className="form-title">
           {mode === "new" ? "新增定存" : "修改紀錄"}
         </div>
         <Formik
@@ -115,11 +112,11 @@ export default function TimeDepositRecordForm({
         >
           {(props) => (
             <Form>
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>金融機構</label>
+              <div className="form-InputBar">
+                <label className="form-label">金融機構</label>
                 <Field
                   as="select"
-                  className={styles["form-select"]}
+                  className="form-select"
                   name="bankId"
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                     props.handleChange(e);
@@ -133,78 +130,66 @@ export default function TimeDepositRecordForm({
                   {bankContent}
                 </Field>
               </div>
-              <div
-                className={`-my-2 text-center text-xl ${styles["form-currency"]}`}
-              >
+              <div className="-my-2 text-center text-xl form-currency">
                 幣別:
-                <span
-                  className={`font-bold text-xl text-rose-600 ${styles["form-currency-text"]}`}
-                >
+                <span className="font-bold text-xl text-rose-600 form-currency-text">
                   {bank?.currency.name}
                 </span>
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="bankId"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>名稱</label>
+              <div className="form-InputBar">
+                <label className="form-label">名稱</label>
                 <Field
-                  className={styles["form-input"]}
+                  className="form-input"
                   name="name"
                   placeholder="任意名稱"
                 />
               </div>
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>金額</label>
-                <Field className={styles["form-input"]} name="amount" />
+              <div className="form-InputBar">
+                <label className="form-label">金額</label>
+                <Field className="form-input" name="amount" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="amount"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>利率</label>
+              <div className="form-InputBar">
+                <label className="form-label">利率</label>
                 <Field
-                  className={styles["form-input"]}
+                  className="form-input"
                   name="interestRate"
                   placeholder="Ex:1.5%"
                 />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="interest"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>開始日期</label>
-                <Field
-                  className={styles["form-input"]}
-                  name="startDate"
-                  type="date"
-                />
+              <div className="form-InputBar">
+                <label className="form-label">開始日期</label>
+                <Field className="form-input" name="startDate" type="date" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="startDate"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>結束日期</label>
-                <Field
-                  className={styles["form-input"]}
-                  name="endDate"
-                  type="date"
-                />
+              <div className="form-InputBar">
+                <label className="form-label">結束日期</label>
+                <Field className="form-input" name="endDate" type="date" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="endDate"
                 component="div"
               />
-              <div className={styles["form-btn"]}>
+              <div className="form-btn">
                 <button
                   className={`bg-slate-300 enabled:hover:bg-slate-500 border-2 border-black rounded-full disabled:opacity-25`}
                   disabled={!props.dirty || !props.isValid}

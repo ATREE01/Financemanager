@@ -5,7 +5,6 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
-import styles from "@/app/components/forms/form.module.css";
 import { useCreateBankMutation } from "@/lib/features/Bank/BankApiSlice";
 import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
 
@@ -26,16 +25,14 @@ export default function BankForm({ showState }: { showState: ShowState }) {
   //TODO: make the user can reorder the bank.
   return (
     <>
-      {showState.isShow && (
-        <div className={styles["form-scrim"]} onClick={onClick}></div>
-      )}
+      {showState.isShow && <div className="form-scrim" onClick={onClick}></div>}
       <div
-        className={`text-black ${styles["form-container"]} ${showState.isShow ? styles["activate"] : ""}`}
+        className={`text-black form-container ${showState.isShow ? "activate" : ""}`}
       >
-        <div className={styles["close-btn"]}>
+        <div className="close-btn">
           <i className="bi bi-x-circle-fill" onClick={onClick}></i>
         </div>
-        <div className={styles["form-title"]}>新增帳戶</div>
+        <div className="form-title">新增帳戶</div>
         <Formik
           initialValues={{
             name: "",
@@ -64,29 +61,25 @@ export default function BankForm({ showState }: { showState: ShowState }) {
         >
           {(props) => (
             <Form>
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>名稱</label>
-                <Field className={styles["form-input"]} name="name" />
+              <div className="form-InputBar">
+                <label className="form-label">名稱</label>
+                <Field className="form-input" name="name" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="name"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>幣別 </label>
-                <Field
-                  className={styles["form-select"]}
-                  as="select"
-                  name="currency"
-                >
+              <div className="form-InputBar">
+                <label className="form-label">幣別 </label>
+                <Field className="form-select" as="select" name="currency">
                   <option value="default" disabled>
                     -- 請選擇 --
                   </option>
                   {userCurrencyNode}
                 </Field>
               </div>
-              <div className={styles["form-btn"]}>
+              <div className="form-btn">
                 <button
                   className="bg-slate-300 enabled:hover:bg-slate-500 border-2 border-black rounded-full disabled:opacity-25"
                   disabled={!props.dirty || !props.isValid}

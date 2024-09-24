@@ -11,7 +11,6 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
 
-import styles from "@/app/components/forms/form.module.css";
 import { useBanks } from "@/lib/features/Bank/BankSlice";
 import { useCategories } from "@/lib/features/Category/CategorySlice";
 import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
@@ -102,17 +101,17 @@ export default function IncExpRecordForm({
   return (
     <>
       {showState.isShow ? (
-        <div className={styles["form-scrim"]} onClick={onClick}></div>
+        <div className="form-scrim" onClick={onClick}></div>
       ) : (
         ""
       )}
       <div
-        className={`text-black ${styles["form-container"]} ${showState.isShow ? styles["activate"] : ""}`}
+        className={`text-black form-container ${showState.isShow ? "activate" : ""}`}
       >
-        <div className={styles["close-btn"]}>
+        <div className="close-btn">
           <i className="bi bi-x-circle-fill" onClick={onClick}></i>
         </div>
-        <div className={styles["form-title"]}>
+        <div className="form-title">
           {mode === "new" ? "新增紀錄" : "修改紀錄"}
         </div>
         <Formik
@@ -194,11 +193,11 @@ export default function IncExpRecordForm({
         >
           {(props) => (
             <Form>
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>類別</label>
+              <div className="form-InputBar">
+                <label className="form-label">類別</label>
                 <Field
                   as="select"
-                  className={styles["form-select"]}
+                  className="form-select"
                   name="type"
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                     props.handleChange(e);
@@ -214,52 +213,44 @@ export default function IncExpRecordForm({
                 </Field>
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="type"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>日期</label>
-                <Field
-                  className={styles["form-input"]}
-                  name="date"
-                  type="date"
-                />
+              <div className="form-InputBar">
+                <label className="form-label">日期</label>
+                <Field className="form-input" name="date" type="date" />
               </div>
 
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>種類 </label>
-                <Field
-                  as="select"
-                  className={styles["form-select"]}
-                  name="categoryId"
-                >
+              <div className="form-InputBar">
+                <label className="form-label">種類 </label>
+                <Field as="select" className="form-select" name="categoryId">
                   <option value="">-- 請選擇類別 --</option>
                   {type === IncExpRecordType.INCOME ? incomeCategoryNode : ""}
                   {type === IncExpRecordType.EXPENSE ? expenseCategoryNode : ""}
                 </Field>
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="categoryId"
                 component="div"
               />
 
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>金額</label>
-                <Field className={styles["form-input"]} name="amount" />
+              <div className="form-InputBar">
+                <label className="form-label">金額</label>
+                <Field className="form-input" name="amount" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="amount"
                 component="div"
               />
 
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>收支方式</label>
+              <div className="form-InputBar">
+                <label className="form-label">收支方式</label>
                 <Field
                   as="select"
-                  className={styles["form-select"]}
+                  className="form-select"
                   name="method"
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                     props.handleChange(e);
@@ -274,18 +265,18 @@ export default function IncExpRecordForm({
                 </Field>
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="method"
                 component="div"
               />
 
               {method === IncExpMethodType.FINANCE ? (
                 <>
-                  <div className={styles["form-InputBar"]}>
-                    <label className={styles["form-label"]}>金融機構</label>
+                  <div className="form-InputBar">
+                    <label className="form-label">金融機構</label>
                     <Field
                       as="select"
-                      className={styles["form-select"]}
+                      className="form-select"
                       name="bankId"
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                         props.handleChange(e);
@@ -306,18 +297,18 @@ export default function IncExpRecordForm({
                     </span>
                   </div>
                   <ErrorMessage
-                    className={styles["form-ErrorMessage"]}
+                    className="form-ErrorMessage"
                     name="bankId"
                     component="div"
                   />
                   {props.values.type === IncExpRecordType.EXPENSE && (
                     <>
-                      <div className={styles["form-InputBar"]}>
-                        <label className={styles["form-label"]}>手續費</label>
-                        <Field className={styles["form-input"]} name="charge" />
+                      <div className="form-InputBar">
+                        <label className="form-label">手續費</label>
+                        <Field className="form-input" name="charge" />
                       </div>
                       <ErrorMessage
-                        className={styles["form-ErrorMessage"]}
+                        className="form-ErrorMessage"
                         name="charge"
                         component="div"
                       />
@@ -326,11 +317,11 @@ export default function IncExpRecordForm({
                 </>
               ) : (
                 <>
-                  <div className={styles["form-InputBar"]}>
-                    <label className={styles["form-label"]}>幣別</label>
+                  <div className="form-InputBar">
+                    <label className="form-label">幣別</label>
                     <Field
                       as="select"
-                      className={styles["form-select"]}
+                      className="form-select"
                       name="currencyId"
                     >
                       <option value="">-- 請選擇 --</option>
@@ -338,23 +329,23 @@ export default function IncExpRecordForm({
                     </Field>
                   </div>
                   <ErrorMessage
-                    className={styles["form-ErrorMessage"]}
+                    className="form-ErrorMessage"
                     name="currencyId"
                     component="div"
                   />
                 </>
               )}
 
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>備註</label>
+              <div className="form-InputBar">
+                <label className="form-label">備註</label>
                 <Field
                   as="textarea"
-                  className={`${styles["form-input"]} ${styles["note"]}`}
+                  className="form-input note"
                   name="note"
                   type="text"
                 />
               </div>
-              <div className={styles["form-btn"]}>
+              <div className="form-btn">
                 <button
                   className="bg-slate-300 enabled:hover:bg-slate-500 border-2 border-black rounded-full disabled:opacity-25"
                   disabled={!props.dirty || !props.isValid}

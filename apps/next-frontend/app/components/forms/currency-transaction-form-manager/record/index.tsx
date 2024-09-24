@@ -9,7 +9,6 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
 import * as Yup from "yup";
 
-import styles from "@/app/components/forms/form.module.css";
 import { useBanks } from "@/lib/features/Bank/BankSlice";
 import {
   useCreateCurrencyTransactionRecordMutation,
@@ -71,17 +70,17 @@ export default function CurrencyTransactionRecordForm({
   return (
     <>
       {showState.isShow ? (
-        <div className={styles["form-scrim"]} onClick={onClick}></div>
+        <div className="form-scrim" onClick={onClick}></div>
       ) : (
         ""
       )}
       <div
-        className={`text-black ${styles["form-container"]} ${showState.isShow ? styles["activate"] : ""}`}
+        className={`text-black form-container ${showState.isShow ? "activate" : ""}`}
       >
-        <div className={styles["close-btn"]}>
+        <div className="close-btn">
           <i className="bi bi-x-circle-fill" onClick={onClick}></i>
         </div>
-        <div className={styles["form-title"]}>
+        <div className="form-title">
           {mode === "new" ? "新增紀錄" : "修改紀錄"}
         </div>
         <Formik
@@ -187,19 +186,15 @@ export default function CurrencyTransactionRecordForm({
         >
           {(props) => (
             <Form>
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>日期</label>
-                <Field
-                  className={styles["form-input"]}
-                  name="date"
-                  type="date"
-                />
+              <div className="form-InputBar">
+                <label className="form-label">日期</label>
+                <Field className="form-input" name="date" type="date" />
               </div>
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>類別</label>
+              <div className="form-InputBar">
+                <label className="form-label">類別</label>
                 <Field
                   as="select"
-                  className={styles["form-select"]}
+                  className="form-select"
                   name="type"
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                     props.handleChange(e);
@@ -228,11 +223,11 @@ export default function CurrencyTransactionRecordForm({
               </div>
               {type === CurrencyTransactionRecordType.ONLINE && (
                 <>
-                  <div className={styles["form-InputBar"]}>
-                    <label className={styles["form-label"]}>出金機構</label>
+                  <div className="form-InputBar">
+                    <label className="form-label">出金機構</label>
                     <Field
                       as="select"
-                      className={styles["form-select"]}
+                      className="form-select"
                       name="fromBankId"
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                         props.handleChange(e);
@@ -255,15 +250,15 @@ export default function CurrencyTransactionRecordForm({
                     </span>
                   </div>
                   <ErrorMessage
-                    className={styles["form-ErrorMessage"]}
+                    className="form-ErrorMessage"
                     name="fromBankId"
                     component="div"
                   />
-                  <div className={styles["form-InputBar"]}>
-                    <label className={styles["form-label"]}> 入金機構</label>
+                  <div className="form-InputBar">
+                    <label className="form-label"> 入金機構</label>
                     <Field
                       as="select"
-                      className={styles["form-select"]}
+                      className="form-select"
                       name="toBankId"
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                         props.handleChange(e);
@@ -286,7 +281,7 @@ export default function CurrencyTransactionRecordForm({
                     </span>
                   </div>
                   <ErrorMessage
-                    className={styles["form-ErrorMessage"]}
+                    className="form-ErrorMessage"
                     name="toBankId"
                     component="div"
                   />
@@ -294,11 +289,11 @@ export default function CurrencyTransactionRecordForm({
               )}
               {type === CurrencyTransactionRecordType.COUNTER && (
                 <>
-                  <div className={styles["form-InputBar"]}>
-                    <label className={styles["form-label"]}>賣出幣別</label>
+                  <div className="form-InputBar">
+                    <label className="form-label">賣出幣別</label>
                     <Field
                       as="select"
-                      className={styles["form-select"]}
+                      className="form-select"
                       name="fromCurrencyId"
                     >
                       <option disabled value="default">
@@ -309,15 +304,15 @@ export default function CurrencyTransactionRecordForm({
                     </Field>
                   </div>
                   <ErrorMessage
-                    className={styles["form-ErrorMessage"]}
+                    className="form-ErrorMessage"
                     name="fromCurrencyId"
                     component="div"
                   />
-                  <div className={styles["form-InputBar"]}>
-                    <label className={styles["form-label"]}>買入幣別</label>
+                  <div className="form-InputBar">
+                    <label className="form-label">買入幣別</label>
                     <Field
                       as="select"
-                      className={styles["form-select"]}
+                      className="form-select"
                       name="toCurrencyId"
                     >
                       <option disabled value="default">
@@ -328,49 +323,49 @@ export default function CurrencyTransactionRecordForm({
                     </Field>
                   </div>
                   <ErrorMessage
-                    className={styles["form-ErrorMessage"]}
+                    className="form-ErrorMessage"
                     name="toCurrencyId"
                     component="div"
                   />
                 </>
               )}
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>賣出金額</label>
-                <Field className={styles["form-input"]} name="fromAmount" />
+              <div className="form-InputBar">
+                <label className="form-label">賣出金額</label>
+                <Field className="form-input" name="fromAmount" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="fromAmount"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>買入金額</label>
-                <Field className={styles["form-input"]} name="toAmount" />
+              <div className="form-InputBar">
+                <label className="form-label">買入金額</label>
+                <Field className="form-input" name="toAmount" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="toAmount"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>匯率</label>
-                <Field className={styles["form-input"]} name="exchangeRate" />
+              <div className="form-InputBar">
+                <label className="form-label">匯率</label>
+                <Field className="form-input" name="exchangeRate" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="exchangeRate"
                 component="div"
               />
-              <div className={styles["form-InputBar"]}>
-                <label className={styles["form-label"]}>手續費</label>
-                <Field className={styles["form-input"]} name="charge" />
+              <div className="form-InputBar">
+                <label className="form-label">手續費</label>
+                <Field className="form-input" name="charge" />
               </div>
               <ErrorMessage
-                className={styles["form-ErrorMessage"]}
+                className="form-ErrorMessage"
                 name="charge"
                 component="div"
               />
-              <div className={styles["form-btn"]}>
+              <div className="form-btn">
                 <button
                   className="bg-slate-300 enabled:hover:bg-slate-500 border-2 border-black rounded-full disabled:opacity-25"
                   disabled={!props.dirty || !props.isValid}

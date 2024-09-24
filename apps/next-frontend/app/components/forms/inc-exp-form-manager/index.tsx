@@ -4,7 +4,6 @@ import {
 } from "@financemanager/financemanager-webiste-types";
 import { useState } from "react";
 
-import styles from "@/app/components/forms/form.module.css";
 import CategoryForm from "@/app/components/forms/inc-exp-form-manager/category";
 import IncExpRecordForm from "@/app/components/forms/inc-exp-form-manager/record";
 
@@ -27,15 +26,15 @@ export default function IncExpFormManager({
 
   return (
     <>
-      <div className={`text-black ${styles["record-btn-container"]}`}>
+      <div className="text-black record-btn-container">
         <div
-          className={`${styles["record-btn"]} ${show ? styles["up-right"] : ""}`}
+          className={`record-btn ${show ? "up-right" : ""}`}
           onClick={handleNewRecordClick}
         >
           <i className="bi bi-pen"></i>
         </div>
         <div
-          className={`${styles["record-btn"]} ${show ? styles["left-up"] : ""}`}
+          className={`record-btn ${show ? "left-up" : ""}`}
           onClick={handleNewCategoryClick}
         >
           <i className="bi bi-plus-circle"></i>
@@ -43,7 +42,7 @@ export default function IncExpFormManager({
         {/* <div className={`record-btn ${show ? styles["left-down"] : ""}` } onClick={handleManageCategoryClick}>
                     <i className="bi bi-gear"></i>
                 </div> */}
-        <div className={styles["record-btn"]} onClick={handleShowClick}>
+        <div className="record-btn" onClick={handleShowClick}>
           <i className="bi bi-layers"></i>
         </div>
       </div>

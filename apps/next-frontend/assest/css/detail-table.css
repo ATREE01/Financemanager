@@ -1,0 +1,54 @@
+.test {
+  color: red;
+}
+
+.table-container {
+  width: 90vw;
+  max-height: 65vh;
+  overflow: auto;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 10px;
+  background: rgb(235, 234, 234);
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  width: 0.5rem;
+  border-radius: 10px;
+  background: #a5a4a4;
+}
+
+.table-content {
+  width: 100%;
+}
+
+.table-data-cell {
+  white-space: nowrap; /*這個東西可以讓她不會換行*/
+  max-width: 20em;
+  overflow: auto;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  color: #4a5568;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.table-data-center {
+  text-align: center;
+}
+
+.table-data-cell.number {
+  text-align: right;
+}
+
+.table-btn {
+  width: 2em;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 1em;
+}
