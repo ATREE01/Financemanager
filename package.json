@@ -19,21 +19,21 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.14.12",
+    "@types/node": "^20.16.5",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react-refresh": "^0.4.10",
+    "eslint-plugin-react-refresh": "^0.4.11",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "eslint-plugin-vue": "^9.27.0",
+    "eslint-plugin-vue": "^9.28.0",
     "husky": "^8.0.3",
-    "lerna": "^8.1.7",
-    "lint-staged": "^15.2.7",
+    "lerna": "^8.1.8",
+    "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "typescript": "^5.5.4"
   },
@@ -44,5 +44,9 @@
     "{apps,packages}/**/*.{tsx,cjs,ts,js}": [
       "eslint --fix"
     ]
-  }
+  },
+  "dependencies": {
+    "financemanager": "file:"
+  },
+  "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c"
 }
