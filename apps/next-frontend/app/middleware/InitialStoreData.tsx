@@ -13,6 +13,8 @@ import {
   setBanks,
   setTimeDepositRecords,
 } from "@/lib/features/Bank/BankSlice";
+import { useGetBrokerageFirmsQuery } from "@/lib/features/BrokerageFirm/BrokerageFirmApiSlice";
+import { setBrokerageFirms } from "@/lib/features/BrokerageFirm/BrokerageFirmSlice";
 import { useGetCategoriesQuery } from "@/lib/features/Category/CategoryApiSlice";
 import { setCategories } from "@/lib/features/Category/CategorySlice";
 import {
@@ -28,6 +30,18 @@ import {
 import { useGetIncExpRecordsQuery } from "@/lib/features/IncExp/IncExpApiSlice";
 import { setIncExpRecords } from "@/lib/features/IncExp/IncExpSlice";
 import { setPhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
+import {
+  useGetStockBundleSellRecordsQuery,
+  useGetStockRecordsQuery,
+  useGetStockSummaryQuery,
+  useGetUserStocksQuery,
+} from "@/lib/features/stock/StockApiSlice";
+import {
+  setStockBundleSellRecord,
+  setStockRecords,
+  setStocks,
+  setStockSummaries,
+} from "@/lib/features/stock/StockSlice";
 import { useAppDispatch } from "@/lib/hook";
 
 export default function InitialStoreData({
@@ -62,6 +76,36 @@ export default function InitialStoreData({
     refetch: refetchTimeDepositRecords,
   } = useGetTimeDepositRecordsQuery();
   const {
+    data: brokerageFirms,
+    isSuccess: brokerageFirmIsSuccess,
+    isLoading: brokerageFirmIsLoading,
+    refetch: refetchBrokerageFirms,
+  } = useGetBrokerageFirmsQuery();
+  const {
+    data: userStocks,
+    isSuccess: userStockIsSuccess,
+    isLoading: userStockIsLoading,
+    refetch: refetchUserStock,
+  } = useGetUserStocksQuery();
+  const {
+    data: stockRecords,
+    isSuccess: stockRecordIsSuccess,
+    isLoading: stockRecordIsLoading,
+    refetch: refetchStockRecords,
+  } = useGetStockRecordsQuery();
+  const {
+    data: stockSumaries,
+    isSuccess: stockSumaryIsSuccess,
+    isLoading: stockSumaryIsLoading,
+    refetch: refetchStockSumaries,
+  } = useGetStockSummaryQuery();
+  const {
+    data: stockBundleSellRecord,
+    isSuccess: stockBundleSellRecordIsSuccess,
+    isLoading: stockBundleSellRecordIsLoading,
+    refetch: refetchStockBundleSellRecord,
+  } = useGetStockBundleSellRecordsQuery();
+  const {
     data: currencies,
     isSuccess: currencyIsSuccess,
     isLoading: currencyIsLoading,
@@ -88,14 +132,19 @@ export default function InitialStoreData({
 
   const userId = useUserId();
   useEffect(() => {
-    refetchBankRecords();
+    refetchIncExpRecord();
     refetchCategories();
     refetchBanks();
+    refetchBankRecords();
     refetchTimeDepositRecords();
+    refetchBrokerageFirms();
+    refetchUserStock();
+    refetchStockRecords();
+    refetchStockSumaries();
+    refetchStockBundleSellRecord();
     refetchCurrencies();
     refetchUserCurrencies();
     refetchCurrencyTransactionRecords();
-    refetchIncExpRecord();
   }, [userId]);
 
   useEffect(() => {
@@ -114,6 +163,27 @@ export default function InitialStoreData({
     if (timeDepositRecordIsSuccess)
       dispatch(setTimeDepositRecords(timeDepositRecords));
   }, [timeDepositRecords]);
+
+  useEffect(() => {
+    if (brokerageFirmIsSuccess) dispatch(setBrokerageFirms(brokerageFirms));
+  }, [brokerageFirms]);
+
+  useEffect(() => {
+    if (userStockIsSuccess) dispatch(setStocks(userStocks));
+  }, [userStocks]);
+
+  useEffect(() => {
+    if (stockRecordIsSuccess) dispatch(setStockRecords(stockRecords));
+  }, [stockRecords]);
+
+  useEffect(() => {
+    if (stockSumaryIsSuccess) dispatch(setStockSummaries(stockSumaries));
+  }, [stockSumaries]);
+
+  useEffect(() => {
+    if (stockBundleSellRecordIsSuccess)
+      dispatch(setStockBundleSellRecord(stockBundleSellRecord));
+  }, [stockBundleSellRecord]);
 
   useEffect(() => {
     if (currencyIsSuccess) dispatch(setCurrencies(currencies));
@@ -141,6 +211,11 @@ export default function InitialStoreData({
     bankIsLoading &&
     bankRecordIsLoading &&
     timeDepositRecordIsLoading &&
+    brokerageFirmIsLoading &&
+    userStockIsLoading &&
+    stockRecordIsLoading &&
+    stockSumaryIsLoading &&
+    stockBundleSellRecordIsLoading &&
     currencyIsLoading &&
     userCurrencyIsLoading &&
     currencyTransactionRecordIsLoading &&
