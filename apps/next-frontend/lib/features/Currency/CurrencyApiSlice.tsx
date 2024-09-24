@@ -34,7 +34,7 @@ export const CurrencyApiSlice = apiSlice
       }),
       createUserCurrency: builder.mutation<UserCurrency, CreateUserCurrency>({
         query: (data) => ({
-          url: "/users/currencies",
+          url: "/currencies",
           method: "POST",
           body: {
             ...data,

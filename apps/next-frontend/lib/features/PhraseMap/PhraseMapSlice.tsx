@@ -4,6 +4,7 @@ import {
   IncExpMethodType,
   IncExpRecordType,
   PhraseMap,
+  StockBuyMethod,
 } from "@financemanager/financemanager-webiste-types";
 import { createSlice } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
@@ -34,6 +35,10 @@ const PhraseMapSlice = createSlice({
         currencyTransactionRecordType: {
           [CurrencyTransactionRecordType.ONLINE]: "線上換匯",
           [CurrencyTransactionRecordType.COUNTER]: "臨櫃換匯",
+        },
+        stockBuyMethod: {
+          [StockBuyMethod.MANULLY]: "手動買入",
+          [StockBuyMethod.REGULAR]: "定期定額",
         },
       } as PhraseMap;
     },
