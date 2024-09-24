@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "../assest/css/form.css";
+@import "../assest/css/detail-table.css";
+
 :root {
   --navbar-height: 50px;
   --foreground-rgb: 0, 0, 0;

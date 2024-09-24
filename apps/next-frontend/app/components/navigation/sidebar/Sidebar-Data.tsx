@@ -34,19 +34,19 @@ export const SidebarData = [
     ],
   },
   {
-    title: "投資",
+    title: "股票",
     childrens: [
       {
         title: "股票總覽",
-        path: "/investment/dashboard",
+        path: "/investment/stock/dashboard",
       },
       {
         title: "股票明細",
-        path: "/investment/detail",
+        path: "/investment/stock/detail",
       },
       {
         title: "股息",
-        path: "/investment/dividend",
+        path: "/investment/stock/dividend",
       },
     ],
   },

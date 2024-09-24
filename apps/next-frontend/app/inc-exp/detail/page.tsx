@@ -1,6 +1,10 @@
 "use client";
 
-import { IncExpRecord } from "@financemanager/financemanager-webiste-types";
+import {
+  IncExpMethodType,
+  IncExpRecord,
+  IncExpRecordType,
+} from "@financemanager/financemanager-webiste-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -121,8 +125,8 @@ export default function Detail() {
 
   const typeOptions = [
     { value: "default", name: "類別" },
-    { value: "income", name: "收入" },
-    { value: "expense", name: "支出" },
+    { value: IncExpRecordType.INCOME, name: "收入" },
+    { value: IncExpRecordType.EXPENSE, name: "支出" },
   ];
   const categoryOptions = [
     { value: "default", name: "種類" },
@@ -141,8 +145,8 @@ export default function Detail() {
   ];
   const methodOptions = [
     { value: "default", name: "方法" },
-    { value: "cash", name: "現金" },
-    { value: "finance", name: "金融" },
+    { value: IncExpMethodType.CASH, name: "現金" },
+    { value: IncExpMethodType.FINANCE, name: "金融" },
   ];
   const banksOptions = [
     { value: "default", name: "金融機構" },
@@ -150,7 +154,7 @@ export default function Detail() {
   ];
 
   return (
-    <main className="pt-[--navbar-height]">
+    <main className="pt-[--navbar-height] pb-8">
       <div className="bg-slate-100">
         <PageLabel title={"收支紀錄:明細"} />
         {/* TODO: add a column to display the total amount base on the filter */}
@@ -183,7 +187,9 @@ export default function Detail() {
             </div>
           </div>
 
-          <DetailTable titles={titles} tableContent={tableContent} />
+          <div className="w-[90vw] max-h-[60vh] overflow-auto">
+            <DetailTable titles={titles} tableContent={tableContent} />
+          </div>
 
           <IncExpFormManager
             updateShowState={{
