@@ -1,4 +1,4 @@
-import { CategoryType } from '@financemanager/financemanager-webiste-types';
+import { IncExpRecordType } from '@financemanager/financemanager-webiste-types';
 import {
   Column,
   Entity,
@@ -16,7 +16,7 @@ export class Category {
   id: string;
 
   @Column()
-  type: CategoryType;
+  type: IncExpRecordType;
 
   @Column()
   name: string;

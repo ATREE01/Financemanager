@@ -1,4 +1,4 @@
-import { CategoryType } from '@financemanager/financemanager-webiste-types';
+import { IncExpRecordType } from '@financemanager/financemanager-webiste-types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,7 +14,7 @@ export class CategoryService {
 
   async create(category: {
     userId: string;
-    type: CategoryType;
+    type: IncExpRecordType;
     name: string;
     order: number;
   }) {
@@ -33,7 +33,7 @@ export class CategoryService {
   async getIncomeByUserId(userId: string): Promise<Category[]> {
     return await this.categoryRepository.find({
       where: {
-        type: CategoryType.INCOME,
+        type: IncExpRecordType.INCOME,
         user: {
           id: userId,
         },
@@ -44,7 +44,7 @@ export class CategoryService {
   async getExpenseByUserId(userId: string): Promise<Category[]> {
     return await this.categoryRepository.find({
       where: {
-        type: CategoryType.EXPENSE,
+        type: IncExpRecordType.EXPENSE,
         user: {
           id: userId,
         },
