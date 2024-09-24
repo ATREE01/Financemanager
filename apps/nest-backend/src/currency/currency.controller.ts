@@ -15,16 +15,30 @@ import { Request } from 'express';
 
 import { UserInfo } from '../auth/dtos/user-info';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateUserCurrencyDto } from '../user/dtos/create-user-currency.dto';
 import { CurrencyService } from './currency.service';
 import { CreateCurrencyTransactionRecordDto } from './dtos/create-currency-transaction-record.dto';
 
-@Controller('Currencies')
+@Controller('currencies')
 export class CurrencyController {
   constructor(private readonly currencyService: CurrencyService) {}
 
   @Get()
   async getCurrencies() {
     return this.currencyService.getCurrencies();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  async createUserCurrency(
+    @Req() req: Request,
+    @Body() createUserCurrencyDto: CreateUserCurrencyDto,
+  ) {
+    const id = (req.user as UserInfo).userId;
+    return await this.currencyService.createUserCurrency(
+      id,
+      createUserCurrencyDto.currencyId,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
