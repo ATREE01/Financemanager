@@ -12,9 +12,11 @@ import { TimeDepositRecord } from '@/src/bank/entities/time-deposit-record.entit
 import { Category } from '@/src/category/entities/category.entity';
 import { UserCurrency } from '@/src/currency/user-currency/entities/user-currency.entity';
 import { IncExpRecord } from '@/src/inc-exp/entities/inc-exp-record.entity';
+import { StockBundleSellRecord } from '@/src/stock/entities/stock-bundle-sell-record.entity';
+import { StockRecord } from '@/src/stock/entities/stock-record.entity';
 import { Profile } from '@/src/user/profile/entities/profile.entity';
 
-@Entity('User')
+@Entity('Users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -31,6 +33,15 @@ export class User {
 
   @OneToMany(() => Bank, (bank) => bank.user)
   bank?: Bank[];
+
+  @OneToMany(() => StockRecord, (stockReocrd) => stockReocrd.user)
+  stockRecords?: StockRecord[];
+
+  @OneToMany(
+    () => StockBundleSellRecord,
+    (stockBundleSellRecord) => stockBundleSellRecord.user,
+  )
+  stockBundleSellRecords?: StockBundleSellRecord[];
 
   @OneToMany(() => UserCurrency, (userCurrency) => userCurrency.user)
   currency?: UserCurrency[];

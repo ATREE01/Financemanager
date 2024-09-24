@@ -8,7 +8,7 @@ import {
 
 import { User } from '../../entities/user.entity';
 
-@Entity('profile')
+@Entity('profiles')
 export class Profile {
   @PrimaryGeneratedColumn('uuid')
   id: string;

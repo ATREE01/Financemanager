@@ -33,4 +33,23 @@ export class UserService {
       },
     });
   }
+
+  async getUserStockBundleSellRecords(userId: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: {
+        stockBundleSellRecords: {
+          bank: true,
+          brokerageFirm: {
+            transactionCurrency: true,
+            settlementCurrency: true,
+          },
+          userStock: true,
+          stockSellRecords: true,
+        },
+      },
+    });
+  }
 }
