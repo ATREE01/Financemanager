@@ -38,4 +38,7 @@ export class Bank {
     (timeDepositRecord) => timeDepositRecord.bank,
   )
   timeDepositRecords?: TimeDepositRecord[];
+
+  @Column()
+  order: number;
 }

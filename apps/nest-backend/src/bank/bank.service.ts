@@ -43,6 +43,7 @@ export class BankService {
 
   async createBank(
     userId: string,
+    order: number,
     bank: {
       name: string;
       currencyId: number;
@@ -57,8 +58,19 @@ export class BankService {
         currency: {
           id: bank.currencyId,
         },
+        order: order,
       }),
     );
+  }
+
+  async getBankCountByUserid(userId: string): Promise<number> {
+    return await this.bankRepository.count({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+    });
   }
 
   async getBankRecordsByUserId(id: string): Promise<BankRecord[]> {

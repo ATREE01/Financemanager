@@ -28,9 +28,10 @@ export class BankController {
   @Post()
   async createBank(@Req() req: Request, @Body() createBankDto: CreateBankDto) {
     const userId = (req.user as UserInfo).userId;
+    const count = await this.bankService.getBankCountByUserid(userId);
     if (await this.bankService.getUserBankByName(userId, createBankDto.name))
       throw new ConflictException();
-    return this.bankService.createBank(userId, createBankDto);
+    return this.bankService.createBank(userId, count + 1, createBankDto);
   }
 
   @UseGuards(JwtAuthGuard)
