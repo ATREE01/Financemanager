@@ -5,4 +5,5 @@ export interface Bank {
   userId: string;
   name: string;
   currency: Currency;
+  order: number;
 }

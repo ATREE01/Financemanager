@@ -1,9 +1,9 @@
-import { CategoryType } from "./category-types";
+import { IncExpRecordType } from "../inc-exp/enum/type";
 
 export interface Category {
   id: string;
   userId: string;
-  type: CategoryType;
+  type: IncExpRecordType;
   name: string;
   order: number;
 }

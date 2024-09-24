@@ -11,4 +11,7 @@ export interface PhraseMap {
   currencyTransactionRecordType: {
     [key: string]: string;
   };
+  stockBuyMethod: {
+    [key: string]: string;
+  };
 }

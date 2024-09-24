@@ -1,7 +1,7 @@
 export interface User {
   id: string;
   profile: {
-    is: string;
+    id: string;
     email: string;
     username: string;
   };
