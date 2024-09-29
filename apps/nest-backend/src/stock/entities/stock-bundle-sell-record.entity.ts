@@ -35,7 +35,7 @@ export class StockBundleSellRecord {
   })
   date: string;
 
-  @ManyToOne(() => Bank, {
+  @ManyToOne(() => Bank, (bank) => bank.stockBundleSellRecords, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

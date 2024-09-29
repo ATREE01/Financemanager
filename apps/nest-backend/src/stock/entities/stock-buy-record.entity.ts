@@ -14,7 +14,7 @@ export class StockBuyRecord {
   })
   stockRecord: StockRecord;
 
-  @ManyToOne(() => Bank, {
+  @ManyToOne(() => Bank, (bank) => bank.stockBuyRecords, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
