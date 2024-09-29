@@ -34,6 +34,36 @@ export class UserService {
     });
   }
 
+  async getUserBank(userId: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: {
+        bank: {
+          currency: true,
+          stockBuyRecords: true,
+          stockBundleSellRecords: true,
+        },
+      },
+    });
+  }
+
+  async getUserBankRecords(userId: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: {
+        bankRecords: {
+          bank: {
+            currency: true,
+          },
+        },
+      },
+    });
+  }
+
   async getUserStockBundleSellRecords(userId: string): Promise<User | null> {
     return await this.userRepository.findOne({
       where: {

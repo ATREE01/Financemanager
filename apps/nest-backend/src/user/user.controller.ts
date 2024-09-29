@@ -56,14 +56,18 @@ export class UserController {
   @Get('banks')
   async getUserBanks(@Req() req: Request) {
     const id = (req.user as UserInfo).userId;
-    return await this.bankService.getBankByUserId(id);
+    const result = await this.userService.getUserBank(id);
+    if (result === null) throw new NotFoundException();
+    return result.bank;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('banks/records')
   async getUserBankRecords(@Req() req: Request) {
     const id = (req.user as UserInfo).userId;
-    return await this.bankService.getBankRecordsByUserId(id);
+    const result = await this.userService.getUserBankRecords(id);
+    if (result === null) throw new NotFoundException();
+    return result.bankRecords;
   }
 
   @UseGuards(JwtAuthGuard)
