@@ -27,50 +27,6 @@ const DashboardBank = () => {
     backgroundColor: "transparent",
   };
 
-  const banks = useBanks();
-  const bankRecords = useBankRecords();
-  // this record only contains income expense record with method equals to finance
-  const incExpRecords = useIncExpFinRecords();
-  const timeDepositRecords = useTimeDepositRecords();
-  const currencyTransactionRecords = useCurrencyTransactionRecord();
-
-  // inv record sum
-  // dividend record sum
-
-  // const getExchangeRate = (code) => {
-  //     const result = exchangeRate.find(item => item.code === code);
-  //     return result?.ExchangeRate ?? 1;
-  // }
-
-  // const getDividend = (bank_id) => {
-  //     const result = dividendRecSum.filter(item => item.bank_id === bank_id).reduce((sum, item) => sum + item.amount, 0);
-  //     return result;
-  // };
-
-  const bankData: {
-    [key: string]: {
-      [key: string]: number;
-    };
-  } = {};
-  banks.forEach(
-    (bank) =>
-      (bankData[bank.id] = {
-        total: 0,
-        timeDeposit: 0,
-        income: 0,
-        expense: 0,
-        deposit: 0,
-        withdraw: 0,
-        transferIn: 0,
-        transferOut: 0,
-        invt: 0,
-        charge: 0,
-        buy: 0,
-        sell: 0,
-      }),
-  );
-
-  // this buy and sell here is about foreign exchange
   const titles = [
     "銀行名稱",
     "幣別",
@@ -102,22 +58,46 @@ const DashboardBank = () => {
     "sell",
   ];
 
-  // TODO: many change to styles of total and timeDeposit
+  const banks = useBanks();
+  // this record only contains income expense record with method equals to finance
+  const incExpRecords = useIncExpFinRecords();
+  const bankRecords = useBankRecords();
+  const timeDepositRecords = useTimeDepositRecords();
+  const currencyTransactionRecords = useCurrencyTransactionRecord();
 
-  bankRecords.forEach((record) => {
-    const bankId = record.bank.id;
-    bankData[bankId].charge += record.charge ?? 0;
-    bankData[bankId].totla -= record.charge ?? 0;
-    switch (record.type) {
-      case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
-        bankData[bankId].total += record.amount;
-        bankData[bankId].deposit += record.amount;
-        break;
-      case BankRecordType.WITHDRAW || BankRecordType.TRANSFEROUT:
-        bankData[bankId].total -= record.amount;
-        bankData[bankId].withdraw += record.amount;
-        break;
-    }
+  // inv record sum
+  // this buy and sell here is about foreign exchange
+
+  const bankData: {
+    [key: string]: {
+      [key: string]: number;
+    };
+  } = {};
+  banks.forEach((bank) => {
+    bankData[bank.id] = {
+      total: 0,
+      timeDeposit: 0,
+      income: 0,
+      expense: 0,
+      deposit: 0,
+      withdraw: 0,
+      transferIn: 0,
+      transferOut: 0,
+      invt: 0,
+      charge: 0,
+      buy: 0,
+      sell: 0,
+    };
+
+    bank.stockBuyRecords.forEach((record) => {
+      bankData[bank.id].invt -= Number(record.amount);
+      bankData[bank.id].total -= Number(record.amount);
+    });
+
+    bank.stockBundleSellRecords.forEach((record) => {
+      bankData[bank.id].invt += Number(record.amount);
+      bankData[bank.id].total += Number(record.amount);
+    });
   });
 
   incExpRecords.forEach((record) => {
@@ -131,6 +111,22 @@ const DashboardBank = () => {
         bankData[bankId].total -= record.amount;
         bankData[bankId].expense += record.amount;
         bankData[bankId].charge += record.charge as number;
+        break;
+    }
+  });
+
+  bankRecords.forEach((record) => {
+    const bankId = record.bank.id;
+    bankData[bankId].charge += record.charge ?? 0;
+    bankData[bankId].totla -= record.charge ?? 0;
+    switch (record.type) {
+      case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
+        bankData[bankId].total += record.amount;
+        bankData[bankId].deposit += record.amount;
+        break;
+      case BankRecordType.WITHDRAW || BankRecordType.TRANSFEROUT:
+        bankData[bankId].total -= record.amount;
+        bankData[bankId].withdraw += record.amount;
         break;
     }
   });
@@ -154,9 +150,7 @@ const DashboardBank = () => {
     }
   });
 
-  // TODO: need to multiply exchange rate
   const bankChartData: Array<Array<string | number>> = [["bank", "amount"]];
-
   const tableContent = banks.map((bank) => {
     if (bankData[bank.id].total + bankData[bank.id].timeDeposit >= 0)
       bankChartData.push([
