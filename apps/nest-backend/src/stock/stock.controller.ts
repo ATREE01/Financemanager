@@ -35,6 +35,8 @@ export class StockController {
     private readonly stockService: StockService,
   ) {}
 
+  //TODO: create a schedule to update the stock price and stock history
+
   @UseGuards(JwtAuthGuard)
   @Post()
   async createUserStock(

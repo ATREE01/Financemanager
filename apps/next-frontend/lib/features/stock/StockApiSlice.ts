@@ -90,7 +90,10 @@ export const StockApiSlice = apiSlice
           method: "POST",
           body: data,
         }),
-        invalidatesTags: [{ type: "StockRecord", id: "LIST" }],
+        invalidatesTags: [
+          { type: "StockSummary", id: "LIST" },
+          { type: "StockRecord", id: "LIST" },
+        ],
       }),
       updateStockRecord: builder.mutation<void, UpdateStockRecord>({
         query: (data) => ({

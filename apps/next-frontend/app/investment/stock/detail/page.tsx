@@ -59,6 +59,7 @@ export default function Detail() {
     "匯率",
     "股數",
     "手續費",
+    "交易金額",
     "備註",
     "操作",
   ];
@@ -153,6 +154,9 @@ export default function Detail() {
                     </td>
                     <td className="table-data-cell">
                       {Number(buyRecord.charge)}
+                    </td>
+                    <td className="table-data-cell">
+                      {Number(buyRecord.amount)}
                     </td>
                     <td className="table-data-cell">{buyRecord.note}</td>
                     <td className="table-data-cell">
