@@ -1,4 +1,5 @@
 import {
+  BrokerageStockSummary,
   StockRecordSummary,
   StockSummary,
   UpdateStockRecord,
@@ -134,6 +135,7 @@ export class StockService {
     );
   }
 
+  // this function is used to get stock record for a specific user with specific buy price or other
   async getStockRecord(
     userId: string,
     userStockId: string,
@@ -153,32 +155,6 @@ export class StockService {
         },
         userStock: {
           id: userStockId,
-        },
-      },
-    });
-  }
-
-  async getStockRecordsByUserId(userId: string): Promise<StockRecord[]> {
-    return await this.stockRecordRepository.find({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-      relations: {
-        user: true,
-        userStock: {
-          stock: true,
-        },
-        brokerageFirm: {
-          transactionCurrency: true,
-          settlementCurrency: true,
-        },
-        stockBuyRecords: {
-          bank: true,
-        },
-        stockSellRecords: {
-          stockBundleSellRecord: true,
         },
       },
     });
@@ -282,6 +258,33 @@ export class StockService {
         totalShareNumber === 0
           ? 0
           : Math.round((totalAmount * netShareNumber) / totalShareNumber),
+    };
+  }
+
+  summarizeBrokerageFirmValue(
+    brokerageStockSummaries: BrokerageStockSummary[],
+  ): number {
+    // this value is in term of transaction currency
+    let value = 0;
+    brokerageStockSummaries.forEach((stockRecord) => {
+      value += stockRecord.netShareNumber * stockRecord.closePrice;
+    });
+    return value;
+  }
+
+  sumarizeBrokerageFirmStock(stockRecord: StockRecord): BrokerageStockSummary {
+    let netShareNumber = 0;
+    stockRecord.stockBuyRecords.forEach((stockBuyRecord) => {
+      netShareNumber += Number(stockBuyRecord.shareNumber);
+    });
+    stockRecord.stockSellRecords.forEach((stockSellRecord) => {
+      netShareNumber -= Number(stockSellRecord.shareNumber);
+    });
+    return {
+      brokerageFirm: stockRecord.brokerageFirm,
+      stockCode: stockRecord.userStock.stock.code,
+      closePrice: stockRecord.userStock.stock.close,
+      netShareNumber: netShareNumber,
     };
   }
 
