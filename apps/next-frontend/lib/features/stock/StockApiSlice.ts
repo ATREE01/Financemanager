@@ -20,6 +20,7 @@ export const StockApiSlice = apiSlice
       "StockRecord",
       "StockSummary",
       "StockBundleSellRecord",
+      "BrokerageFirmSummary",
     ],
   })
   .injectEndpoints({
@@ -61,7 +62,7 @@ export const StockApiSlice = apiSlice
       }),
       getStockRecords: builder.query<StockRecord[], void>({
         query: () => ({
-          url: "/users/records",
+          url: "/users/stocks/records",
           method: "GET",
         }),
         providesTags: (result) =>
@@ -93,6 +94,7 @@ export const StockApiSlice = apiSlice
         invalidatesTags: [
           { type: "StockSummary", id: "LIST" },
           { type: "StockRecord", id: "LIST" },
+          "BrokerageFirmSummary",
         ],
       }),
       updateStockRecord: builder.mutation<void, UpdateStockRecord>({
@@ -104,14 +106,18 @@ export const StockApiSlice = apiSlice
         invalidatesTags: (result, error, arg) => [
           { type: "StockRecord", id: arg.id },
           { type: "StockSummary", id: "LIST" },
+          "BrokerageFirmSummary",
         ],
       }),
-      deleteStockBuyRecor: builder.mutation<void, number>({
+      deleteStockBuyRecord: builder.mutation<void, number>({
         query: (id) => ({
           url: `/stocks/record/${id}`,
           method: "DELETE",
         }),
-        invalidatesTags: [{ type: "StockRecord", id: "LIST" }],
+        invalidatesTags: [
+          { type: "StockRecord", id: "LIST" },
+          "BrokerageFirmSummary",
+        ],
       }),
 
       getStockBundleSellRecords: builder.query<StockBundleSellRecord[], void>({
@@ -133,6 +139,7 @@ export const StockApiSlice = apiSlice
         invalidatesTags: [
           { type: "StockSummary", id: "LIST" },
           { type: "StockBundleSellRecord", id: "LIST" },
+          "BrokerageFirmSummary",
         ],
       }),
       udpateStockBundleSellRecord: builder.mutation<
@@ -150,6 +157,7 @@ export const StockApiSlice = apiSlice
         invalidatesTags: [
           { type: "StockSummary", id: "LIST" },
           { type: "StockBundleSellRecord", id: "LIST" },
+          "BrokerageFirmSummary",
         ],
       }),
       deleteStockBundleSellRecord: builder.mutation<void, number>({
@@ -160,6 +168,7 @@ export const StockApiSlice = apiSlice
         invalidatesTags: [
           { type: "StockSummary", id: "LIST" },
           { type: "StockBundleSellRecord", id: "LIST" },
+          "BrokerageFirmSummary",
         ],
       }),
       updateStockSellRecord: builder.mutation<
@@ -177,6 +186,7 @@ export const StockApiSlice = apiSlice
         invalidatesTags: [
           { type: "StockSummary", id: "LIST" },
           { type: "StockBundleSellRecord", id: "LIST" },
+          "BrokerageFirmSummary",
         ],
       }),
       deleteStockSellRecord: builder.mutation<void, number>({
@@ -187,6 +197,7 @@ export const StockApiSlice = apiSlice
         invalidatesTags: [
           { type: "StockSummary", id: "LIST" },
           { type: "StockBundleSellRecord", id: "LIST" },
+          "BrokerageFirmSummary",
         ],
       }),
     }),
@@ -203,7 +214,7 @@ export const {
   useCreateStockRecordMutation,
   useUpdateStockRecordMutation,
 
-  useDeleteStockBuyRecorMutation,
+  useDeleteStockBuyRecordMutation,
 
   useGetStockBundleSellRecordsQuery,
   useCreateStockBundleSellRecordMutation,

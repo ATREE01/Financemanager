@@ -1,4 +1,7 @@
-import { BrokerageFirm } from "@financemanager/financemanager-webiste-types";
+import {
+  BrokerageFirm,
+  BrokerageFirmSummary,
+} from "@financemanager/financemanager-webiste-types";
 import { createSlice } from "@reduxjs/toolkit";
 
 import { useAppSelector } from "@/lib/hook";
@@ -8,6 +11,7 @@ const BrokerageFirmSlice = createSlice({
   name: "BrokerageFirm",
   initialState: {
     brokerageFirms: [] as BrokerageFirm[],
+    brokerageFirmSummary: {} as BrokerageFirmSummary,
   },
   reducers: {
     setBrokerageFirms: (
@@ -19,6 +23,15 @@ const BrokerageFirmSlice = createSlice({
     ) => {
       state.brokerageFirms = action.payload;
     },
+    setBrokerageFirmSummary: (
+      state,
+      action: {
+        type: string;
+        payload: BrokerageFirmSummary;
+      },
+    ) => {
+      state.brokerageFirmSummary = action.payload;
+    },
   },
 });
 
@@ -27,4 +40,10 @@ export default BrokerageFirmSlice.reducer;
 export const useBrokerageFirms = () =>
   useAppSelector((state: RootState) => state.brokerageFirm.brokerageFirms);
 
-export const { setBrokerageFirms } = BrokerageFirmSlice.actions;
+export const useBrokerageFirmSummary = () =>
+  useAppSelector(
+    (state: RootState) => state.brokerageFirm.brokerageFirmSummary,
+  );
+
+export const { setBrokerageFirms, setBrokerageFirmSummary } =
+  BrokerageFirmSlice.actions;
