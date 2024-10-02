@@ -6,15 +6,23 @@ import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
   useGetBankRecordsQuery,
   useGetBanksQuery,
+  useGetBankSummaryQuery,
   useGetTimeDepositRecordsQuery,
 } from "@/lib/features/Bank/BankApiSlice";
 import {
   setBankRecords,
   setBanks,
+  setBankSummary,
   setTimeDepositRecords,
 } from "@/lib/features/Bank/BankSlice";
-import { useGetBrokerageFirmsQuery } from "@/lib/features/BrokerageFirm/BrokerageFirmApiSlice";
-import { setBrokerageFirms } from "@/lib/features/BrokerageFirm/BrokerageFirmSlice";
+import {
+  useGetBrokerageFirmsQuery,
+  useGetBrokerageFirmSummaryQuery,
+} from "@/lib/features/BrokerageFirm/BrokerageFirmApiSlice";
+import {
+  setBrokerageFirms,
+  setBrokerageFirmSummary,
+} from "@/lib/features/BrokerageFirm/BrokerageFirmSlice";
 import { useGetCategoriesQuery } from "@/lib/features/Category/CategoryApiSlice";
 import { setCategories } from "@/lib/features/Category/CategorySlice";
 import {
@@ -58,6 +66,36 @@ export default function InitialStoreData({
     refetch: refetchCategories,
   } = useGetCategoriesQuery();
   const {
+    data: incExpRecord,
+    isSuccess: incExpRecordIsSuccess,
+    isLoading: incExpRecordIsLoading,
+    refetch: refetchIncExpRecord,
+  } = useGetIncExpRecordsQuery();
+  const {
+    data: currencies,
+    isSuccess: currencyIsSuccess,
+    isLoading: currencyIsLoading,
+    refetch: refetchCurrencies,
+  } = useGetCurrenciesQuery();
+  const {
+    data: userCurrencies,
+    isSuccess: userCurrencyIsSuccess,
+    isLoading: userCurrencyIsLoading,
+    refetch: refetchUserCurrencies,
+  } = useGetUserCurrenciesQuery();
+  const {
+    data: currencyTransactionRecords,
+    isSuccess: currencyTransactionRecordIsSuccess,
+    isLoading: currencyTransactionRecordIsLoading,
+    refetch: refetchCurrencyTransactionRecords,
+  } = useGetCurrencyTransactionRecordsQuery();
+  const {
+    data: bankSummary,
+    isSuccess: bankSummaryIsSuccess,
+    isLoading: bankSummaryIsLoading,
+    refetch: refetchBankSummars,
+  } = useGetBankSummaryQuery();
+  const {
     data: banks,
     isSuccess: bankIsSuccess,
     isLoading: bankIsLoading,
@@ -75,6 +113,12 @@ export default function InitialStoreData({
     isLoading: timeDepositRecordIsLoading,
     refetch: refetchTimeDepositRecords,
   } = useGetTimeDepositRecordsQuery();
+  const {
+    data: brokerageFirmSummary,
+    isSuccess: brokerageFirmSummaryIsSuccess,
+    isLoading: brokerageFirmSummaryIsLoading,
+    refetch: refetchBrokerageFirmSummary,
+  } = useGetBrokerageFirmSummaryQuery();
   const {
     data: brokerageFirms,
     isSuccess: brokerageFirmIsSuccess,
@@ -105,51 +149,52 @@ export default function InitialStoreData({
     isLoading: stockBundleSellRecordIsLoading,
     refetch: refetchStockBundleSellRecord,
   } = useGetStockBundleSellRecordsQuery();
-  const {
-    data: currencies,
-    isSuccess: currencyIsSuccess,
-    isLoading: currencyIsLoading,
-    refetch: refetchCurrencies,
-  } = useGetCurrenciesQuery();
-  const {
-    data: userCurrencies,
-    isSuccess: userCurrencyIsSuccess,
-    isLoading: userCurrencyIsLoading,
-    refetch: refetchUserCurrencies,
-  } = useGetUserCurrenciesQuery();
-  const {
-    data: currencyTransactionRecords,
-    isSuccess: currencyTransactionRecordIsSuccess,
-    isLoading: currencyTransactionRecordIsLoading,
-    refetch: refetchCurrencyTransactionRecords,
-  } = useGetCurrencyTransactionRecordsQuery();
-  const {
-    data: incExpRecord,
-    isSuccess: incExpRecordIsSuccess,
-    isLoading: incExpRecordIsLoading,
-    refetch: refetchIncExpRecord,
-  } = useGetIncExpRecordsQuery();
 
   const userId = useUserId();
   useEffect(() => {
-    refetchIncExpRecord();
     refetchCategories();
+    refetchIncExpRecord();
+    refetchCurrencies();
+    refetchUserCurrencies();
+    refetchCurrencyTransactionRecords();
+    refetchBankSummars();
     refetchBanks();
     refetchBankRecords();
     refetchTimeDepositRecords();
+    refetchBrokerageFirmSummary();
     refetchBrokerageFirms();
     refetchUserStock();
     refetchStockRecords();
     refetchStockSumaries();
     refetchStockBundleSellRecord();
-    refetchCurrencies();
-    refetchUserCurrencies();
-    refetchCurrencyTransactionRecords();
   }, [userId]);
 
   useEffect(() => {
     if (categoryIsSuccess) dispatch(setCategories(categories));
   }, [categories]);
+
+  useEffect(() => {
+    if (incExpRecordIsSuccess) dispatch(setIncExpRecords(incExpRecord));
+  }, [incExpRecord]);
+
+  useEffect(() => {
+    if (currencyIsSuccess) dispatch(setCurrencies(currencies));
+  }, [currencies]);
+
+  useEffect(() => {
+    if (userCurrencyIsSuccess) dispatch(setUserCurrencies(userCurrencies));
+  }, [userCurrencies]);
+
+  useEffect(() => {
+    if (currencyTransactionRecordIsSuccess)
+      dispatch(setCurrencyTransactionRecord(currencyTransactionRecords));
+  }, [currencyTransactionRecords]);
+
+  useEffect(() => {
+    if (bankSummaryIsSuccess) {
+      dispatch(setBankSummary(bankSummary));
+    }
+  }, [bankSummary]);
 
   useEffect(() => {
     if (bankIsSuccess) dispatch(setBanks(banks));
@@ -163,6 +208,12 @@ export default function InitialStoreData({
     if (timeDepositRecordIsSuccess)
       dispatch(setTimeDepositRecords(timeDepositRecords));
   }, [timeDepositRecords]);
+
+  useEffect(() => {
+    if (brokerageFirmSummaryIsSuccess) {
+      dispatch(setBrokerageFirmSummary(brokerageFirmSummary));
+    }
+  }, [brokerageFirmSummary]);
 
   useEffect(() => {
     if (brokerageFirmIsSuccess) dispatch(setBrokerageFirms(brokerageFirms));
@@ -186,40 +237,25 @@ export default function InitialStoreData({
   }, [stockBundleSellRecord]);
 
   useEffect(() => {
-    if (currencyIsSuccess) dispatch(setCurrencies(currencies));
-  }, [currencies]);
-
-  useEffect(() => {
-    if (userCurrencyIsSuccess) dispatch(setUserCurrencies(userCurrencies));
-  }, [userCurrencies]);
-
-  useEffect(() => {
-    if (currencyTransactionRecordIsSuccess)
-      dispatch(setCurrencyTransactionRecord(currencyTransactionRecords));
-  }, [currencyTransactionRecords]);
-
-  useEffect(() => {
-    if (incExpRecordIsSuccess) dispatch(setIncExpRecords(incExpRecord));
-  }, [incExpRecord]);
-
-  useEffect(() => {
     dispatch(setPhraseMap());
   });
 
   const isLoading =
     categoryIsLoading &&
+    incExpRecordIsLoading &&
+    currencyIsLoading &&
+    userCurrencyIsLoading &&
+    currencyTransactionRecordIsLoading &&
+    bankSummaryIsLoading &&
     bankIsLoading &&
     bankRecordIsLoading &&
     timeDepositRecordIsLoading &&
+    brokerageFirmSummaryIsLoading &&
     brokerageFirmIsLoading &&
     userStockIsLoading &&
     stockRecordIsLoading &&
     stockSumaryIsLoading &&
-    stockBundleSellRecordIsLoading &&
-    currencyIsLoading &&
-    userCurrencyIsLoading &&
-    currencyTransactionRecordIsLoading &&
-    incExpRecordIsLoading;
+    stockBundleSellRecordIsLoading;
 
   return (
     <>
