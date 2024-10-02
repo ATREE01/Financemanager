@@ -15,7 +15,7 @@ import PageLabel from "@/app/components/page-label";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 import {
   useDeleteStockBundleSellRecordMutation,
-  useDeleteStockBuyRecorMutation,
+  useDeleteStockBuyRecordMutation,
   useDeleteStockSellRecordMutation,
 } from "@/lib/features/stock/StockApiSlice";
 import {
@@ -37,7 +37,7 @@ export default function Detail() {
   const [showUpdateStockSellForm, setShowUpdateStockSellForm] = useState(false);
   const [expandedIdx, setExpandedIdx] = useState(-1);
 
-  const [deleteStockBuyRecord] = useDeleteStockBuyRecorMutation();
+  const [deleteStockBuyRecord] = useDeleteStockBuyRecordMutation();
   const [deleteStockBundleSellRecord] =
     useDeleteStockBundleSellRecordMutation();
 

@@ -1,7 +1,7 @@
 export const SidebarData = [
   {
     title: "總覽",
-    path: "/Dashboard",
+    path: "/dashboard",
   },
   {
     title: "收支紀錄",

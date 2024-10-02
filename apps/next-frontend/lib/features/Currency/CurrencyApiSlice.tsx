@@ -55,7 +55,7 @@ export const CurrencyApiSlice = apiSlice
         void
       >({
         query: () => ({
-          url: "/currencies/transaction/records",
+          url: "/users/currencies/transaction/records",
           method: "GET",
         }),
         providesTags: (result) => {

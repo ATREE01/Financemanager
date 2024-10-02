@@ -437,17 +437,18 @@ export default function Deashboard() {
               tableContent={exchangeTableContents}
             />
           </div>
-          <StockFormManager
-            updateStockRecordShowState={null}
-            updateBundleSellShowState={null}
-            updateStockSellShowState={null}
-            bundleSellShowState={{
-              isShow: bundleSellShowState,
-              setShow: setBundleSellShowState,
-            }}
-            stockRecordSummarySell={stockRecordSummarySell}
-          />
         </div>
+
+        <StockFormManager
+          updateStockRecordShowState={null}
+          updateBundleSellShowState={null}
+          updateStockSellShowState={null}
+          bundleSellShowState={{
+            isShow: bundleSellShowState,
+            setShow: setBundleSellShowState,
+          }}
+          stockRecordSummarySell={stockRecordSummarySell}
+        />
       </div>
     </main>
   );
