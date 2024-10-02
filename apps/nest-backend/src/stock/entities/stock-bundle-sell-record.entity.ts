@@ -41,10 +41,14 @@ export class StockBundleSellRecord {
   })
   bank: Bank;
 
-  @ManyToOne(() => BrokerageFirm, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
+  @ManyToOne(
+    () => BrokerageFirm,
+    (brokerageFirm) => brokerageFirm.stockBundleSellRecords,
+    {
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+  )
   brokerageFirm: BrokerageFirm;
 
   @ManyToOne(() => UserStock, {

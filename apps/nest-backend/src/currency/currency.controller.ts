@@ -42,13 +42,6 @@ export class CurrencyController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('transaction/records')
-  async getTransactionRecords(@Req() req: Request) {
-    const userId = (req.user as UserInfo).userId;
-    return this.currencyService.getTransactionRecordsByUserId(userId);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Post('transaction/records')
   async createTransactionRecord(
     @Req() req: Request,

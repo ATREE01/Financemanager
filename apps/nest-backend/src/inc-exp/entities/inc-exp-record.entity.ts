@@ -39,7 +39,7 @@ export class IncExpRecord {
   @Column()
   method: string;
 
-  @ManyToOne(() => Bank, {
+  @ManyToOne(() => Bank, (bank) => bank.incExpRecords, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
     nullable: true,

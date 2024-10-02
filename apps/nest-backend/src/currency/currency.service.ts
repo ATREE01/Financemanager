@@ -134,24 +134,6 @@ export class CurrencyService {
 
   // currency transaction record functions
 
-  async getTransactionRecordsByUserId(
-    userId: string,
-  ): Promise<CurrencyTransactionRecord[]> {
-    return await this.currencyTransactionRecordRepository.find({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-      relations: {
-        fromBank: true,
-        toBank: true,
-        fromCurrency: true,
-        toCurrency: true,
-      },
-    });
-  }
-
   async createTransactionRecord(
     userid: string,
     createTransactionRecordDto: CreateCurrencyTransactionRecordDto,

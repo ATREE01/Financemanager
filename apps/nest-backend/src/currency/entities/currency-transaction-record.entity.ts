@@ -9,7 +9,7 @@ export class CurrencyTransactionRecord {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => User, (user) => user.currencyTransactionRecords, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
