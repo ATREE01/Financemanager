@@ -1,6 +1,7 @@
 import {
   Bank,
   BankRecord,
+  BankSummary,
   CreateBankRecord,
   CreateTimeDepositRecord,
   TimeDepositRecord,
@@ -10,10 +11,17 @@ import { apiSlice } from "@/lib/api/apiSlice";
 
 const BankApiSlice = apiSlice
   .enhanceEndpoints({
-    addTagTypes: ["Bank", "BankRecord", "TimeDeposits"],
+    addTagTypes: ["Bank", "BankRecord", "TimeDeposits", "BankSummary"],
   })
   .injectEndpoints({
     endpoints: (builder) => ({
+      getBankSummary: builder.query<BankSummary, void>({
+        query: () => ({
+          url: "/users/banks/summary",
+          method: "GET",
+        }),
+        providesTags: ["BankSummary"],
+      }),
       getBanks: builder.query<Bank[], void>({
         query: () => ({
           url: `/users/banks`,
@@ -56,7 +64,7 @@ const BankApiSlice = apiSlice
             ...args,
           },
         }),
-        invalidatesTags: [{ type: "BankRecord", id: "LIST" }],
+        invalidatesTags: [{ type: "BankRecord", id: "LIST" }, "BankSummary"],
       }),
       updateBankRecord: builder.mutation<
         boolean,
@@ -71,6 +79,7 @@ const BankApiSlice = apiSlice
         }),
         invalidatesTags: (result, error, arg) => [
           { type: "BankRecord", id: arg.id },
+          "BankSummary",
         ],
       }),
       deleteBankRecord: builder.mutation<boolean, number>({
@@ -78,7 +87,10 @@ const BankApiSlice = apiSlice
           url: `/banks/records/${id}`,
           method: "DELETE",
         }),
-        invalidatesTags: (result, error, id) => [{ type: "BankRecord", id }],
+        invalidatesTags: (result, error, id) => [
+          { type: "BankRecord", id },
+          "BankSummary",
+        ],
       }),
       getTimeDepositRecords: builder.query<TimeDepositRecord[], void>({
         query: () => ({
@@ -108,7 +120,7 @@ const BankApiSlice = apiSlice
             ...data,
           },
         }),
-        invalidatesTags: [{ type: "TimeDeposits", id: "LIST" }],
+        invalidatesTags: [{ type: "TimeDeposits", id: "LIST" }, "BankSummary"],
       }),
       modifyTimeDepositRecord: builder.mutation<
         boolean,
@@ -130,12 +142,16 @@ const BankApiSlice = apiSlice
           url: `/banks/time-deposit/records/${id}`,
           method: "DELETE",
         }),
-        invalidatesTags: (result, error, id) => [{ type: "TimeDeposits", id }],
+        invalidatesTags: (result, error, id) => [
+          { type: "TimeDeposits", id },
+          "BankSummary",
+        ],
       }),
     }),
   });
 
 export const {
+  useGetBankSummaryQuery,
   useCreateBankMutation,
   useGetBanksQuery,
   useGetBankRecordsQuery,
