@@ -4,7 +4,8 @@ import {
   BankRecord,
   BankRecordType,
 } from "@financemanager/financemanager-webiste-types";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import ConditionFilter from "@/app/components/condition-filter";
 import DetailTable from "@/app/components/detail-table";
@@ -12,12 +13,19 @@ import styles from "@/app/components/detail-table/index.module.css";
 import DurationFilter from "@/app/components/duration-filter";
 import BankFormManager from "@/app/components/forms/bank-form-manager";
 import PageLabel from "@/app/components/page-label";
+import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { useDeleteBankRecordMutation } from "@/lib/features/Bank/BankApiSlice";
 import { useBankRecords, useBanks } from "@/lib/features/Bank/BankSlice";
 import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 
 export default function Detail() {
+  const userId = useUserId();
+  const router = useRouter();
+  useEffect(() => {
+    if (!userId) router.push("/auth/login");
+  }, [userId]);
+
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [formData, setFormData] = useState<BankRecord | null>(null);
 

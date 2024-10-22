@@ -5,16 +5,25 @@ import {
   CurrencyTransactionRecordType,
   IncExpRecordType,
 } from "@financemanager/financemanager-webiste-types";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Chart from "react-google-charts";
 
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import BankFormManager from "@/app/components/forms/bank-form-manager";
 import PageLabel from "@/app/components/page-label";
+import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { useBanks, useTimeDepositRecords } from "@/lib/features/Bank/BankSlice";
 import { useCurrencyTransactionRecord } from "@/lib/features/Currency/CurrencySlice";
 
 const DashboardBank = () => {
+  const userId = useUserId();
+  const router = useRouter();
+  useEffect(() => {
+    if (!userId) router.push("/auth/login");
+  }, [userId]);
+
   const pieChartOptions = {
     legend: { position: "top", maxLines: 3 },
     pieSliceText: "percentage",
