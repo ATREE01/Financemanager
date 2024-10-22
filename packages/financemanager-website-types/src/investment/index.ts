@@ -1,4 +1,5 @@
 export * from "./brokerage-firm/brokerage-firm";
+export * from "./brokerage-firm/brokerage-firm-history-data";
 export * from "./brokerage-firm/brokerage-firm-summary";
 export * from "./brokerage-firm/brokerage-stock-summary";
 export * from "./brokerage-firm/create-brokerage-firm";
