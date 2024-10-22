@@ -12,23 +12,6 @@ export class IncExpService {
     private readonly incExpRepository: Repository<IncExpRecord>,
   ) {}
 
-  async getRecordsByUserId(userId: string): Promise<IncExpRecord[]> {
-    return await this.incExpRepository.find({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-      relations: {
-        category: true,
-        currency: true,
-        bank: {
-          currency: true,
-        },
-      },
-    });
-  }
-
   async createIncExpRecord(
     userId: string,
     incExpRecordDto: CreateIncExpRecordDto,

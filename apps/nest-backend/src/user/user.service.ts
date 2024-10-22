@@ -34,6 +34,28 @@ export class UserService {
     });
   }
 
+  async getUserIncExpRecord(userId: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: {
+        incExpRecords: {
+          category: true,
+          currency: true,
+          bank: {
+            currency: true,
+          },
+        },
+      },
+      order: {
+        incExpRecords: {
+          date: 'DESC',
+        },
+      },
+    });
+  }
+
   // this get is in term of bank(like group by bank)
   async getUserBank(userId: string): Promise<User | null> {
     return await this.userRepository.findOne({
@@ -64,6 +86,11 @@ export class UserService {
           },
         },
       },
+      order: {
+        bankRecords: {
+          date: 'DESC',
+        },
+      },
     });
   }
 
@@ -84,6 +111,11 @@ export class UserService {
           },
           fromCurrency: true,
           toCurrency: true,
+        },
+      },
+      order: {
+        currencyTransactionRecords: {
+          date: 'DESC',
         },
       },
     });
@@ -121,7 +153,9 @@ export class UserService {
           settlementCurrency: true,
           stockRecords: {
             userStock: {
-              stock: true,
+              stock: {
+                currency: true,
+              },
             },
             brokerageFirm: true,
             stockBuyRecords: true,
@@ -154,6 +188,13 @@ export class UserService {
           },
         },
       },
+      order: {
+        stockRecords: {
+          stockBuyRecords: {
+            date: 'DESC',
+          },
+        },
+      },
     });
   }
 
@@ -171,6 +212,11 @@ export class UserService {
           },
           userStock: true,
           stockSellRecords: true,
+        },
+      },
+      order: {
+        stockBundleSellRecords: {
+          date: 'DESC',
         },
       },
     });
