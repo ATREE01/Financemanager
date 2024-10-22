@@ -1,5 +1,6 @@
 import {
   Bank,
+  BankHistoryData,
   BankRecord,
   BankSummary,
   TimeDepositRecord,
@@ -16,6 +17,7 @@ const BankSlice = createSlice({
     bankRecords: [] as BankRecord[],
     timeDepositRecords: [] as TimeDepositRecord[],
     bankSummary: {} as BankSummary,
+    bankHistoryData: [] as BankHistoryData[],
   },
   reducers: {
     setBanks: (
@@ -54,6 +56,15 @@ const BankSlice = createSlice({
     ) => {
       state.bankSummary = action.payload;
     },
+    setBankHistoryData: (
+      state,
+      action: {
+        type: string;
+        payload: BankHistoryData[];
+      },
+    ) => {
+      state.bankHistoryData = action.payload;
+    },
   },
 });
 
@@ -71,9 +82,13 @@ export const useTimeDepositRecords = () =>
 export const useBankSummary = () =>
   useSelector((state: RootState) => state.bank.bankSummary);
 
+export const useBankHistoryData = () =>
+  useSelector((state: RootState) => state.bank.bankHistoryData);
+
 export const {
   setBanks,
   setBankRecords,
   setTimeDepositRecords,
   setBankSummary,
+  setBankHistoryData,
 } = BankSlice.actions;

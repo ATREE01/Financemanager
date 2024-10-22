@@ -1,5 +1,6 @@
 import {
   Bank,
+  BankHistoryData,
   BankRecord,
   BankSummary,
   CreateBankRecord,
@@ -18,6 +19,13 @@ const BankApiSlice = apiSlice
       getBankSummary: builder.query<BankSummary, void>({
         query: () => ({
           url: "/users/banks/summary",
+          method: "GET",
+        }),
+        providesTags: ["BankSummary"],
+      }),
+      getBankhistoryData: builder.query<BankHistoryData[], void>({
+        query: () => ({
+          url: "/users/banks/history-data",
           method: "GET",
         }),
         providesTags: ["BankSummary"],
@@ -152,6 +160,7 @@ const BankApiSlice = apiSlice
 
 export const {
   useGetBankSummaryQuery,
+  useGetBankhistoryDataQuery,
   useCreateBankMutation,
   useGetBanksQuery,
   useGetBankRecordsQuery,
