@@ -1,5 +1,6 @@
 import {
   BrokerageFirm,
+  BrokerageFirmHistoryData,
   BrokerageFirmSummary,
   CreateBrokerageFirm,
 } from "@financemanager/financemanager-webiste-types";
@@ -15,6 +16,16 @@ export const BrokerageFirmApiSlice = apiSlice
       getBrokerageFirmSummary: builder.query<BrokerageFirmSummary, void>({
         query: () => ({
           url: "/users/brokerage-firms/summary",
+          method: "GET",
+        }),
+        providesTags: ["BrokerageFirmSummary"],
+      }),
+      getBrokerageFrimHistoryData: builder.query<
+        BrokerageFirmHistoryData[],
+        void
+      >({
+        query: () => ({
+          url: "/users/brokerage-firms/history-data",
           method: "GET",
         }),
         providesTags: ["BrokerageFirmSummary"],
@@ -78,6 +89,7 @@ export const BrokerageFirmApiSlice = apiSlice
   });
 export const {
   useGetBrokerageFirmSummaryQuery,
+  useGetBrokerageFrimHistoryDataQuery,
   useGetBrokerageFirmsQuery,
   useCreateBrokerageFirmMutation,
   useUpdateBrokerageFirmMutation,
