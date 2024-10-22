@@ -5,6 +5,7 @@ import {
   UpdateStockRecord,
 } from '@financemanager/financemanager-webiste-types';
 import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { Repository } from 'typeorm';
@@ -12,6 +13,7 @@ import yahooFinance from 'yahoo-finance2';
 import { ChartResultArray } from 'yahoo-finance2/dist/esm/src/modules/chart';
 import { HistoricalHistoryResult } from 'yahoo-finance2/dist/esm/src/modules/historical';
 
+import { Currency } from '../currency/entities/currency.entity';
 import { CreateStockBundleSellRecordDto } from './dtos/create-stock-bundle-sell-record.dto';
 import { CreateStockBuyRecordDto } from './dtos/create-stock-buy-record.dto';
 import { CreateStockRecordDto } from './dtos/create-stock-record.dto';
@@ -45,13 +47,55 @@ export class StockService {
     private readonly stockBundleSellRecordsRepository: Repository<StockBundleSellRecord>,
   ) {}
 
-  async createStock(code: string, close: number): Promise<Stock> {
+  @Cron(CronExpression.EVERY_DAY_AT_6AM)
+  async updateStockPriceRoutine() {
+    const stocks = await this.stockRepository.find();
+    for (const stock of stocks) {
+      const now = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      try {
+        const data = await yahooFinance.chart(stock.code, {
+          period1: yesterday,
+          period2: now,
+          interval: '1d',
+        });
+        const price = data.meta.regularMarketPrice;
+        if (price !== null) await this.updateStockClose(stock, price);
+      } catch (e) {
+        console.error(`Failed to update stock price for ${stock.code}`);
+      }
+    }
+  }
+
+  @Cron('0 0 * * 1')
+  async updateStockHistoryRoutine() {
+    const stocks = await this.stockRepository.find();
+    for (const stock of stocks) {
+      await this.createStockHistory(stock);
+    }
+  }
+
+  async createStock(
+    currency: Currency,
+    code: string,
+    close: number,
+  ): Promise<Stock> {
     return this.stockRepository.save(
       this.stockRepository.create({
+        currency: currency,
         code: code,
         close: close,
       }),
     );
+  }
+
+  async getStockByCode(code: string): Promise<Stock | null> {
+    return this.stockRepository.findOne({
+      where: {
+        code: code,
+      },
+    });
   }
 
   async getUserStocksById(userId: string) {
@@ -67,42 +111,81 @@ export class StockService {
     });
   }
 
+  async getStockHistory(code: string): Promise<StockHistory[]> {
+    return await this.stockHistoryRepository.find({
+      where: {
+        stock: {
+          code: code,
+        },
+      },
+    });
+  }
+
   convertToHistoricalResult(result: ChartResultArray): HistoricalHistoryResult {
-    return result.quotes
-      .map((quote) => ({
-        date: new Date(quote.date),
-        open: quote.open || -1,
-        high: quote.high || -1,
-        low: quote.low || -1,
-        close: quote.close || -1,
-        adjClose: quote.adjClose || -1,
-        volume: quote.volume || -1,
-      }))
-      .filter((dailyQuote) => dailyQuote.low !== -1 || dailyQuote.high !== -1);
+    interface Quote {
+      adjClose?: number | undefined;
+      date: Date;
+      high: number;
+      low: number;
+      open: number;
+      close: number;
+      volume: number;
+    }
+    let previousQuote: Quote | null = null;
+
+    return result.quotes.map((quote) => {
+      const date = moment(quote.date).startOf('isoWeek').toDate();
+
+      const currentQuote = {
+        date: date,
+        open: quote.open ?? previousQuote?.open ?? 0,
+        high: quote.high ?? previousQuote?.high ?? 0,
+        low: quote.low ?? previousQuote?.low ?? 0,
+        close: quote.close ?? previousQuote?.close ?? 0,
+        adjClose: quote.adjclose ?? previousQuote?.adjClose ?? 0,
+        volume: quote.volume ?? previousQuote?.volume ?? 0,
+      };
+
+      // Update previousQuote to the current one for the next iteration
+      previousQuote = currentQuote;
+      return currentQuote;
+    });
   }
 
   async createStockHistory(stock: Stock) {
-    const startDate = '2000-01-01';
-    const now = new Date();
+    const startDate = new Date('2000-01-01');
+    const endDate = moment().subtract(1, 'weeks').endOf('week');
     const chartResult = await yahooFinance.chart(stock.code, {
       period1: startDate,
-      period2: now,
+      period2: endDate.toDate(),
       interval: '1wk',
     });
     const historyData = this.convertToHistoricalResult(chartResult);
-
-    for (const data of historyData) {
+    const operations = historyData.map(async (data) => {
       const date = moment(data.date);
-      await this.stockHistoryRepository.save(
-        this.stockHistoryRepository.create({
+      const existingRecord = await this.stockHistoryRepository.findOne({
+        where: {
           stock: stock,
-          date: date.toDate(),
-          year: date.isoWeekYear(),
-          week: date.isoWeek(),
-          close: data.close,
-        }),
-      );
-    }
+          date: date.format('YYYY-MM-DD'),
+        },
+      });
+      if (existingRecord) {
+        return this.stockHistoryRepository.update(existingRecord.id, {
+          close: parseFloat(data.close.toFixed(6)),
+        });
+      } else {
+        return this.stockHistoryRepository.save(
+          this.stockHistoryRepository.create({
+            stock: stock,
+            date: date.format('YYYY-MM-DD'),
+            year: date.isoWeekYear(),
+            week: date.isoWeek(),
+            close: parseFloat(data.close.toFixed(6)),
+          }),
+        );
+      }
+    });
+    await Promise.all(operations);
   }
 
   async updateStockClose(stock: Stock, close: number) {
@@ -423,6 +506,7 @@ export class StockService {
   ) {
     await this.stockSellRecordRepository.save(
       this.stockSellRecordRepository.create({
+        date: stockBundleSellRecord.date,
         stockBundleSellRecord: stockBundleSellRecord,
         stockRecord: stockRecord,
         shareNumber: shareNumber,
@@ -447,6 +531,14 @@ export class StockService {
         bank: {
           id: updateStockBundleSellRecordDto.bankId,
         },
+        stockSellRecords: (
+          await this.stockSellRecordRepository.find({
+            where: { stockBundleSellRecord: { id: id } },
+          })
+        ).map((stockSellRecord) => ({
+          ...stockSellRecord,
+          date: updateStockBundleSellRecordDto.date,
+        })),
         sellPrice: updateStockBundleSellRecordDto.sellPrice,
         sellExchangeRate: updateStockBundleSellRecordDto.sellExchangeRate,
         charge: updateStockBundleSellRecordDto.charge,
