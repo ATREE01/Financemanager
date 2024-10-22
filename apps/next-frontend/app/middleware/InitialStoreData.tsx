@@ -4,12 +4,14 @@ import { useEffect } from "react";
 
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
+  useGetBankhistoryDataQuery,
   useGetBankRecordsQuery,
   useGetBanksQuery,
   useGetBankSummaryQuery,
   useGetTimeDepositRecordsQuery,
 } from "@/lib/features/Bank/BankApiSlice";
 import {
+  setBankHistoryData,
   setBankRecords,
   setBanks,
   setBankSummary,
@@ -18,8 +20,10 @@ import {
 import {
   useGetBrokerageFirmsQuery,
   useGetBrokerageFirmSummaryQuery,
+  useGetBrokerageFrimHistoryDataQuery,
 } from "@/lib/features/BrokerageFirm/BrokerageFirmApiSlice";
 import {
+  setBrokerageFirmHistoryData,
   setBrokerageFirms,
   setBrokerageFirmSummary,
 } from "@/lib/features/BrokerageFirm/BrokerageFirmSlice";
@@ -96,6 +100,12 @@ export default function InitialStoreData({
     refetch: refetchBankSummars,
   } = useGetBankSummaryQuery();
   const {
+    data: bankHistoryData,
+    isSuccess: bankHistoryDataIsSuccess,
+    isLoading: bankHistoryDataIsLoading,
+    refetch: refetchBankHistoryData,
+  } = useGetBankhistoryDataQuery();
+  const {
     data: banks,
     isSuccess: bankIsSuccess,
     isLoading: bankIsLoading,
@@ -119,6 +129,12 @@ export default function InitialStoreData({
     isLoading: brokerageFirmSummaryIsLoading,
     refetch: refetchBrokerageFirmSummary,
   } = useGetBrokerageFirmSummaryQuery();
+  const {
+    data: brokerageFirmHistoryData,
+    isSuccess: brokerageFirmHistoryDataIsSuccess,
+    isLoading: brokerageFirmHistoryDataIsLoading,
+    refetch: refetchBrokerageFirmHistoryData,
+  } = useGetBrokerageFrimHistoryDataQuery();
   const {
     data: brokerageFirms,
     isSuccess: brokerageFirmIsSuccess,
@@ -158,11 +174,13 @@ export default function InitialStoreData({
     refetchUserCurrencies();
     refetchCurrencyTransactionRecords();
     refetchBankSummars();
+    refetchBankHistoryData();
     refetchBanks();
     refetchBankRecords();
     refetchTimeDepositRecords();
     refetchBrokerageFirmSummary();
     refetchBrokerageFirms();
+    refetchBrokerageFirmHistoryData();
     refetchUserStock();
     refetchStockRecords();
     refetchStockSumaries();
@@ -197,6 +215,12 @@ export default function InitialStoreData({
   }, [bankSummary]);
 
   useEffect(() => {
+    if (bankHistoryDataIsSuccess) {
+      dispatch(setBankHistoryData(bankHistoryData));
+    }
+  }, [bankHistoryData]);
+
+  useEffect(() => {
     if (bankIsSuccess) dispatch(setBanks(banks));
   }, [banks]);
 
@@ -214,6 +238,12 @@ export default function InitialStoreData({
       dispatch(setBrokerageFirmSummary(brokerageFirmSummary));
     }
   }, [brokerageFirmSummary]);
+
+  useEffect(() => {
+    if (brokerageFirmHistoryDataIsSuccess) {
+      dispatch(setBrokerageFirmHistoryData(brokerageFirmHistoryData));
+    }
+  }, [brokerageFirmHistoryData]);
 
   useEffect(() => {
     if (brokerageFirmIsSuccess) dispatch(setBrokerageFirms(brokerageFirms));
@@ -247,10 +277,12 @@ export default function InitialStoreData({
     userCurrencyIsLoading &&
     currencyTransactionRecordIsLoading &&
     bankSummaryIsLoading &&
+    bankHistoryDataIsLoading &&
     bankIsLoading &&
     bankRecordIsLoading &&
     timeDepositRecordIsLoading &&
     brokerageFirmSummaryIsLoading &&
+    brokerageFirmHistoryDataIsLoading &&
     brokerageFirmIsLoading &&
     userStockIsLoading &&
     stockRecordIsLoading &&
