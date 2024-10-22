@@ -18,6 +18,7 @@ import yahooFinance from 'yahoo-finance2';
 
 import { UserInfo } from '../auth/dtos/user-info';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CurrencyService } from '../currency/currency.service';
 import { CreateStockBundleSellRecordDto } from './dtos/create-stock-bundle-sell-record.dto';
 import { CreateStockBuyRecordDto } from './dtos/create-stock-buy-record.dto';
 import { CreateStockRecordDto } from './dtos/create-stock-record.dto';
@@ -33,6 +34,7 @@ export class StockController {
     @InjectQueue('StockHistory')
     private readonly stockHistoryQueue: Queue,
     private readonly stockService: StockService,
+    private readonly currencyService: CurrencyService,
   ) {}
 
   //TODO: create a schedule to update the stock price and stock history
@@ -55,17 +57,22 @@ export class StockController {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
 
-        const close = (
-          await yahooFinance.chart(createUserStockDto.code, {
-            period1: yesterday,
-            period2: now,
-            interval: '1d',
-          })
-        ).quotes[0].close;
+        const data = await yahooFinance.chart(createUserStockDto.code, {
+          period1: yesterday,
+          period2: now,
+          interval: '1d',
+        });
 
-        if (close === null) throw new BadRequestException();
+        const currency = await this.currencyService.getByCode(
+          data.meta.currency,
+        );
+        const close = data.quotes[0].close;
+
+        if (currency === null || close === null)
+          throw new BadRequestException('Invalid stock code');
 
         const stock = await this.stockService.createStock(
+          currency,
           createUserStockDto.code,
           close,
         );
