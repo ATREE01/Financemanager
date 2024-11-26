@@ -1,5 +1,7 @@
 export * from "./bank";
+export * from "./bank-history-data";
 export * from "./bank-record";
+export * from "./bank-summary";
 export * from "./create-bank";
 export * from "./create-bank-record";
 export * from "./create-time-deposit-record";

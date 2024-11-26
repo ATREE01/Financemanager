@@ -1,10 +1,13 @@
 "use client";
 
 import { Currency } from "@financemanager/financemanager-webiste-types";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import PageLabel from "@/app/components/page-label";
+import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
   useCreateUserCurrencyMutation,
   useDeleteUserCurrencyMutation,
@@ -15,6 +18,12 @@ import {
 } from "@/lib/features/Currency/CurrencySlice";
 
 export default function CurrencyManage() {
+  const userId = useUserId();
+  const router = useRouter();
+  useEffect(() => {
+    if (!userId) router.push("/auth/login");
+  }, [userId]);
+
   const [createUserCurrency] = useCreateUserCurrencyMutation();
   const [deleteUserCurrency] = useDeleteUserCurrencyMutation();
 

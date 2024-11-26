@@ -1,16 +1,24 @@
 "use client";
 
 import { TimeDepositRecord } from "@financemanager/financemanager-webiste-types";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import TimeDepositRecordFormManager from "@/app/components/forms/time-deposit-manager";
 import PageLabel from "@/app/components/page-label";
+import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { useDeleteTimeDepositRecordMutation } from "@/lib/features/Bank/BankApiSlice";
 import { useTimeDepositRecords } from "@/lib/features/Bank/BankSlice";
 
 export default function TimeDeposit() {
+  const userId = useUserId();
+  const router = useRouter();
+  useEffect(() => {
+    if (!userId) router.push("/auth/login");
+  }, [userId]);
+
   const [updateShow, setupdateShow] = useState(false);
 
   const [formData, setFormData] = useState<TimeDepositRecord>();

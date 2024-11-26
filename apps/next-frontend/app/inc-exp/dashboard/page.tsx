@@ -1,17 +1,25 @@
 "use client";
 
 import { IncExpRecordType } from "@financemanager/financemanager-webiste-types";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
 import ConditionFilter from "@/app/components/condition-filter";
 import DurationFilter from "@/app/components/duration-filter";
 import IncExpFormManager from "@/app/components/forms/inc-exp-form-manager";
 import PageLabel from "@/app/components/page-label";
+import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
 import { useIncExpRecords } from "@/lib/features/IncExp/IncExpSlice";
 
 export default function Dashboard() {
+  const userId = useUserId();
+  const router = useRouter();
+  useEffect(() => {
+    if (!userId) router.push("/auth/login");
+  }, [userId]);
+
   const pieChartOptions = {
     legend: { position: "top", maxLines: 3 },
     pieSliceText: "percentage",

@@ -20,10 +20,14 @@ export class StockRecord {
   @ManyToOne(() => User, (user) => user.stockRecords)
   user: User;
 
-  @ManyToOne(() => BrokerageFirm, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
+  @ManyToOne(
+    () => BrokerageFirm,
+    (brokerageFirm) => brokerageFirm.stockRecords,
+    {
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+  )
   brokerageFirm: BrokerageFirm;
 
   @ManyToOne(() => UserStock, {

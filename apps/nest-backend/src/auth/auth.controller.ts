@@ -36,7 +36,7 @@ export class AuthController {
       throw new ConflictException();
     }
 
-    const hashedPassword = bcrypt.hashSync(registerDto.password, 10);
+    const hashedPassword = bcrypt.hashSync(registerDto.password, 12);
 
     const user = await this.userService.createUser({
       username: registerDto.username,

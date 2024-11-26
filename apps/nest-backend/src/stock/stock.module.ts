@@ -2,6 +2,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { CurrencyModule } from '../currency/currency.module';
 import { Stock } from './entities/stock.entity';
 import { StockBundleSellRecord } from './entities/stock-bundle-sell-record.entity';
 import { StockBuyRecord } from './entities/stock-buy-record.entity';
@@ -28,6 +29,7 @@ import { StockHistoryProcessor } from './stock-history.processor';
       StockHistory,
       UserStock,
     ]),
+    CurrencyModule,
   ],
   controllers: [StockController],
   providers: [StockService, StockHistoryProcessor],

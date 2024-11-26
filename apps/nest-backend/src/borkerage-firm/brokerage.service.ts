@@ -12,20 +12,6 @@ export class BrokerageService {
     private readonly brokerageFirmRepository: Repository<BrokerageFirm>,
   ) {}
 
-  async getBrokerageFirmsByUserId(id: string): Promise<BrokerageFirm[]> {
-    return this.brokerageFirmRepository.find({
-      where: {
-        user: {
-          id,
-        },
-      },
-      relations: {
-        transactionCurrency: true,
-        settlementCurrency: true,
-      },
-    });
-  }
-
   async getuserBrokerageFirmByName(
     id: string,
     name: string,

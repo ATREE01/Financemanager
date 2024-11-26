@@ -1,17 +1,25 @@
 "use client";
 
 import { CurrencyTransactionRecord } from "@financemanager/financemanager-webiste-types";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import CurrenyTransactionFormManager from "@/app/components/forms/currency-transaction-form-manager";
 import PageLabel from "@/app/components/page-label";
+import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { useDeleteCurrencyTransactionRecordMutation } from "@/lib/features/Currency/CurrencyApiSlice";
 import { useCurrencyTransactionRecord } from "@/lib/features/Currency/CurrencySlice";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 
 export default function CurrencyTransaction() {
+  const userId = useUserId();
+  const router = useRouter();
+  useEffect(() => {
+    if (!userId) router.push("/auth/login");
+  }, [userId]);
+
   const currencyTransactionRecords = useCurrencyTransactionRecord();
   const phraseMap = usePhraseMap();
 

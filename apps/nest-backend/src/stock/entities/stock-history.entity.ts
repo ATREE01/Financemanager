@@ -16,7 +16,7 @@ export class StockHistory {
   @Column({
     type: 'date',
   })
-  date: Date;
+  date: string;
 
   @Column()
   year: number;

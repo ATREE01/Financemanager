@@ -1,5 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
+import { Currency } from '@/src/currency/entities/currency.entity';
 import { StockHistory } from '@/src/stock/entities/stock-history.entity';
 import { UserStock } from '@/src/stock/entities/user-stock.entity';
 
@@ -17,6 +24,9 @@ export class Stock {
     scale: 6,
   })
   close: number;
+
+  @ManyToOne(() => Currency)
+  currency: Currency;
 
   @OneToMany(() => UserStock, (userStock) => userStock.stock)
   userStock?: UserStock[];

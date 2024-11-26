@@ -7,6 +7,8 @@ export interface CreateBank
     | "currency"
     | "userId"
     | "order"
+    | "incExpRecords"
+    | "bankRecords"
     | "stockBuyRecords"
     | "stockBundleSellRecords"
   > {

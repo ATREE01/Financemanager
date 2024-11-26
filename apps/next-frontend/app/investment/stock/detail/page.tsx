@@ -6,16 +6,18 @@ import {
   UpdateStockRecord,
   UpdateStockSellRecord,
 } from "@financemanager/financemanager-webiste-types";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import * as React from "react";
 
 import DetailTable from "@/app/components/detail-table";
 import StockFormManager from "@/app/components/forms/stock-form-manager";
 import PageLabel from "@/app/components/page-label";
+import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 import {
   useDeleteStockBundleSellRecordMutation,
-  useDeleteStockBuyRecorMutation,
+  useDeleteStockBuyRecordMutation,
   useDeleteStockSellRecordMutation,
 } from "@/lib/features/stock/StockApiSlice";
 import {
@@ -24,6 +26,12 @@ import {
 } from "@/lib/features/stock/StockSlice";
 
 export default function Detail() {
+  const userId = useUserId();
+  const router = useRouter();
+  React.useEffect(() => {
+    if (!userId) router.push("/auth/login");
+  }, [userId]);
+
   const [stockRecordFormData, setStockRecordFormData] =
     useState<UpdateStockRecord>();
   const [stockBundleSellFormData, setStockBundleSellFormData] =
@@ -37,7 +45,7 @@ export default function Detail() {
   const [showUpdateStockSellForm, setShowUpdateStockSellForm] = useState(false);
   const [expandedIdx, setExpandedIdx] = useState(-1);
 
-  const [deleteStockBuyRecord] = useDeleteStockBuyRecorMutation();
+  const [deleteStockBuyRecord] = useDeleteStockBuyRecordMutation();
   const [deleteStockBundleSellRecord] =
     useDeleteStockBundleSellRecordMutation();
 
@@ -112,101 +120,115 @@ export default function Detail() {
       }
   }
 
+  const stockBuyRecordsArray = stockRecords
+    .flatMap((record) =>
+      record.stockBuyRecords.map((buyRecord) => ({
+        ...buyRecord,
+        brokerageFirm: record.brokerageFirm.name,
+        transactionCurrency: record.brokerageFirm.transactionCurrency.name,
+        settlementCurrency: record.brokerageFirm.settlementCurrency.name,
+        userStockName: record.userStock.name,
+        stockCode: record.userStock.stock.code,
+        buyPrice: record.buyPrice,
+        buyExchangeRate: record.buyExchangeRate,
+        recordId: record.id,
+        brokerageFirmId: record.brokerageFirm.id,
+        userStockId: record.userStock.id,
+      })),
+    )
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
     <main className="pt-[--navbar-height] bg-slate-100">
       <PageLabel title="股票紀錄" />
       <div className="h-[80vh] flex flex-col items-center">
-        <div className="max-h-1/2 w-4/5 m-2">
+        <div className="w-4/5 m-1">
           <div className="text-black text-center text-lg font-bold">
             買入紀錄
           </div>
-          <div className="max-h-[60vh] overflow-auto">
+          <div className="max-h-[35vh] overflow-auto">
             <DetailTable
               titles={buyTableTitles}
-              tableContent={stockRecords.map((record) =>
-                record.stockBuyRecords.map((buyRecord) => (
-                  <tr key={buyRecord.id} className="border-b hover:bg-gray-100">
-                    <td className="table-data-cell">{buyRecord.date}</td>
-                    <td className="table-data-cell">
-                      {record.brokerageFirm.name}
-                    </td>
-                    <td className="table-data-cell">
-                      {phraseMap.stockBuyMethod[buyRecord.buyMethod]}
-                    </td>
-                    <td className="table-data-cell">{buyRecord.bank.name}</td>
-                    <td className="table-data-cell">
-                      {record.brokerageFirm.transactionCurrency.name}
-                    </td>
-                    <td className="table-data-cell">
-                      {record.brokerageFirm.settlementCurrency.name}
-                    </td>
-                    <td className="table-data-cell">
-                      {record.userStock.name} ({record.userStock.stock.code})
-                    </td>
-                    <td className="table-data-cell">
-                      {Number(record.buyPrice)}
-                    </td>
-                    <td className="table-data-cell">
-                      {Number(record.buyExchangeRate)}
-                    </td>
-                    <td className="table-data-cell">
-                      {Number(buyRecord.shareNumber)}
-                    </td>
-                    <td className="table-data-cell">
-                      {Number(buyRecord.charge)}
-                    </td>
-                    <td className="table-data-cell">
-                      {Number(buyRecord.amount)}
-                    </td>
-                    <td className="table-data-cell">{buyRecord.note}</td>
-                    <td className="table-data-cell">
-                      <button
-                        className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors duration-200 mx-1"
-                        onClick={() => {
-                          const data = {
-                            id: record.id,
-                            type: StockRecordType.BUY,
-                            brokerageFirmId: record.brokerageFirm.id,
-                            userStockId: record.userStock.id,
-                            buyPrice: record.buyPrice,
-                            buyExchangeRate: record.buyExchangeRate,
-                            updateStockBuyRecord: {
-                              id: buyRecord.id,
-                              date: buyRecord.date,
-                              buyMethod: buyRecord.buyMethod,
-                              bankId: buyRecord.bank.id,
-                              shareNumber: buyRecord.shareNumber,
-                              charge: buyRecord.charge,
-                              amount: buyRecord.amount,
-                              note: buyRecord.note,
-                            },
-                          } as UpdateStockRecord;
-                          setStockRecordFormData(data);
-                          setShowUpdateStockRecordForm(
-                            !showUpdateStockRecordForm,
-                          );
-                        }}
-                      >
-                        修改
-                      </button>
-                      <button
-                        className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition-colors duration-200 mx-1"
-                        onClick={() => deleteStockRecord(buyRecord.id)}
-                      >
-                        刪除
-                      </button>
-                    </td>
-                  </tr>
-                )),
-              )}
+              tableContent={stockBuyRecordsArray.map((buyRecord) => (
+                <tr key={buyRecord.id} className="border-b hover:bg-gray-100">
+                  <td className="table-data-cell">{buyRecord.date}</td>
+                  <td className="table-data-cell">{buyRecord.brokerageFirm}</td>
+                  <td className="table-data-cell">
+                    {phraseMap.stockBuyMethod[buyRecord.buyMethod]}
+                  </td>
+                  <td className="table-data-cell">{buyRecord.bank.name}</td>
+                  <td className="table-data-cell">
+                    {buyRecord.transactionCurrency}
+                  </td>
+                  <td className="table-data-cell">
+                    {buyRecord.settlementCurrency}
+                  </td>
+                  <td className="table-data-cell">
+                    {buyRecord.userStockName} ({buyRecord.stockCode})
+                  </td>
+                  <td className="table-data-cell">
+                    {Number(buyRecord.buyPrice)}
+                  </td>
+                  <td className="table-data-cell">
+                    {Number(buyRecord.buyExchangeRate)}
+                  </td>
+                  <td className="table-data-cell">
+                    {Number(buyRecord.shareNumber)}
+                  </td>
+                  <td className="table-data-cell">
+                    {Number(buyRecord.charge)}
+                  </td>
+                  <td className="table-data-cell">
+                    {Number(buyRecord.amount)}
+                  </td>
+                  <td className="table-data-cell">{buyRecord.note}</td>
+                  <td className="table-data-cell">
+                    <button
+                      className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors duration-200 mx-1"
+                      onClick={() => {
+                        const data = {
+                          id: buyRecord.recordId,
+                          type: StockRecordType.BUY,
+                          brokerageFirmId: buyRecord.brokerageFirmId,
+                          userStockId: buyRecord.userStockId,
+                          buyPrice: buyRecord.buyPrice,
+                          buyExchangeRate: buyRecord.buyExchangeRate,
+                          updateStockBuyRecord: {
+                            id: buyRecord.id,
+                            date: buyRecord.date,
+                            buyMethod: buyRecord.buyMethod,
+                            bankId: buyRecord.bank.id,
+                            shareNumber: buyRecord.shareNumber,
+                            charge: buyRecord.charge,
+                            amount: buyRecord.amount,
+                            note: buyRecord.note,
+                          },
+                        } as UpdateStockRecord;
+                        setStockRecordFormData(data);
+                        setShowUpdateStockRecordForm(
+                          !showUpdateStockRecordForm,
+                        );
+                      }}
+                    >
+                      修改
+                    </button>
+                    <button
+                      className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition-colors duration-200 mx-1"
+                      onClick={() => deleteStockRecord(buyRecord.id)}
+                    >
+                      刪除
+                    </button>
+                  </td>
+                </tr>
+              ))}
             />
           </div>
         </div>
-        <div className="max-h-1/2 w-4/5 m-2">
+        <div className="w-4/5 m-1">
           <div className="text-black text-center text-lg font-bold">
             賣出紀錄
           </div>
-          <div className="max-h-[60vh] overflow-auto">
+          <div className="max-h-[35vh] overflow-auto">
             <DetailTable
               titles={sellTableTitles}
               titleColor="bg-red-400"

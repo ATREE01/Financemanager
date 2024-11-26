@@ -1,26 +1,29 @@
 "use client";
 
 import {
-  Bank,
   BankRecordType,
   CurrencyTransactionRecordType,
   IncExpRecordType,
 } from "@financemanager/financemanager-webiste-types";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Chart from "react-google-charts";
 
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import BankFormManager from "@/app/components/forms/bank-form-manager";
 import PageLabel from "@/app/components/page-label";
-import {
-  useBankRecords,
-  useBanks,
-  useTimeDepositRecords,
-} from "@/lib/features/Bank/BankSlice";
+import { useUserId } from "@/lib/features/Auth/AuthSlice";
+import { useBanks, useTimeDepositRecords } from "@/lib/features/Bank/BankSlice";
 import { useCurrencyTransactionRecord } from "@/lib/features/Currency/CurrencySlice";
-import { useIncExpFinRecords } from "@/lib/features/IncExp/IncExpSlice";
 
 const DashboardBank = () => {
+  const userId = useUserId();
+  const router = useRouter();
+  useEffect(() => {
+    if (!userId) router.push("/auth/login");
+  }, [userId]);
+
   const pieChartOptions = {
     legend: { position: "top", maxLines: 3 },
     pieSliceText: "percentage",
@@ -60,8 +63,6 @@ const DashboardBank = () => {
 
   const banks = useBanks();
   // this record only contains income expense record with method equals to finance
-  const incExpRecords = useIncExpFinRecords();
-  const bankRecords = useBankRecords();
   const timeDepositRecords = useTimeDepositRecords();
   const currencyTransactionRecords = useCurrencyTransactionRecord();
 
@@ -89,6 +90,37 @@ const DashboardBank = () => {
       sell: 0,
     };
 
+    bank.incExpRecords.forEach((record) => {
+      const bankId = bank.id;
+      switch (record.type) {
+        case IncExpRecordType.INCOME:
+          bankData[bankId].total += record.amount;
+          bankData[bankId].income += record.amount;
+          break;
+        case IncExpRecordType.EXPENSE:
+          bankData[bankId].total -= record.amount;
+          bankData[bankId].expense += record.amount;
+          bankData[bankId].charge += record.charge as number;
+          break;
+      }
+    });
+
+    bank.bankRecords.forEach((record) => {
+      const bankId = bank.id;
+      bankData[bankId].charge += record.charge ?? 0;
+      bankData[bankId].totla -= record.charge ?? 0;
+      switch (record.type) {
+        case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
+          bankData[bankId].total += record.amount;
+          bankData[bankId].deposit += record.amount;
+          break;
+        case BankRecordType.WITHDRAW || BankRecordType.TRANSFEROUT:
+          bankData[bankId].total -= record.amount;
+          bankData[bankId].withdraw += record.amount;
+          break;
+      }
+    });
+
     bank.stockBuyRecords.forEach((record) => {
       bankData[bank.id].invt -= Number(record.amount);
       bankData[bank.id].total -= Number(record.amount);
@@ -98,37 +130,6 @@ const DashboardBank = () => {
       bankData[bank.id].invt += Number(record.amount);
       bankData[bank.id].total += Number(record.amount);
     });
-  });
-
-  incExpRecords.forEach((record) => {
-    const bankId = (record.bank as Bank).id;
-    switch (record.type) {
-      case IncExpRecordType.INCOME:
-        bankData[bankId].total += record.amount;
-        bankData[bankId].income += record.amount;
-        break;
-      case IncExpRecordType.EXPENSE:
-        bankData[bankId].total -= record.amount;
-        bankData[bankId].expense += record.amount;
-        bankData[bankId].charge += record.charge as number;
-        break;
-    }
-  });
-
-  bankRecords.forEach((record) => {
-    const bankId = record.bank.id;
-    bankData[bankId].charge += record.charge ?? 0;
-    bankData[bankId].totla -= record.charge ?? 0;
-    switch (record.type) {
-      case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
-        bankData[bankId].total += record.amount;
-        bankData[bankId].deposit += record.amount;
-        break;
-      case BankRecordType.WITHDRAW || BankRecordType.TRANSFEROUT:
-        bankData[bankId].total -= record.amount;
-        bankData[bankId].withdraw += record.amount;
-        break;
-    }
   });
 
   timeDepositRecords.forEach((record) => {

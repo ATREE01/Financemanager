@@ -44,7 +44,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
-    "yahoo-finance2": "^2.11.3"
+    "yahoo-finance2": "^2.13.1"
   },
   "devDependencies": {
     "@financemanager/financemanager-webiste-types": "workspace:*",

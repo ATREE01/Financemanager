@@ -1,6 +1,8 @@
 import {
   Bank,
+  BankHistoryData,
   BankRecord,
+  BankSummary,
   TimeDepositRecord,
 } from "@financemanager/financemanager-webiste-types";
 import { createSlice } from "@reduxjs/toolkit";
@@ -14,6 +16,8 @@ const BankSlice = createSlice({
     banks: [] as Bank[],
     bankRecords: [] as BankRecord[],
     timeDepositRecords: [] as TimeDepositRecord[],
+    bankSummary: {} as BankSummary,
+    bankHistoryData: [] as BankHistoryData[],
   },
   reducers: {
     setBanks: (
@@ -43,6 +47,24 @@ const BankSlice = createSlice({
     ) => {
       state.timeDepositRecords = action.payload;
     },
+    setBankSummary: (
+      state,
+      action: {
+        type: string;
+        payload: BankSummary;
+      },
+    ) => {
+      state.bankSummary = action.payload;
+    },
+    setBankHistoryData: (
+      state,
+      action: {
+        type: string;
+        payload: BankHistoryData[];
+      },
+    ) => {
+      state.bankHistoryData = action.payload;
+    },
   },
 });
 
@@ -57,5 +79,16 @@ export const useBankRecords = () =>
 export const useTimeDepositRecords = () =>
   useSelector((state: RootState) => state.bank.timeDepositRecords);
 
-export const { setBanks, setBankRecords, setTimeDepositRecords } =
-  BankSlice.actions;
+export const useBankSummary = () =>
+  useSelector((state: RootState) => state.bank.bankSummary);
+
+export const useBankHistoryData = () =>
+  useSelector((state: RootState) => state.bank.bankHistoryData);
+
+export const {
+  setBanks,
+  setBankRecords,
+  setTimeDepositRecords,
+  setBankSummary,
+  setBankHistoryData,
+} = BankSlice.actions;

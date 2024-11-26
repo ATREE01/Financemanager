@@ -24,11 +24,10 @@ import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 
 export default function Detail() {
   const userId = useUserId();
+  const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
   }, [userId]);
-
-  const router = useRouter();
 
   const [startDate, setStartDate] = useState(new Date("1900-01-01"));
   const [endDate, setEndDate] = useState(new Date());
@@ -139,7 +138,7 @@ export default function Detail() {
   const currencyOptions = [
     { value: "default", name: "幣別" },
     ...userCurrencies.map((userCurrency) => ({
-      value: userCurrency.id.toString(),
+      value: userCurrency.currency.id.toString(),
       name: userCurrency.currency.name,
     })),
   ];

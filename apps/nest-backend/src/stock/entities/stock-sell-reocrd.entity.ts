@@ -9,6 +9,11 @@ export class StockSellRecord {
   id: number;
 
   @Column({
+    type: 'date',
+  })
+  date: string;
+
+  @Column({
     type: 'decimal',
     precision: 12,
     scale: 6,

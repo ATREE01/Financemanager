@@ -1,5 +1,7 @@
 import {
   BrokerageFirm,
+  BrokerageFirmHistoryData,
+  BrokerageFirmSummary,
   CreateBrokerageFirm,
 } from "@financemanager/financemanager-webiste-types";
 
@@ -7,10 +9,28 @@ import { apiSlice } from "@/lib/api/apiSlice";
 
 export const BrokerageFirmApiSlice = apiSlice
   .enhanceEndpoints({
-    addTagTypes: ["BrokerageFirm"],
+    addTagTypes: ["BrokerageFirm", "BrokerageFirmSummary"],
   })
   .injectEndpoints({
     endpoints: (builder) => ({
+      getBrokerageFirmSummary: builder.query<BrokerageFirmSummary, void>({
+        query: () => ({
+          url: "/users/brokerage-firms/summary",
+          method: "GET",
+        }),
+        providesTags: ["BrokerageFirmSummary"],
+      }),
+      getBrokerageFrimHistoryData: builder.query<
+        BrokerageFirmHistoryData[],
+        void
+      >({
+        query: () => ({
+          url: "/users/brokerage-firms/history-data",
+          method: "GET",
+        }),
+        providesTags: ["BrokerageFirmSummary"],
+      }),
+
       getBrokerageFirms: builder.query<BrokerageFirm[], void>({
         query: () => ({
           url: "/users/brokerage-firms",
@@ -68,6 +88,8 @@ export const BrokerageFirmApiSlice = apiSlice
     }),
   });
 export const {
+  useGetBrokerageFirmSummaryQuery,
+  useGetBrokerageFrimHistoryDataQuery,
   useGetBrokerageFirmsQuery,
   useCreateBrokerageFirmMutation,
   useUpdateBrokerageFirmMutation,
