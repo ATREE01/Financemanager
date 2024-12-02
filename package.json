@@ -12,7 +12,8 @@
     "test:ci": "lerna run test:ci",
     "lint": "eslint --fix \"{apps,packages}/{nest-backend, next-frontend}/*.{tsx,cjs,ts,js}\"",
     "format": "prettier -w \"apps/**/*.ts\" \"packages/**/*.ts\"",
-    "preview": "concurrently \"pnpm ts-node proxy.ts\" \"cd ./apps/frontend && cross-env node .output/server/index.mjs\" \"pnpm -F backend start:prod\""
+    "preview": "concurrently \"pnpm ts-node proxy.ts\" \"cd ./apps/frontend && cross-env node .output/server/index.mjs\" \"pnpm -F backend start:prod\"",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -25,8 +26,10 @@
     "concurrently": "^9.1.0",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^9.1.7",
     "lerna": "^8.1.9",
