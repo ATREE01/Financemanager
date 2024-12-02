@@ -1,0 +1,72 @@
+version: "3"
+services: 
+  frontend:
+    image:
+      financemanager-frontend:1.0.0
+    # build: 
+    #   dockerfile: Dockerfile.frontend
+    restart: always
+    # depends_on:
+    #   - backend
+    networks:
+      - financemanager
+    environment:
+      - PORT=${FRONTEND_PORT}
+      - API_URL=${API_URL}
+  backend:
+    image:
+      financemanager-backend:1.0.0
+    # build: 
+    #   dockerfile: Dockerfile.backend
+    restart: always
+    depends_on:
+      - redis
+      - database
+    environment:
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - DB_TYPE=${DB_TYPE}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - EXCHANGE_RATE_GOOGLE_SHEET_API=${EXCHANGE_RATE_GOOGLE_SHEET_API}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    networks:
+      - financemanager
+  redis:
+    image: redis:7.4.0
+    networks:
+      - financemanager
+  database:
+    image: mariadb:11.2
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      - ./migrate.sql:/tmp/migrate.sql
+      - financemanager_db:/var/lib/mysql
+    environment:
+      - MARIADB_DATABASE=${DB_NAME}
+      - MARIADB_USER=${DB_USER}
+      - MARIADB_PASSWORD=${DB_PASSWORD}
+      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - TZ=Asia/Taipei
+    networks:
+      - financemanager
+  nginx:
+    image: nginx:1.27.3-bookworm
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+    networks:
+      - financemanager
+volumes:
+  financemanager_db:
+networks:
+  financemanager:

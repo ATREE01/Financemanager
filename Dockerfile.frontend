@@ -1,0 +1,48 @@
+FROM node:23-bookworm-slim AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+FROM base as builder
+WORKDIR /app
+
+COPY lerna.json package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/next-frontend/package.json ./apps/next-frontend/
+COPY packages/financemanager-website-types/package.json packages/financemanager-website-types/package-lock.json ./packages/financemanager-website-types/
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+COPY ./apps/next-frontend ./apps/next-frontend
+COPY ./packages ./packages
+RUN pnpm build
+
+FROM base as prod-deps
+WORKDIR /app
+COPY lerna.json package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/next-frontend/package.json ./apps/next-frontend/
+RUN pnpm install --prod --frozen-lockfile
+
+FROM base AS frontend
+
+WORKDIR /app
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=prod-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=nextjs:nodejs /app/apps/next-frontend/node_modules ./apps/frontend/node_modules
+
+COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/package.json ./apps/frontend/package.json
+COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/public ./apps/frontend/public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/.next ./apps/frontend/.next
+
+ENV COREPACK_HOME=/app/.cache/corepack
+RUN mkdir -p $COREPACK_HOME && chown -R nextjs:nodejs $COREPACK_HOME
+
+USER nextjs
+
+EXPOSE 3000
+
+WORKDIR /app/apps/frontend
+
+CMD ["pnpm", "start"]

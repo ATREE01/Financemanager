@@ -1,0 +1,51 @@
+FROM node:23-bookworm-slim AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+FROM base as builder
+WORKDIR /app
+
+COPY lerna.json package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/nest-backend/package.json ./apps/nest-backend/
+COPY packages/financemanager-website-types/package.json packages/financemanager-website-types/package-lock.json ./packages/financemanager-website-types/
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+COPY ./apps/nest-backend ./apps/nest-backend
+COPY ./packages ./packages
+RUN pnpm build
+
+FROM base as prod-deps
+WORKDIR /app
+COPY lerna.json package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/nest-backend/package.json ./apps/nest-backend/
+COPY packages/financemanager-website-types/package.json packages/financemanager-website-types/
+RUN pnpm install --prod --frozen-lockfile
+
+FROM base AS bakend
+
+WORKDIR /app
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nestjs
+
+COPY --from=prod-deps --chown=nestjs:nodejs /app/node_modules ./node_modules
+
+COPY ./packages/financemanager-website-types/package.json ./packages/financemanager-website-types/package.json
+COPY --from=prod-deps --chown=nestjs:nodejs /app/packages/financemanager-website-types/node_modules ./packages/financemanager-website-types/node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/packages/financemanager-website-types/dist ./packages/financemanager-website-types/dist
+
+COPY --from=prod-deps --chown=nestjs:nodejs /app/apps/nest-backend/node_modules ./apps/backend/node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/apps/nest-backend/dist ./apps/backend/dist
+
+ENV COREPACK_HOME=/app/.cache/corepack
+RUN mkdir -p $COREPACK_HOME && chown -R nestjs:nodejs $COREPACK_HOME
+
+USER nestjs
+
+EXPOSE 3000
+
+WORKDIR /app/apps/backend
+
+CMD ["node", "dist/src/main.js"]
