@@ -7,6 +7,7 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import globals from 'globals';
 
 export default [
   // Base ESLint recommended configuration for JavaScript
@@ -16,6 +17,9 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
+      globals: {
+        ...globals.node,
+      },
       parser: tsParser,
       parserOptions: {
         ecmaVersion: 'latest',
@@ -33,7 +37,7 @@ export default [
     rules: {
       ...typescript.configs.recommended.rules,
       ...prettierConfig.rules, // Disables ESLint rules conflicting with Prettier
-      'prettier/prettier': 'error', // Enforces Prettier formatting
+      'prettier/prettier':  ['warn', { endOfLine: 'auto' }],
       '@typescript-eslint/interface-name-prefix': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',

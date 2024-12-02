@@ -1,7 +1,5 @@
 import { DataSource } from 'typeorm';
 
-import 'dotenv/config';
-
 const dataSource = new DataSource({
   type: 'mariadb',
   host: 'localhost',
