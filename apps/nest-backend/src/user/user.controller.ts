@@ -360,23 +360,23 @@ export class UserController {
     const brokerageFirmSummary: BrokerageFirmSummary = {};
     const brokerageFirms = result.brokerageFirms;
 
-    brokerageFirms.forEach((brokerageFirms) => {
-      brokerageFirmSummary[brokerageFirms.name] = {
+    brokerageFirms.forEach((brokerageFirm) => {
+      brokerageFirmSummary[brokerageFirm.name] = {
         value: 0,
       };
 
-      if (brokerageFirms.stockRecords === undefined) return;
+      if (brokerageFirm.stockRecords === undefined) return;
 
       const stockRecordShareSummaries: BrokerageStockSummary[] =
-        brokerageFirms.stockRecords.map((stockRecord) =>
+        brokerageFirm.stockRecords.map((stockRecord) =>
           this.stockService.sumarizeBrokerageFirmStock(stockRecord),
         );
 
       const brokerageValue = this.stockService.summarizeBrokerageFirmValue(
         stockRecordShareSummaries,
       );
-      brokerageFirmSummary[brokerageFirms.name].value += (brokerageValue *
-        brokerageFirms.transactionCurrency?.exchangeRate) as number;
+      brokerageFirmSummary[brokerageFirm.name].value += (brokerageValue *
+        brokerageFirm.transactionCurrency?.exchangeRate) as number;
     });
 
     return brokerageFirmSummary;
@@ -489,9 +489,9 @@ export class UserController {
             },
           );
         }
-        // the stockHistoryDataMap shouldn't be undefinded here
+        // if any exception happened, the value will be 0 e.g. the stock history isn't created due to any reason.
         Object.entries(stockShareNumber).forEach(([code, shareNumber]) => {
-          value += (stockHistoryDataMap[code][year][week] ?? 0) * shareNumber;
+          value += (stockHistoryDataMap[code][year]?.[week] ?? 0) * shareNumber;
         });
 
         brokerageFirmHistoryData.push({
