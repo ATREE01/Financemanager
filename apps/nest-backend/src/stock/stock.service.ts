@@ -302,6 +302,7 @@ export class StockService {
   }
 
   summarizeStockRecord(stockRecord: StockRecord): StockRecordSummary {
+    // Stock contain multiple buy record and multiple sell record
     let totalRealizedGain = 0,
       totalShareNumber = 0,
       totalAmount = 0,

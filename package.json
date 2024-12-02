@@ -12,29 +12,28 @@
     "test:ci": "lerna run test:ci",
     "lint": "eslint --fix -c .eslintrc.js \"{apps,packages}/{nest-backend, next-frontend}/*.{tsx,cjs,ts,js}\"",
     "format": "prettier -w \"apps/**/*.ts\" \"packages/**/*.ts\"",
-    "preview": "concurrently \"pnpm ts-node proxy.ts\" \"cd ./apps/frontend && cross-env node .output/server/index.mjs\" \"pnpm -F backend start:prod\"",
-    "prepare": "husky install"
+    "preview": "concurrently \"pnpm ts-node proxy.ts\" \"cd ./apps/frontend && cross-env node .output/server/index.mjs\" \"pnpm -F backend start:prod\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.16.5",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "concurrently": "^8.2.2",
-    "eslint": "^8.57.0",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
+    "@typescript-eslint/parser": "^8.16.0",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react-refresh": "^0.4.11",
+    "eslint-plugin-react-refresh": "^0.4.14",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "husky": "^8.0.3",
-    "lerna": "^8.1.8",
+    "husky": "^9.1.7",
+    "lerna": "^8.1.9",
     "lint-staged": "^15.2.10",
-    "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
+    "prettier": "^3.4.1",
+    "typescript": "^5.7.2"
   },
   "lint-staged": {
     "{apps,packages}/**/*.{js,ts,tsx,json,yaml,css}": [

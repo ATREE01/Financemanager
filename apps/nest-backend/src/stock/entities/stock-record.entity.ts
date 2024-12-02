@@ -12,6 +12,7 @@ import { StockSellRecord } from '@/src/stock/entities/stock-sell-reocrd.entity';
 import { UserStock } from '@/src/stock/entities/user-stock.entity';
 import { User } from '@/src/user/entities/user.entity';
 
+// Stock Record is the stock record with certain buy price and certain buy exchange rate
 @Entity('StockReocrds')
 export class StockRecord {
   @PrimaryGeneratedColumn()
