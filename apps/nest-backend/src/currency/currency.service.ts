@@ -25,8 +25,7 @@ export class CurrencyService {
   ) {}
 
   async onModuleInit() {
-    // TODO: uncomment this line
-    // await this.updateExchangeRate();
+    await this.updateExchangeRate();
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
