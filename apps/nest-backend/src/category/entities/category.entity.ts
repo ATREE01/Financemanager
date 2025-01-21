@@ -10,7 +10,7 @@ import {
 import { User } from '@/src/user/entities/user.entity';
 
 @Entity('Categories')
-@Unique(['name', 'user'])
+@Unique(['name', 'type', 'user'])
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   id: string;
