@@ -15,7 +15,7 @@ export default [
 
   // TypeScript-specific configuration
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['apps/**/*.ts', 'apps/**/*.tsx'],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -52,7 +52,7 @@ export default [
 
   // React-specific configuration
   {
-    files: ['**/*.jsx', '**/*.tsx'],
+    files: ['apps/**/*.jsx', 'app/**/*.tsx'],
     plugins: {
       react,
       'react-hooks': reactHooks,
