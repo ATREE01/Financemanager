@@ -1,4 +1,4 @@
-import { User } from "@financemanager/financemanager-webiste-types";
+import type { User } from "@financemanager/financemanager-webiste-types";
 import type { BaseQueryFn, FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -24,7 +24,7 @@ const baseQueryWithReAuth: BaseQueryFn<
 > = async (arg, api, extraOptions) => {
   let result = await baseQuery(arg, api, extraOptions);
   if (result?.error?.status === 401) {
-    const refreshResult = await baseQuery("auth/Refresh", api, extraOptions);
+    const refreshResult = await baseQuery("auth/refresh", api, extraOptions);
 
     if (refreshResult?.data) {
       const data = refreshResult.data as { user: User; accessToken: string };
