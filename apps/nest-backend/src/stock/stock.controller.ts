@@ -60,7 +60,7 @@ export class StockController {
         const data = await yahooFinance.chart(createUserStockDto.code, {
           period1: yesterday,
           period2: now,
-          interval: '1d',
+          interval: '1mo',
         });
 
         const currency = await this.currencyService.getByCode(
