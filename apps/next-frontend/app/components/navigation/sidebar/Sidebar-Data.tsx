@@ -44,10 +44,10 @@ export const SidebarData = [
         title: "股票明細",
         path: "/investment/stock/detail",
       },
-      {
-        title: "股息",
-        path: "/investment/stock/dividend",
-      },
+      // {
+      //   title: "股息",
+      //   path: "/investment/stock/dividend",
+      // },
     ],
   },
   {

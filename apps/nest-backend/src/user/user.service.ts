@@ -69,6 +69,7 @@ export class UserService {
           bankRecords: true,
           stockBuyRecords: true,
           stockBundleSellRecords: true,
+          timeDepositRecords: true,
         },
       },
     });

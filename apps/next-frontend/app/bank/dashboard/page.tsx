@@ -14,7 +14,7 @@ import styles from "@/app/components/detail-table/index.module.css";
 import BankFormManager from "@/app/components/forms/bank-form-manager";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useBanks, useTimeDepositRecords } from "@/lib/features/Bank/BankSlice";
+import { useBanks } from "@/lib/features/Bank/BankSlice";
 import { useCurrencyTransactionRecord } from "@/lib/features/Currency/CurrencySlice";
 
 const DashboardBank = () => {
@@ -63,7 +63,6 @@ const DashboardBank = () => {
 
   const banks = useBanks();
   // this record only contains income expense record with method equals to finance
-  const timeDepositRecords = useTimeDepositRecords();
   const currencyTransactionRecords = useCurrencyTransactionRecord();
 
   // inv record sum
@@ -108,7 +107,7 @@ const DashboardBank = () => {
     bank.bankRecords.forEach((record) => {
       const bankId = bank.id;
       bankData[bankId].charge += record.charge ?? 0;
-      bankData[bankId].totla -= record.charge ?? 0;
+      bankData[bankId].total -= record.charge ?? 0;
       switch (record.type) {
         case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
           bankData[bankId].total += record.amount;
@@ -130,12 +129,11 @@ const DashboardBank = () => {
       bankData[bank.id].invt += Number(record.amount);
       bankData[bank.id].total += Number(record.amount);
     });
-  });
 
-  timeDepositRecords.forEach((record) => {
-    const bankId = record.bank.id;
-    bankData[bankId].timeDeposit += record.amount;
-    bankData[bankId].total -= record.amount;
+    bank.timeDepositRecords.forEach((record) => {
+      bankData[bank.id].timeDeposit += record.amount;
+      bankData[bank.id].total -= record.amount;
+    });
   });
 
   currencyTransactionRecords.forEach((record) => {

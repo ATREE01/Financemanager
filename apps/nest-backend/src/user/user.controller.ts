@@ -1,9 +1,11 @@
-import {
+import type {
   BankHistoryData,
   BankSummary,
   BrokerageFirmHistoryData,
   BrokerageFirmSummary,
   BrokerageStockSummary,
+} from '@financemanager/financemanager-webiste-types';
+import {
   CurrencyTransactionRecordType,
   IncExpRecordType,
 } from '@financemanager/financemanager-webiste-types';
@@ -264,8 +266,10 @@ export class UserController {
       if (!valueByYearAndWeek[year][week]) valueByYearAndWeek[year][week] = 0;
 
       valueByYearAndWeek[year][week] += value;
-      if (year < minYear || (year === minYear && week < minWeek))
-        (minYear = year), (minWeek = week);
+      if (year < minYear || (year === minYear && week < minWeek)) {
+        minYear = year;
+        minWeek = week;
+      }
     };
 
     userBank.bank.forEach((bank) => {
@@ -275,25 +279,29 @@ export class UserController {
           record.type === IncExpRecordType.EXPENSE
             ? -record.amount
             : record.amount;
-        addValueToYearAndWeek(date.year(), date.week(), value);
+        addValueToYearAndWeek(
+          date.year(),
+          date.week(),
+          value * bank.currency.exchangeRate,
+        );
       });
 
       bank.bankRecords?.forEach((bankRecord) => {
         const date = moment(bankRecord.date);
         const value = Number(bankRecord.amount);
-        addValueToYearAndWeek(date.year(), date.week(), value);
+        addValueToYearAndWeek(date.year(), date.week(), value * bank.currency.exchangeRate);
       });
 
       bank.stockBuyRecords?.forEach((stockBuyRecord) => {
         const date = moment(stockBuyRecord.date);
         const value = -Number(stockBuyRecord.amount);
-        addValueToYearAndWeek(date.year(), date.week(), value);
+        addValueToYearAndWeek(date.year(), date.week(), value * bank.currency.exchangeRate);
       });
 
       bank.stockBundleSellRecords?.forEach((stockBundleSellRecord) => {
         const date = moment(stockBundleSellRecord.date);
         const value = Number(stockBundleSellRecord.amount);
-        addValueToYearAndWeek(date.year(), date.week(), value);
+        addValueToYearAndWeek(date.year(), date.week(), value * bank.currency.exchangeRate);
       });
     });
 
@@ -433,8 +441,10 @@ export class UserController {
         shareNumberByYearAndWeek[year][week][code] = 0;
 
       shareNumberByYearAndWeek[year][week][code] += Number(shareNumber);
-      if (year < minYear || (year === minYear && week < minWeek))
-        (minYear = year), (minWeek = week);
+      if (year < minYear || (year === minYear && week < minWeek)) {
+        minYear = year;
+        minWeek = week;
+      }
     };
 
     const brokerageFirms = result.brokerageFirms;
