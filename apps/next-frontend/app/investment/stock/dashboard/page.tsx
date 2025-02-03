@@ -1,6 +1,6 @@
 "use client";
 
-import {
+import type {
   CreateStockSellRecord,
   StockRecordSummarySell,
 } from "@financemanager/financemanager-webiste-types";
@@ -349,10 +349,10 @@ export default function Deashboard() {
                               {Number(stockRecordSummary.shareNumber)}
                             </td>
                             <td className="table-data-cell">
-                              {Number(transactionCost)}
+                              {Number(transactionCost).toFixed(1)}
                             </td>
                             <td className="table-data-cell">
-                              {Number(marketValue).toFixed(0)}
+                              {Number(marketValue).toFixed(1)}
                             </td>
                             <td className="table-data-cell">
                               {Number(
@@ -369,9 +369,7 @@ export default function Deashboard() {
                               %)
                             </td>
                             <td className="table-data-cell">
-                              {Number(
-                                marketValue - stockRecordSummary.amount,
-                              ).toFixed(1)}
+                              {Number(marketValue - transactionCost).toFixed(1)}
                               (
                               {transactionCost !== 0
                                 ? Number(
