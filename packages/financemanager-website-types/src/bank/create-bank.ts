@@ -11,6 +11,7 @@ export interface CreateBank
     | "bankRecords"
     | "stockBuyRecords"
     | "stockBundleSellRecords"
+    | "timeDepositRecords"
   > {
   currencyId: number;
 }

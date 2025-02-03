@@ -3,6 +3,7 @@ import { IncExpRecord } from "../inc-exp/inc-exp-record";
 import { StockBundleSellRecord } from "../investment/stock/stcok-bundle-sell-record";
 import { StockBuyRecord } from "../investment/stock/stock-buy-record";
 import { BankRecord } from "./bank-record";
+import { TimeDepositRecord } from "./time-deposit-record";
 
 export interface Bank {
   id: string;
@@ -15,4 +16,5 @@ export interface Bank {
   bankRecords: BankRecord[];
   stockBuyRecords: StockBuyRecord[];
   stockBundleSellRecords: StockBundleSellRecord[];
+  timeDepositRecords: TimeDepositRecord[];
 }
