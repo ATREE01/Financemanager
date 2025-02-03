@@ -1,4 +1,4 @@
-import {
+import type {
   Bank,
   BankHistoryData,
   BankRecord,
@@ -35,7 +35,7 @@ const BankApiSlice = apiSlice
           url: `/users/banks`,
           method: "GET",
         }),
-        providesTags: ["Bank"],
+        providesTags: ["Bank", "BankSummary"],
       }),
       createBank: builder.mutation<Bank, { name: string; currencyId: number }>({
         query: (args) => ({
