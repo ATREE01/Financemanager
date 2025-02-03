@@ -1,9 +1,9 @@
-import {
+import type {
   BankRecord,
-  BankRecordType,
   CreateBankRecord,
   ShowState,
 } from "@financemanager/financemanager-webiste-types";
+import { BankRecordType } from "@financemanager/financemanager-webiste-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
@@ -34,10 +34,9 @@ export default function BankRecordFrom({
     date: formData?.date || new Date().toISOString().split("T")[0],
     bank: formData?.bank.id || "",
     amount: formData?.amount || "",
-    charge: formData?.charge !== null ? formData?.charge : "",
+    charge: formData?.charge !== undefined ? formData?.charge : 0,
     note: formData?.note || "",
   };
-
   const banks = useBanks();
   const bankIds: string[] = banks.map((bank) => bank.id);
 
