@@ -108,7 +108,7 @@ const DashboardBank = () => {
     bank.bankRecords.forEach((record) => {
       const bankId = bank.id;
       bankData[bankId].charge += record.charge ?? 0;
-      bankData[bankId].totla -= record.charge ?? 0;
+      bankData[bankId].total -= record.charge ?? 0;
       switch (record.type) {
         case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
           bankData[bankId].total += record.amount;
