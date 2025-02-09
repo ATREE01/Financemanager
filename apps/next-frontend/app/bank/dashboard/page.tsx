@@ -97,9 +97,9 @@ const DashboardBank = () => {
           bankData[bankId].income += record.amount;
           break;
         case IncExpRecordType.EXPENSE:
-          bankData[bankId].total -= record.amount;
+          bankData[bankId].total -= record.amount + (record.charge ?? 0);
           bankData[bankId].expense += record.amount;
-          bankData[bankId].charge += record.charge as number;
+          bankData[bankId].charge += record.charge ?? 0;
           break;
       }
     });
