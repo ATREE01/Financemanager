@@ -191,13 +191,22 @@ export class UserController {
 
       bank.incExpRecords?.forEach((record) => {
         if (record.type === IncExpRecordType.EXPENSE)
-          bankSummary[bank.name].value -= record.amount;
+          bankSummary[bank.name].value -= record.amount + (record.charge ?? 0);
         else if (record.type === IncExpRecordType.INCOME)
           bankSummary[bank.name].value += record.amount;
       });
 
       bank.bankRecords?.forEach((bankRecord) => {
-        bankSummary[bank.name].value += Number(bankRecord.amount);
+        if (bankRecord.type === 'DEPOSIT' || bankRecord.type === 'TRANSFERIN') {
+          bankSummary[bank.name].value += Number(bankRecord.amount);
+          bankSummary[bank.name].value -= bankRecord.charge ?? 0;
+        } else if (
+          bankRecord.type === 'WITHDRAW' ||
+          bankRecord.type === 'TRANSFEROUT'
+        ) {
+          bankSummary[bank.name].value -= Number(bankRecord.amount);
+          bankSummary[bank.name].value -= bankRecord.charge ?? 0;
+        }
       });
 
       bank.stockBuyRecords?.forEach((stockBuyRecord) => {
@@ -289,19 +298,31 @@ export class UserController {
       bank.bankRecords?.forEach((bankRecord) => {
         const date = moment(bankRecord.date);
         const value = Number(bankRecord.amount);
-        addValueToYearAndWeek(date.year(), date.week(), value * bank.currency.exchangeRate);
+        addValueToYearAndWeek(
+          date.year(),
+          date.week(),
+          value * bank.currency.exchangeRate,
+        );
       });
 
       bank.stockBuyRecords?.forEach((stockBuyRecord) => {
         const date = moment(stockBuyRecord.date);
         const value = -Number(stockBuyRecord.amount);
-        addValueToYearAndWeek(date.year(), date.week(), value * bank.currency.exchangeRate);
+        addValueToYearAndWeek(
+          date.year(),
+          date.week(),
+          value * bank.currency.exchangeRate,
+        );
       });
 
       bank.stockBundleSellRecords?.forEach((stockBundleSellRecord) => {
         const date = moment(stockBundleSellRecord.date);
         const value = Number(stockBundleSellRecord.amount);
-        addValueToYearAndWeek(date.year(), date.week(), value * bank.currency.exchangeRate);
+        addValueToYearAndWeek(
+          date.year(),
+          date.week(),
+          value * bank.currency.exchangeRate,
+        );
       });
     });
 
