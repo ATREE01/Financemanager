@@ -5,7 +5,7 @@ import type {
 } from "@financemanager/financemanager-webiste-types";
 import { BankRecordType } from "@financemanager/financemanager-webiste-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
 import {
@@ -201,6 +201,15 @@ export default function BankRecordFrom({
                     />
                   </>
                 )}
+              <div className="form-InputBar">
+                <label className="form-label">備註</label>
+                <Field
+                  as="textarea"
+                  className="form-input note"
+                  name="note"
+                  type="text"
+                />
+              </div>
               <div className="form-btn">
                 <button
                   className={
