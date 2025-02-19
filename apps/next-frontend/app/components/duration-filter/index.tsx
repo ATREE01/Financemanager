@@ -21,18 +21,22 @@ export default function DurationFilter({
   useEffect(() => {
     switch (duration) {
       case "week":
-        startDate.data.setDate(new Date().getDate() - 7);
+        startDate.setData(
+          new Date(new Date().setDate(new Date().getDate() - 7)),
+        );
         break;
       case "month":
-        startDate.data.setDate(new Date().getDate() - 30);
+        startDate.setData(
+          new Date(new Date().setDate(new Date().getDate() - 30)),
+        );
         break;
-      case "3month":
-        startDate.data.setDate(new Date().getDate() - 90);
+      case "3months":
+        startDate.setData(
+          new Date(new Date().setDate(new Date().getDate() - 90)),
+        );
         break;
       case "ytd":
-        startDate.data.setDate(
-          new Date(new Date().getFullYear(), 0, 1).getDate(),
-        );
+        startDate.setData(new Date(new Date().getFullYear(), 0, 1));
         break;
       case "customize":
         startDate.setData(new Date(start));
