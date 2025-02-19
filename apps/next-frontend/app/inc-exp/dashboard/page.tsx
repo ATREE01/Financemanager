@@ -33,7 +33,7 @@ export default function Dashboard() {
   const userCurrencies = useUserCurrencies();
   const currencyOptions = [
     ...userCurrencies.map((userCurrency) => ({
-      value: userCurrency.id.toString(),
+      value: userCurrency.currency.id.toString(),
       name: userCurrency.currency.name,
     })),
   ];
@@ -77,6 +77,8 @@ export default function Dashboard() {
 
   for (const key in categorySum.expense)
     expSumData.push([key, categorySum.expense[key]]);
+
+  console.log(startDate, endDate);
 
   return (
     <main className="bg-slate-100 pt-[--navbar-height]">
