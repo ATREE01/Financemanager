@@ -231,7 +231,7 @@ export default function Deashboard() {
           </td>
           <td className="table-data-cell">
             {Number(
-              setMarketValue - stockSummary.totalTransactionCost,
+              setMarketValue - stockSummary.totalSettlementCost,
             ).toFixed()}
             (
             {stockSummary.averageBuyPrice !== 0

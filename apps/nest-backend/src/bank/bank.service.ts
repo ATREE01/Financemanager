@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { CreateBankRecordDto } from './dtos/create-bank-record.dto';
 import { CreateTimeDepositRecordDto } from './dtos/create-time-deposit-record.dto';
@@ -114,14 +114,11 @@ export class BankService {
   async getTimeDepositRecordsByUserId(
     userId: string,
   ): Promise<TimeDepositRecord[]> {
-    const now = new Date().toISOString().split('T')[0];
     const result = await this.timeDepositRecordRepository.find({
       where: {
         user: {
           id: userId,
         },
-        startDate: LessThanOrEqual(now),
-        endDate: MoreThanOrEqual(now),
       },
       relations: {
         bank: {

@@ -131,6 +131,8 @@ const DashboardBank = () => {
     });
 
     bank.timeDepositRecords.forEach((record) => {
+      const today = new Date().toISOString().split("T")[0];
+      if (record.startDate > today || record.endDate <= today) return;
       bankData[bank.id].timeDeposit += record.amount;
       bankData[bank.id].total -= record.amount;
     });
