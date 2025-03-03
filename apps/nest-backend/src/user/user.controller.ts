@@ -6,6 +6,7 @@ import type {
   BrokerageStockSummary,
 } from '@financemanager/financemanager-webiste-types';
 import {
+  BankRecordType,
   CurrencyTransactionRecordType,
   IncExpRecordType,
 } from '@financemanager/financemanager-webiste-types';
@@ -197,16 +198,18 @@ export class UserController {
       });
 
       bank.bankRecords?.forEach((bankRecord) => {
-        if (bankRecord.type === 'DEPOSIT' || bankRecord.type === 'TRANSFERIN') {
+        if (
+          bankRecord.type === BankRecordType.DEPOSIT ||
+          bankRecord.type === BankRecordType.TRANSFERIN
+        ) {
           bankSummary[bank.name].value += Number(bankRecord.amount);
-          bankSummary[bank.name].value -= bankRecord.charge ?? 0;
         } else if (
-          bankRecord.type === 'WITHDRAW' ||
-          bankRecord.type === 'TRANSFEROUT'
+          bankRecord.type === BankRecordType.WITHDRAW ||
+          bankRecord.type === BankRecordType.TRANSFEROUT
         ) {
           bankSummary[bank.name].value -= Number(bankRecord.amount);
-          bankSummary[bank.name].value -= bankRecord.charge ?? 0;
         }
+        bankSummary[bank.name].value -= bankRecord.charge ?? 0;
       });
 
       bank.stockBuyRecords?.forEach((stockBuyRecord) => {
@@ -297,7 +300,18 @@ export class UserController {
 
       bank.bankRecords?.forEach((bankRecord) => {
         const date = moment(bankRecord.date);
-        const value = Number(bankRecord.amount);
+        let value: number = 0;
+        if (
+          bankRecord.type === BankRecordType.DEPOSIT ||
+          bankRecord.type === BankRecordType.TRANSFERIN
+        )
+          value = Number(bankRecord.amount) - (bankRecord.charge ?? 0);
+        else if (
+          bankRecord.type === BankRecordType.WITHDRAW ||
+          bankRecord.type === BankRecordType.TRANSFEROUT
+        )
+          value = -Number(bankRecord.amount) - (bankRecord.charge ?? 0);
+
         addValueToYearAndWeek(
           date.year(),
           date.week(),
