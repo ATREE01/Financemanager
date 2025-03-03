@@ -241,13 +241,13 @@ export class UserController {
       if (fromBank) {
         const fromBankName = fromBank.name;
         const fromExchangeRate = fromBank.currency?.exchangeRate ?? 1;
-        bankSummary[fromBankName].value -= fromAmount * fromExchangeRate;
+        bankSummary[fromBankName].value -= fromAmount * fromExchangeRate - (record.charge ?? 0); // the charge should be in NTD
       }
 
       if (toBank) {
         const toBankName = toBank.name;
         const toExchangeRate = toBank.currency?.exchangeRate ?? 1;
-        bankSummary[toBankName].value += toAmount * toExchangeRate;
+        bankSummary[toBankName].value += toAmount * toExchangeRate - (record.charge ?? 0); // the charge should be in NTD
       }
     });
 
@@ -288,9 +288,10 @@ export class UserController {
       bank.incExpRecords?.forEach((record) => {
         const date = moment(record.date);
         const value =
-          record.type === IncExpRecordType.EXPENSE
+          (record.type === IncExpRecordType.EXPENSE
             ? -record.amount
-            : record.amount;
+            : record.amount) - (record.charge ?? 0);
+
         addValueToYearAndWeek(
           date.year(),
           date.week(),
@@ -358,11 +359,19 @@ export class UserController {
       const { fromBank, toBank, fromAmount, toAmount } = record;
       if (fromBank) {
         const fromExchangeRate = fromBank.currency?.exchangeRate ?? 1;
-        addValueToYearAndWeek(year, week, -fromAmount * fromExchangeRate);
+        addValueToYearAndWeek(
+          year,
+          week,
+          -fromAmount * fromExchangeRate - (record.charge ?? 0),
+        ); // the charge should be in NTD;
       }
       if (toBank) {
         const toExchangeRate = toBank.currency?.exchangeRate ?? 1;
-        addValueToYearAndWeek(year, week, toAmount * toExchangeRate);
+        addValueToYearAndWeek(
+          year,
+          week,
+          toAmount * toExchangeRate - (record.charge ?? 0),
+        ); // the charge should be in NTD
       }
     });
 
