@@ -1,0 +1,61 @@
+frontend:
+  replicas: 2
+  image:
+    repository: harbor.lan/finance-manager/frontend
+    tag: 1.0.5
+  envFromConfigMap: "frontend-env-config"
+
+backend:
+  replicas: 1
+  image:
+    repository: harbor.lan/finance-manager/backend
+    tag: 1.0.5
+  envFromConfigMap: 
+    - name: "backend-env-config"
+    - name: "database-env-config"
+  envFromSecret: 
+    - name: "backend-env-secret"
+    - name: "database-env-secret"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "8m"
+  hosts:
+    - host: financemanager.ddns.net
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend:
+            serviceName: finance-manager-backend
+            servicePort: 3000
+        - path: /
+          pathType: Prefix
+          backend:
+            serviceName: finance-manager-frontend
+            servicePort: 80
+  tls:
+    - hosts:
+        - "financemanager.ddns.net"
+      secretName: finance-manager-tls
+
+database:
+  image:
+    repository: mariadb
+    tag: 11.6-noble
+  # If the claimName is filled than the persistentVolumeClaim won't do anything
+  claimName: "database-storage-finance-manager-database-0"
+  persistentVolumeClaim:
+    className: "longhorn"
+    name: "database"
+    size: "5Gi"
+  envFromConfigMap: "database-env-config"
+  envFromSecret: "database-env-secret"
+
+redis: 
+  image:
+    repository: redis
+    tag: 7.4.2-bookworm

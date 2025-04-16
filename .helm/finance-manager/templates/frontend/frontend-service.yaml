@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: finance-manager-frontend
+spec:
+  selector:
+    app: finance-manager-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000

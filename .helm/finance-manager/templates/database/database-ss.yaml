@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-database
+  serviceName: {{ .Release.Name }}-database # Required for StatefulSet
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-database
+    spec:
+      containers:
+      - name: database
+        image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+        ports:
+        - containerPort: 3306
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.database.envFromConfigMap }}
+        - secretRef:
+            name: {{ .Values.database.envFromSecret }}
+        volumeMounts:
+        - name: database-storage
+          mountPath: /var/lib/mysql
+      {{- if .Values.database.claimName }}
+      volumes:
+      - name: database-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.database.claimName}}
+      {{- end }}
+  {{- if not .Values.database.claimName }}
+  volumeClaimTemplates:
+  - metadata:
+      name: database-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: {{ .Values.database.persistentVolumeClaim.className }}
+      resources:
+        requests:
+          storage: {{ .Values.database.persistentVolumeClaim.size }}
+  {{- end}}

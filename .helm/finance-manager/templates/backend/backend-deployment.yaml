@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+  labels:
+    app: {{ .Release.Name }}-backend
+
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-backend
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-backend
+    spec: 
+      containers:
+      - name: backend
+        image: {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        envFrom:
+        {{- range .Values.backend.envFromConfigMap }}
+        - configMapRef:
+            name: {{ .name }}
+        {{- end }}
+        {{- range .Values.backend.envFromSecret }}
+        - secretRef:
+            name: {{ .name }}
+        {{- end }}
