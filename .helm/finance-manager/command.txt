@@ -1,0 +1,31 @@
+kubectl create configmap frontend-env-config \
+    --from-literal=PORT=3000 \
+    --from-literal=API_URL="http://financemanager.ddns.net/" \
+    -n finance-manager
+
+kubectl create configmap backend-env-config \
+    --from-literal=REDIS_HOST=finance-manager-redis \
+    --from-literal=REDIS_PORT=6379 \
+    --from-literal=EXCHANGE_RATE_GOOGLE_SHEET_API=https://script.google.com/macros/s/{Your deploy ID}/exec?action= \
+    -n finance-manager
+
+kubectl create secret generic backend-env-secret \
+  --from-file=ACCESS_TOKEN_SECRET=ACCESS_TOKEN_SECRET.txt \
+  --from-file=REFRESH_TOKEN_SECRET=REFRESH_TOKEN_SECRET.txt \
+  -n finance-manager
+
+kubectl create configmap database-env-config \
+    --from-literal=DB_TYPE=mariadb \
+    --from-literal=DB_HOST=finance-manager-database \
+    --from-literal=DB_USER=finance-manager-backend \
+    --from-literal=MARIADB_USER=finance-manager-backend \
+    --from-literal=DB_NAME=financemanager \
+    --from-literal=MARIADB_DATABASE=financemanager \
+    --from-literal=TZ=Asia/Taipei \
+    -n finance-manager
+
+kubectl create secret generic database-env-secret \
+    --from-file=DB_PASSWORD=DB_PASSWORD.txt \
+    --from-file=MARIADB_PASSWORD=DB_PASSWORD.txt \
+    --from-file=MARIADB_ROOT_PASSWORD=DB_ROOT_PASSWORD.txt \
+    -n finance-manager

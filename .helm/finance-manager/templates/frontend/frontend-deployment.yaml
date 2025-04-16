@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    app: {{ .Release.Name }}-frontend
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-frontend
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-frontend
+    spec: 
+      containers:
+      - name: frontend
+        image: {{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.frontend.envFromConfigMap }}  # Reference ConfigMap
+
