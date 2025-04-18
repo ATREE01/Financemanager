@@ -157,7 +157,7 @@ export default function Dashboard() {
                     無可用資料
                   </div>
                 ) : (
-                  <div className="h-[20vh] mt-4">
+                  <div>
                     <Chart
                       chartType="PieChart"
                       data={card.data}
@@ -199,7 +199,7 @@ export default function Dashboard() {
                     無可用資料
                   </div>
                 ) : (
-                  <div className="h-[20vh]">
+                  <div>
                     <Chart
                       chartType="AreaChart"
                       data={chart.data}

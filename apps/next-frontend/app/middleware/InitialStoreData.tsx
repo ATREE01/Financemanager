@@ -68,90 +68,49 @@ export default function InitialStoreData({
   const skipFetching = !userId;
 
   // --- Pass the skip option to all hooks that depend on userId ---
-  const {
-    data: categories,
-    isSuccess: categoryIsSuccess,
-    isLoading: categoryIsLoading,
-  } = useGetCategoriesQuery(undefined, { skip: skipFetching }); // Assuming categories depend on user
-  const {
-    data: incExpRecord,
-    isSuccess: incExpRecordIsSuccess,
-    isLoading: incExpRecordIsLoading,
-  } = useGetIncExpRecordsQuery(undefined, { skip: skipFetching });
-  const {
-    data: currencies,
-    isSuccess: currencyIsSuccess,
-    isLoading: currencyIsLoading,
-  } = useGetCurrenciesQuery(undefined, { skip: skipFetching });
-  const {
-    data: userCurrencies,
-    isSuccess: userCurrencyIsSuccess,
-    isLoading: userCurrencyIsLoading,
-  } = useGetUserCurrenciesQuery(undefined, { skip: skipFetching });
+  const { data: categories, isSuccess: categoryIsSuccess } =
+    useGetCategoriesQuery(undefined, { skip: skipFetching }); // Assuming categories depend on user
+  const { data: incExpRecord, isSuccess: incExpRecordIsSuccess } =
+    useGetIncExpRecordsQuery(undefined, { skip: skipFetching });
+  const { data: currencies, isSuccess: currencyIsSuccess } =
+    useGetCurrenciesQuery(undefined, { skip: skipFetching });
+  const { data: userCurrencies, isSuccess: userCurrencyIsSuccess } =
+    useGetUserCurrenciesQuery(undefined, { skip: skipFetching });
   const {
     data: currencyTransactionRecords,
     isSuccess: currencyTransactionRecordIsSuccess,
-    isLoading: currencyTransactionRecordIsLoading,
   } = useGetCurrencyTransactionRecordsQuery(undefined, { skip: skipFetching });
-  const {
-    data: bankSummary,
-    isSuccess: bankSummaryIsSuccess,
-    isLoading: bankSummaryIsLoading,
-  } = useGetBankSummaryQuery(undefined, { skip: skipFetching });
-  const {
-    data: bankHistoryData,
-    isSuccess: bankHistoryDataIsSuccess,
-    isLoading: bankHistoryDataIsLoading,
-  } = useGetBankhistoryDataQuery(undefined, { skip: skipFetching });
-  const {
-    data: banks,
-    isSuccess: bankIsSuccess,
-    isLoading: bankIsLoading,
-  } = useGetBanksQuery(undefined, { skip: skipFetching });
-  const {
-    data: bankRecords,
-    isSuccess: bankRecordIsSuccess,
-    isLoading: bankRecordIsLoading,
-  } = useGetBankRecordsQuery(undefined, { skip: skipFetching });
-  const {
-    data: timeDepositRecords,
-    isSuccess: timeDepositRecordIsSuccess,
-    isLoading: timeDepositRecordIsLoading,
-  } = useGetTimeDepositRecordsQuery(undefined, { skip: skipFetching });
+  const { data: bankSummary, isSuccess: bankSummaryIsSuccess } =
+    useGetBankSummaryQuery(undefined, { skip: skipFetching });
+  const { data: bankHistoryData, isSuccess: bankHistoryDataIsSuccess } =
+    useGetBankhistoryDataQuery(undefined, { skip: skipFetching });
+  const { data: banks, isSuccess: bankIsSuccess } = useGetBanksQuery(
+    undefined,
+    { skip: skipFetching },
+  );
+  const { data: bankRecords, isSuccess: bankRecordIsSuccess } =
+    useGetBankRecordsQuery(undefined, { skip: skipFetching });
+  const { data: timeDepositRecords, isSuccess: timeDepositRecordIsSuccess } =
+    useGetTimeDepositRecordsQuery(undefined, { skip: skipFetching });
   const {
     data: brokerageFirmSummary,
     isSuccess: brokerageFirmSummaryIsSuccess,
-    isLoading: brokerageFirmSummaryIsLoading,
   } = useGetBrokerageFirmSummaryQuery(undefined, { skip: skipFetching });
   const {
     data: brokerageFirmHistoryData,
     isSuccess: brokerageFirmHistoryDataIsSuccess,
-    isLoading: brokerageFirmHistoryDataIsLoading,
   } = useGetBrokerageFrimHistoryDataQuery(undefined, { skip: skipFetching }); // Note: typo in original hook name?
-  const {
-    data: brokerageFirms,
-    isSuccess: brokerageFirmIsSuccess,
-    isLoading: brokerageFirmIsLoading,
-  } = useGetBrokerageFirmsQuery(undefined, { skip: skipFetching });
-  const {
-    data: userStocks,
-    isSuccess: userStockIsSuccess,
-    isLoading: userStockIsLoading,
-  } = useGetUserStocksQuery(undefined, { skip: skipFetching });
-  const {
-    data: stockRecords,
-    isSuccess: stockRecordIsSuccess,
-    isLoading: stockRecordIsLoading,
-  } = useGetStockRecordsQuery(undefined, { skip: skipFetching });
-  const {
-    data: stockSumaries,
-    isSuccess: stockSumaryIsSuccess,
-    isLoading: stockSumaryIsLoading,
-  } = useGetStockSummaryQuery(undefined, { skip: skipFetching });
+  const { data: brokerageFirms, isSuccess: brokerageFirmIsSuccess } =
+    useGetBrokerageFirmsQuery(undefined, { skip: skipFetching });
+  const { data: userStocks, isSuccess: userStockIsSuccess } =
+    useGetUserStocksQuery(undefined, { skip: skipFetching });
+  const { data: stockRecords, isSuccess: stockRecordIsSuccess } =
+    useGetStockRecordsQuery(undefined, { skip: skipFetching });
+  const { data: stockSumaries, isSuccess: stockSumaryIsSuccess } =
+    useGetStockSummaryQuery(undefined, { skip: skipFetching });
   const {
     data: stockBundleSellRecord,
     isSuccess: stockBundleSellRecordIsSuccess,
-    isLoading: stockBundleSellRecordIsLoading,
   } = useGetStockBundleSellRecordsQuery(undefined, { skip: skipFetching });
 
   useEffect(() => {
@@ -248,38 +207,5 @@ export default function InitialStoreData({
     dispatch(setPhraseMap());
   }, [dispatch]); // Added dispatch dependency
 
-  // --- Revised isLoading Logic ---
-  // Show loading if we don't have a userId yet OR if any query that should be running is still loading.
-  const isAnyQueryLoading =
-    categoryIsLoading ||
-    incExpRecordIsLoading ||
-    currencyIsLoading ||
-    userCurrencyIsLoading ||
-    currencyTransactionRecordIsLoading ||
-    bankSummaryIsLoading ||
-    bankHistoryDataIsLoading ||
-    bankIsLoading ||
-    bankRecordIsLoading ||
-    timeDepositRecordIsLoading ||
-    brokerageFirmSummaryIsLoading ||
-    brokerageFirmHistoryDataIsLoading ||
-    brokerageFirmIsLoading ||
-    userStockIsLoading ||
-    stockRecordIsLoading ||
-    stockSumaryIsLoading ||
-    stockBundleSellRecordIsLoading;
-
-  // Consider the component loading if we are waiting for userId or if any active query is loading
-  const isLoading = !skipFetching && isAnyQueryLoading;
-  return (
-    <>
-      {isLoading ? (
-        <div className="flex justify-center items-center h-screen">
-          <div className="w-16 h-16 border-4 border-blue-500 border-solid border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        children
-      )}
-    </>
-  );
+  return <>{children}</>;
 }
