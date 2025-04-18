@@ -21,9 +21,22 @@ export default function Dashboard() {
   }, [userId]);
 
   const pieChartOptions = {
-    legend: { position: "top", maxLines: 3 },
+    title: "",
+    legend: {
+      position: "top",
+      alignment: "center",
+      maxLines: 3,
+      textStyle: {
+        color: "#333",
+        fontSize: 12,
+      },
+    },
     pieSliceText: "percentage",
     backgroundColor: "transparent",
+    chartArea: { left: 10, top: 50, width: "100%", height: "75%" },
+    fontSize: 12,
+    tooltip: { isHtml: true },
+    is3D: false,
   };
 
   const [currency, setCurrency] = useState("1");
@@ -38,6 +51,8 @@ export default function Dashboard() {
     })),
   ];
 
+  let incSumValue = 0,
+    expSumValue = 0;
   const incSumData: Array<Array<string | number>> = [["Category", "Amount"]];
   const expSumData: Array<Array<string | number>> = [["Category", "Amount"]];
 
@@ -72,57 +87,77 @@ export default function Dashboard() {
     ),
   };
 
-  for (const key in categorySum.income)
+  for (const key in categorySum.income) {
+    incSumValue += categorySum.income[key];
     incSumData.push([key, categorySum.income[key]]);
+  }
 
-  for (const key in categorySum.expense)
+  for (const key in categorySum.expense) {
+    expSumValue += categorySum.expense[key];
     expSumData.push([key, categorySum.expense[key]]);
-
-  console.log(startDate, endDate);
+  }
 
   return (
-    <main className="bg-slate-100 pt-[--navbar-height]">
+    <main className="bg-slate-100 pt-[--navbar-height] min-h-screen">
       <PageLabel title={"收支紀錄:總覽"} />
 
-      <div className="w-full flex flex-col items-center text-black">
-        <div>
-          <div className="w-60 h-16 flex items-center">
-            <ConditionFilter
-              options={currencyOptions}
-              setFilter={setCurrency}
-            />
-          </div>
+      <div className="w-full h-full flex flex-col items-center text-black">
+        <div className="w-60 h-16 flex items-center">
+          <ConditionFilter options={currencyOptions} setFilter={setCurrency} />
         </div>
 
-        <DurationFilter
-          startDate={{ data: startDate, setData: setStartDate }}
-          endDate={{ data: endDate, setData: setEndDate }}
-        />
-
-        <div className="pie-chart-container flex flex-wrap justify-center m-4 text-center">
-          <div className="DIE-pie-chart-block w-96 h-[50vh]">
-            <div className="text-3xl font-bold text-center">收入</div>
-            <Chart
-              chartType="PieChart"
-              data={incSumData}
-              options={pieChartOptions}
-              width={"25rem"}
-              height={"50vh"}
-            />
-          </div>
-          <div className="DIE-pie-chart-block w-96 h-[50vh]">
-            <div className="text-3xl font-bold text-center">支出</div>
-            <Chart
-              chartType="PieChart"
-              data={expSumData}
-              options={pieChartOptions}
-              width={"25rem"}
-              height={"50vh"}
-            />
-          </div>
+        <div className="w-full max-w-7xl px-4">
+          <DurationFilter
+            startDate={{ data: startDate, setData: setStartDate }}
+            endDate={{ data: endDate, setData: setEndDate }}
+          />
         </div>
 
-        <IncExpFormManager updateShowState={null} />
+        {/* Summary Cards */}
+        <div className="w-full max-w-[80vw] sm:max-w-[90vw] px-4 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 transition-all hover:shadow-md">
+              <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-4">
+                收入
+              </div>
+              <div className="text-base sm:text-lg font-semibold text-green-600 mb-2">
+                ${incSumValue.toLocaleString()}
+              </div>
+              <div className="h-[25vh] sm:h-[35vh]">
+                <Chart
+                  chartType="PieChart"
+                  data={incSumData}
+                  options={pieChartOptions}
+                  width="100%"
+                  height="100%"
+                />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 transition-all hover:shadow-md">
+              <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-4">
+                支出
+              </div>
+              <div className="text-base sm:text-lg font-semibold text-red-600 mb-2">
+                ${expSumValue.toLocaleString()}
+              </div>
+              <div>
+                <div className="h-[25vh] sm:h-[35vh]">
+                  <Chart
+                    chartType="PieChart"
+                    data={expSumData}
+                    options={pieChartOptions}
+                    width="100%"
+                    height="100%"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="w-full">
+            <IncExpFormManager updateShowState={null} />
+          </div>
+        </div>
       </div>
     </main>
   );
