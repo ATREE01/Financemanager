@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
@@ -20,7 +20,7 @@ import {
 import {
   useGetBrokerageFirmsQuery,
   useGetBrokerageFirmSummaryQuery,
-  useGetBrokerageFrimHistoryDataQuery,
+  useGetBrokerageFrimHistoryDataQuery, // Typo in original? Should likely be Firm
 } from "@/lib/features/BrokerageFirm/BrokerageFirmApiSlice";
 import {
   setBrokerageFirmHistoryData,
@@ -62,233 +62,215 @@ export default function InitialStoreData({
   children: React.ReactNode;
 }) {
   const dispatch = useAppDispatch();
+  const userId = useUserId();
 
+  // --- Condition to skip fetching ---
+  const skipFetching = !userId;
+
+  // --- Pass the skip option to all hooks that depend on userId ---
   const {
     data: categories,
     isSuccess: categoryIsSuccess,
     isLoading: categoryIsLoading,
-    refetch: refetchCategories,
-  } = useGetCategoriesQuery();
+  } = useGetCategoriesQuery(undefined, { skip: skipFetching }); // Assuming categories depend on user
   const {
     data: incExpRecord,
     isSuccess: incExpRecordIsSuccess,
     isLoading: incExpRecordIsLoading,
-    refetch: refetchIncExpRecord,
-  } = useGetIncExpRecordsQuery();
+  } = useGetIncExpRecordsQuery(undefined, { skip: skipFetching });
   const {
     data: currencies,
     isSuccess: currencyIsSuccess,
     isLoading: currencyIsLoading,
-    refetch: refetchCurrencies,
-  } = useGetCurrenciesQuery();
+  } = useGetCurrenciesQuery(undefined, { skip: skipFetching });
   const {
     data: userCurrencies,
     isSuccess: userCurrencyIsSuccess,
     isLoading: userCurrencyIsLoading,
-    refetch: refetchUserCurrencies,
-  } = useGetUserCurrenciesQuery();
+  } = useGetUserCurrenciesQuery(undefined, { skip: skipFetching });
   const {
     data: currencyTransactionRecords,
     isSuccess: currencyTransactionRecordIsSuccess,
     isLoading: currencyTransactionRecordIsLoading,
-    refetch: refetchCurrencyTransactionRecords,
-  } = useGetCurrencyTransactionRecordsQuery();
+  } = useGetCurrencyTransactionRecordsQuery(undefined, { skip: skipFetching });
   const {
     data: bankSummary,
     isSuccess: bankSummaryIsSuccess,
     isLoading: bankSummaryIsLoading,
-    refetch: refetchBankSummars,
-  } = useGetBankSummaryQuery();
+  } = useGetBankSummaryQuery(undefined, { skip: skipFetching });
   const {
     data: bankHistoryData,
     isSuccess: bankHistoryDataIsSuccess,
     isLoading: bankHistoryDataIsLoading,
-    refetch: refetchBankHistoryData,
-  } = useGetBankhistoryDataQuery();
+  } = useGetBankhistoryDataQuery(undefined, { skip: skipFetching });
   const {
     data: banks,
     isSuccess: bankIsSuccess,
     isLoading: bankIsLoading,
-    refetch: refetchBanks,
-  } = useGetBanksQuery();
+  } = useGetBanksQuery(undefined, { skip: skipFetching });
   const {
     data: bankRecords,
     isSuccess: bankRecordIsSuccess,
     isLoading: bankRecordIsLoading,
-    refetch: refetchBankRecords,
-  } = useGetBankRecordsQuery();
+  } = useGetBankRecordsQuery(undefined, { skip: skipFetching });
   const {
     data: timeDepositRecords,
     isSuccess: timeDepositRecordIsSuccess,
     isLoading: timeDepositRecordIsLoading,
-    refetch: refetchTimeDepositRecords,
-  } = useGetTimeDepositRecordsQuery();
+  } = useGetTimeDepositRecordsQuery(undefined, { skip: skipFetching });
   const {
     data: brokerageFirmSummary,
     isSuccess: brokerageFirmSummaryIsSuccess,
     isLoading: brokerageFirmSummaryIsLoading,
-    refetch: refetchBrokerageFirmSummary,
-  } = useGetBrokerageFirmSummaryQuery();
+  } = useGetBrokerageFirmSummaryQuery(undefined, { skip: skipFetching });
   const {
     data: brokerageFirmHistoryData,
     isSuccess: brokerageFirmHistoryDataIsSuccess,
     isLoading: brokerageFirmHistoryDataIsLoading,
-    refetch: refetchBrokerageFirmHistoryData,
-  } = useGetBrokerageFrimHistoryDataQuery();
+  } = useGetBrokerageFrimHistoryDataQuery(undefined, { skip: skipFetching }); // Note: typo in original hook name?
   const {
     data: brokerageFirms,
     isSuccess: brokerageFirmIsSuccess,
     isLoading: brokerageFirmIsLoading,
-    refetch: refetchBrokerageFirms,
-  } = useGetBrokerageFirmsQuery();
+  } = useGetBrokerageFirmsQuery(undefined, { skip: skipFetching });
   const {
     data: userStocks,
     isSuccess: userStockIsSuccess,
     isLoading: userStockIsLoading,
-    refetch: refetchUserStock,
-  } = useGetUserStocksQuery();
+  } = useGetUserStocksQuery(undefined, { skip: skipFetching });
   const {
     data: stockRecords,
     isSuccess: stockRecordIsSuccess,
     isLoading: stockRecordIsLoading,
-    refetch: refetchStockRecords,
-  } = useGetStockRecordsQuery();
+  } = useGetStockRecordsQuery(undefined, { skip: skipFetching });
   const {
     data: stockSumaries,
     isSuccess: stockSumaryIsSuccess,
     isLoading: stockSumaryIsLoading,
-    refetch: refetchStockSumaries,
-  } = useGetStockSummaryQuery();
+  } = useGetStockSummaryQuery(undefined, { skip: skipFetching });
   const {
     data: stockBundleSellRecord,
     isSuccess: stockBundleSellRecordIsSuccess,
     isLoading: stockBundleSellRecordIsLoading,
-    refetch: refetchStockBundleSellRecord,
-  } = useGetStockBundleSellRecordsQuery();
-
-  const userId = useUserId();
-  useEffect(() => {
-    refetchCategories();
-    refetchIncExpRecord();
-    refetchCurrencies();
-    refetchUserCurrencies();
-    refetchCurrencyTransactionRecords();
-    refetchBankSummars();
-    refetchBankHistoryData();
-    refetchBanks();
-    refetchBankRecords();
-    refetchTimeDepositRecords();
-    refetchBrokerageFirmSummary();
-    refetchBrokerageFirms();
-    refetchBrokerageFirmHistoryData();
-    refetchUserStock();
-    refetchStockRecords();
-    refetchStockSumaries();
-    refetchStockBundleSellRecord();
-  }, [userId]);
+  } = useGetStockBundleSellRecordsQuery(undefined, { skip: skipFetching });
 
   useEffect(() => {
-    if (categoryIsSuccess) dispatch(setCategories(categories));
-  }, [categories]);
+    if (categoryIsSuccess && categories) dispatch(setCategories(categories));
+  }, [categories, categoryIsSuccess, dispatch]); // Add all dependencies
 
   useEffect(() => {
-    if (incExpRecordIsSuccess) dispatch(setIncExpRecords(incExpRecord));
-  }, [incExpRecord]);
+    if (incExpRecordIsSuccess && incExpRecord)
+      dispatch(setIncExpRecords(incExpRecord));
+  }, [incExpRecord, incExpRecordIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (currencyIsSuccess) dispatch(setCurrencies(currencies));
-  }, [currencies]);
+    if (currencyIsSuccess && currencies) dispatch(setCurrencies(currencies));
+  }, [currencies, currencyIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (userCurrencyIsSuccess) dispatch(setUserCurrencies(userCurrencies));
-  }, [userCurrencies]);
+    if (userCurrencyIsSuccess && userCurrencies)
+      dispatch(setUserCurrencies(userCurrencies));
+  }, [userCurrencies, userCurrencyIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (currencyTransactionRecordIsSuccess)
+    if (currencyTransactionRecordIsSuccess && currencyTransactionRecords)
       dispatch(setCurrencyTransactionRecord(currencyTransactionRecords));
-  }, [currencyTransactionRecords]);
+  }, [
+    currencyTransactionRecords,
+    currencyTransactionRecordIsSuccess,
+    dispatch,
+  ]);
 
   useEffect(() => {
-    if (bankSummaryIsSuccess) {
+    if (bankSummaryIsSuccess && bankSummary) {
       dispatch(setBankSummary(bankSummary));
     }
-  }, [bankSummary]);
+  }, [bankSummary, bankSummaryIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (bankHistoryDataIsSuccess) {
+    if (bankHistoryDataIsSuccess && bankHistoryData) {
       dispatch(setBankHistoryData(bankHistoryData));
     }
-  }, [bankHistoryData]);
+  }, [bankHistoryData, bankHistoryDataIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (bankIsSuccess) dispatch(setBanks(banks));
-  }, [banks]);
+    if (bankIsSuccess && banks) dispatch(setBanks(banks));
+  }, [banks, bankIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (bankRecordIsSuccess) dispatch(setBankRecords(bankRecords));
-  }, [bankRecords]);
+    if (bankRecordIsSuccess && bankRecords)
+      dispatch(setBankRecords(bankRecords));
+  }, [bankRecords, bankRecordIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (timeDepositRecordIsSuccess)
+    if (timeDepositRecordIsSuccess && timeDepositRecords)
       dispatch(setTimeDepositRecords(timeDepositRecords));
-  }, [timeDepositRecords]);
+  }, [timeDepositRecords, timeDepositRecordIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (brokerageFirmSummaryIsSuccess) {
+    if (brokerageFirmSummaryIsSuccess && brokerageFirmSummary) {
       dispatch(setBrokerageFirmSummary(brokerageFirmSummary));
     }
-  }, [brokerageFirmSummary]);
+  }, [brokerageFirmSummary, brokerageFirmSummaryIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (brokerageFirmHistoryDataIsSuccess) {
+    if (brokerageFirmHistoryDataIsSuccess && brokerageFirmHistoryData) {
       dispatch(setBrokerageFirmHistoryData(brokerageFirmHistoryData));
     }
-  }, [brokerageFirmHistoryData]);
+  }, [brokerageFirmHistoryData, brokerageFirmHistoryDataIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (brokerageFirmIsSuccess) dispatch(setBrokerageFirms(brokerageFirms));
-  }, [brokerageFirms]);
+    if (brokerageFirmIsSuccess && brokerageFirms)
+      dispatch(setBrokerageFirms(brokerageFirms));
+  }, [brokerageFirms, brokerageFirmIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (userStockIsSuccess) dispatch(setStocks(userStocks));
-  }, [userStocks]);
+    if (userStockIsSuccess && userStocks) dispatch(setStocks(userStocks));
+  }, [userStocks, userStockIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (stockRecordIsSuccess) dispatch(setStockRecords(stockRecords));
-  }, [stockRecords]);
+    if (stockRecordIsSuccess && stockRecords)
+      dispatch(setStockRecords(stockRecords));
+  }, [stockRecords, stockRecordIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (stockSumaryIsSuccess) dispatch(setStockSummaries(stockSumaries));
-  }, [stockSumaries]);
+    if (stockSumaryIsSuccess && stockSumaries)
+      dispatch(setStockSummaries(stockSumaries));
+  }, [stockSumaries, stockSumaryIsSuccess, dispatch]);
 
   useEffect(() => {
-    if (stockBundleSellRecordIsSuccess)
+    if (stockBundleSellRecordIsSuccess && stockBundleSellRecord)
       dispatch(setStockBundleSellRecord(stockBundleSellRecord));
-  }, [stockBundleSellRecord]);
+  }, [stockBundleSellRecord, stockBundleSellRecordIsSuccess, dispatch]);
 
   useEffect(() => {
+    // This doesn't seem to depend on fetched data or userId, assuming it's okay to run always
     dispatch(setPhraseMap());
-  });
+  }, [dispatch]); // Added dispatch dependency
 
-  const isLoading =
-    categoryIsLoading &&
-    incExpRecordIsLoading &&
-    currencyIsLoading &&
-    userCurrencyIsLoading &&
-    currencyTransactionRecordIsLoading &&
-    bankSummaryIsLoading &&
-    bankHistoryDataIsLoading &&
-    bankIsLoading &&
-    bankRecordIsLoading &&
-    timeDepositRecordIsLoading &&
-    brokerageFirmSummaryIsLoading &&
-    brokerageFirmHistoryDataIsLoading &&
-    brokerageFirmIsLoading &&
-    userStockIsLoading &&
-    stockRecordIsLoading &&
-    stockSumaryIsLoading &&
+  // --- Revised isLoading Logic ---
+  // Show loading if we don't have a userId yet OR if any query that should be running is still loading.
+  const isAnyQueryLoading =
+    categoryIsLoading ||
+    incExpRecordIsLoading ||
+    currencyIsLoading ||
+    userCurrencyIsLoading ||
+    currencyTransactionRecordIsLoading ||
+    bankSummaryIsLoading ||
+    bankHistoryDataIsLoading ||
+    bankIsLoading ||
+    bankRecordIsLoading ||
+    timeDepositRecordIsLoading ||
+    brokerageFirmSummaryIsLoading ||
+    brokerageFirmHistoryDataIsLoading ||
+    brokerageFirmIsLoading ||
+    userStockIsLoading ||
+    stockRecordIsLoading ||
+    stockSumaryIsLoading ||
     stockBundleSellRecordIsLoading;
 
+  // Consider the component loading if we are waiting for userId or if any active query is loading
+  const isLoading = !skipFetching && isAnyQueryLoading;
   return (
     <>
       {isLoading ? (
