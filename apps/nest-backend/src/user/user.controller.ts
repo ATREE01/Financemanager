@@ -293,8 +293,8 @@ export class UserController {
             : record.amount) - (record.charge ?? 0);
 
         addValueToYearAndWeek(
-          date.year(),
-          date.week(),
+          date.isoWeekYear(),
+          date.isoWeek(),
           value * bank.currency.exchangeRate,
         );
       });
@@ -314,8 +314,8 @@ export class UserController {
           value = -Number(bankRecord.amount) - (bankRecord.charge ?? 0);
 
         addValueToYearAndWeek(
-          date.year(),
-          date.week(),
+          date.isoWeekYear(),
+          date.isoWeek(),
           value * bank.currency.exchangeRate,
         );
       });
@@ -324,8 +324,8 @@ export class UserController {
         const date = moment(stockBuyRecord.date);
         const value = -Number(stockBuyRecord.amount);
         addValueToYearAndWeek(
-          date.year(),
-          date.week(),
+          date.isoWeekYear(),
+          date.isoWeek(),
           value * bank.currency.exchangeRate,
         );
       });
@@ -334,8 +334,8 @@ export class UserController {
         const date = moment(stockBundleSellRecord.date);
         const value = Number(stockBundleSellRecord.amount);
         addValueToYearAndWeek(
-          date.year(),
-          date.week(),
+          date.isoWeekYear(),
+          date.isoWeek(),
           value * bank.currency.exchangeRate,
         );
       });
@@ -354,8 +354,8 @@ export class UserController {
     currencyTransactionRecords.forEach((record) => {
       if (record.type === CurrencyTransactionRecordType.COUNTER) return;
       const date = moment(record.date);
-      const year = date.year();
-      const week = date.week();
+      const year = date.isoWeekYear();
+      const week = date.isoWeek();
       const { fromBank, toBank, fromAmount, toAmount } = record;
       if (fromBank) {
         const fromExchangeRate = fromBank.currency?.exchangeRate ?? 1;
@@ -378,10 +378,10 @@ export class UserController {
     const bankHistoryData = [] as BankHistoryData[];
     const date = moment().isoWeekYear(minYear).isoWeek(minWeek);
     let value = 0;
-    for (let year = minYear; year <= now.year(); year++) {
+    for (let year = minYear; year <= now.isoWeekYear(); year++) {
       const startWeek = year === minYear ? minWeek : 1;
       const endWeek =
-        year === now.year()
+        year === now.isoWeekYear()
           ? now.isoWeek() - 1
           : moment().isoWeekYear(year).isoWeeksInYear();
       for (let week = startWeek; week <= endWeek; week++) {
@@ -501,8 +501,8 @@ export class UserController {
           const date = moment(stockBuyRecord.date);
           addShareNumber(
             stock.code,
-            date.year(),
-            date.week(),
+            date.isoWeekYear(),
+            date.isoWeek(),
             stockBuyRecord.shareNumber,
           );
         }
@@ -511,8 +511,8 @@ export class UserController {
           const date = moment(stockSellRecord.date);
           addShareNumber(
             stock.code,
-            date.year(),
-            date.week(),
+            date.isoWeekYear(),
+            date.isoWeek(),
             -stockSellRecord.shareNumber,
           );
         }
@@ -523,10 +523,10 @@ export class UserController {
     const date = moment().isoWeekYear(minYear).isoWeek(minWeek);
 
     const stockShareNumber: { [code: string]: number } = {};
-    for (let year = minYear; year <= now.year(); year++) {
+    for (let year = minYear; year <= now.isoWeekYear(); year++) {
       const startWeek = year === minYear ? minWeek : 1;
       const endWeek =
-        year === now.year()
+        year === now.isoWeekYear()
           ? now.isoWeek() - 1
           : moment().isoWeekYear(year).isoWeeksInYear();
       for (let week = startWeek; week <= endWeek; week++) {
