@@ -154,10 +154,8 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="w-full">
-            <IncExpFormManager updateShowState={null} />
-          </div>
         </div>
+        <IncExpFormManager updateShowState={null} />
       </div>
     </main>
   );
