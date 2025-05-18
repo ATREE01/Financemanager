@@ -161,7 +161,7 @@ export class StockService {
       interval: '1wk',
     });
     const historyData = this.convertToHistoricalResult(chartResult);
-    const operations = historyData.map(async (data) => {
+    const operations = historyData.slice(0, -1).map(async (data) => {
       const date = moment(data.date);
       const existingRecord = await this.stockHistoryRepository.findOne({
         where: {
