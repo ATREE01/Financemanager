@@ -68,6 +68,10 @@ export class StockService {
     }
   }
 
+  async onModuleInit() {
+    await this.updateStockHistoryRoutine();
+  }
+
   @Cron('0 0 * * 1')
   async updateStockHistoryRoutine() {
     const stocks = await this.stockRepository.find();
@@ -153,15 +157,15 @@ export class StockService {
   }
 
   async createStockHistory(stock: Stock) {
-    const startDate = new Date('2000-01-01');
-    const endDate = moment().subtract(1, 'weeks').endOf('week');
+    const startDate = moment('2020-01-01').startOf('isoWeek').toDate();
+    const endDate = moment().subtract(1, 'weeks').endOf('isoWeek');
     const chartResult = await yahooFinance.chart(stock.code, {
       period1: startDate,
       period2: endDate.toDate(),
       interval: '1wk',
     });
     const historyData = this.convertToHistoricalResult(chartResult);
-    const operations = historyData.slice(0, -1).map(async (data) => {
+    const operations = historyData.map(async (data) => {
       const date = moment(data.date);
       const existingRecord = await this.stockHistoryRepository.findOne({
         where: {
