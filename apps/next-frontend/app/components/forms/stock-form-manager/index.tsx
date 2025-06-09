@@ -4,14 +4,16 @@ import {
   UpdateStockBundleSellRecord,
   UpdateStockRecord,
   UpdateStockSellRecord,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { useState } from "react";
 
 import BrokerageFirmForm from "./brokerage-firm";
 import BundleSellRecord from "./bundle-sell-record";
 import StockRecordForm from "./record";
 import StockSellRecord from "./stock-sell-record";
+import StockSplitForm from "./stock-splite";
 import UserStockForm from "./user-stock";
+
 export default function StockFormManager({
   updateStockRecordShowState,
   updateStockRecordFormData,
@@ -41,12 +43,15 @@ export default function StockFormManager({
   const [showRecordForm, setShowRecordForm] = useState(false);
   const [showBrokerageFirmForm, setShowBrokerageFirmForm] = useState(false);
   const [showStockForm, setShowStockForm] = useState(false);
+  const [showStockSplitForm, setShowStockSplitForm] = useState(false);
 
   const handleShowClick = () => setShow(!show);
   const handleNewRecordClick = () => setShowRecordForm(!showRecordForm);
   const handleNewBrokerageFirmClick = () =>
     setShowBrokerageFirmForm(!showBrokerageFirmForm);
   const handleNewStockFormClick = () => setShowStockForm(!showStockForm);
+  const handleNewStockSplitFormClick = () =>
+    setShowStockSplitForm(!showStockSplitForm);
 
   return (
     <>
@@ -70,13 +75,16 @@ export default function StockFormManager({
           <i className="bi bi-bank2"></i>
         </div>
         {/* outer */}
-        {/* <div className={`record-btn ${show ? "up-right-sec" : ""}`} onClick={}>
-              <i className="bi bi-pen"></i>
-          </div>
+        <div
+          className={`record-btn ${show ? "up-right-sec" : ""}`}
+          onClick={handleNewStockSplitFormClick}
+        >
+          <i className="bi bi-arrows-expand-vertical"></i>
+        </div>
 
-          <div className={`record-btn ${show ? "up-middle-right-sec" : ""}`} onClick={}>
-              <i className="bi bi-currency-dollar"></i>
-          </div> */}
+        {/* <div className={`record-btn ${show ? "up-middle-right-sec" : ""}`} onClick={}>
+            <i className="bi bi-currency-dollar"></i>
+        </div> */}
 
         <div className="record-btn" onClick={handleShowClick}>
           <i className="bi bi-layers"></i>
@@ -93,6 +101,12 @@ export default function StockFormManager({
         showState={{
           isShow: showBrokerageFirmForm,
           setShow: setShowBrokerageFirmForm,
+        }}
+      />
+      <StockSplitForm
+        showState={{
+          isShow: showStockSplitForm,
+          setShow: setShowStockSplitForm,
         }}
       />
 
@@ -118,6 +132,7 @@ export default function StockFormManager({
           formData={udpateBundleSellFormData}
         />
       )}
+
       {updateStockSellShowState && (
         <StockSellRecord
           showState={updateStockSellShowState}
