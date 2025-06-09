@@ -1,4 +1,4 @@
-import type { User } from "@financemanager/financemanager-webiste-types";
+import type { User } from "@financemanager/financemanager-website-types";
 import type { BaseQueryFn, FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 

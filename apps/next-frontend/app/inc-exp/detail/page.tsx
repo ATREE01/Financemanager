@@ -4,7 +4,7 @@ import {
   IncExpMethodType,
   IncExpRecord,
   IncExpRecordType,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

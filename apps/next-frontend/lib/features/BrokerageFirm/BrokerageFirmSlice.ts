@@ -2,7 +2,7 @@ import {
   BrokerageFirm,
   BrokerageFirmHistoryData,
   BrokerageFirmSummary,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { createSlice } from "@reduxjs/toolkit";
 
 import { useAppSelector } from "@/lib/hook";

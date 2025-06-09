@@ -1,6 +1,6 @@
 "use client";
 
-import { ShowState } from "@financemanager/financemanager-webiste-types";
+import { ShowState } from "@financemanager/financemanager-website-types";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";

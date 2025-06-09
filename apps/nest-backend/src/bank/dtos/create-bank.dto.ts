@@ -1,4 +1,4 @@
-import { CreateBank } from '@financemanager/financemanager-webiste-types';
+import { CreateBank } from '@financemanager/financemanager-website-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, MaxLength } from 'class-validator';
 

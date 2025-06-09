@@ -1,4 +1,4 @@
-import { CreateUserCurrency } from '@financemanager/financemanager-webiste-types';
+import { CreateUserCurrency } from '@financemanager/financemanager-website-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 

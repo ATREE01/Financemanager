@@ -1,5 +1,5 @@
 import { BrokerageFirm } from "../brokerage-firm/brokerage-firm";
-import { StockBundleSellRecord } from "./stcok-bundle-sell-record";
+import { StockBundleSellRecord } from "./stock-bundle-sell-record";
 import { StockBuyRecord } from "./stock-buy-record";
 import { UserStock } from "./user-stock";
 

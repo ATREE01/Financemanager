@@ -1,4 +1,4 @@
-import { IncExpRecordType } from '@financemanager/financemanager-webiste-types';
+import { IncExpRecordType } from '@financemanager/financemanager-website-types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

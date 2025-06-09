@@ -1,7 +1,7 @@
 import {
   CreateStockBuyRecord,
   StockBuyMethod,
-} from '@financemanager/financemanager-webiste-types';
+} from '@financemanager/financemanager-website-types';
 
 export class CreateStockBuyRecordDto implements CreateStockBuyRecord {
   id: number;

@@ -1,7 +1,7 @@
 import {
   BankRecord,
   ShowState,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { useState } from "react";
 
 import BankForm from "@/app/components/forms/bank-form-manager/bank";

@@ -1,7 +1,7 @@
 import {
   CurrencyTransactionRecord,
   ShowState,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { useState } from "react";
 
 import CurrencyTransactionRecordForm from "@/app/components/forms/currency-transaction-form-manager/record";

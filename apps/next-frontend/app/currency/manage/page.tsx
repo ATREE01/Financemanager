@@ -1,6 +1,6 @@
 "use client";
 
-import { Currency } from "@financemanager/financemanager-webiste-types";
+import { Currency } from "@financemanager/financemanager-website-types";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 

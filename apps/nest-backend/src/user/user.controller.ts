@@ -4,12 +4,12 @@ import type {
   BrokerageFirmHistoryData,
   BrokerageFirmSummary,
   BrokerageStockSummary,
-} from '@financemanager/financemanager-webiste-types';
+} from '@financemanager/financemanager-website-types';
 import {
   BankRecordType,
   CurrencyTransactionRecordType,
   IncExpRecordType,
-} from '@financemanager/financemanager-webiste-types';
+} from '@financemanager/financemanager-website-types';
 import {
   BadRequestException,
   Controller,
@@ -134,7 +134,7 @@ export class UserController {
   @Get('stocks')
   async getUserStocks(@Req() req: Request) {
     const userId = (req.user as UserInfo).userId;
-    return await this.stockService.getUserStocksById(userId);
+    return await this.stockService.getUserStocksByUserId(userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -241,13 +241,15 @@ export class UserController {
       if (fromBank) {
         const fromBankName = fromBank.name;
         const fromExchangeRate = fromBank.currency?.exchangeRate ?? 1;
-        bankSummary[fromBankName].value -= fromAmount * fromExchangeRate - (record.charge ?? 0); // the charge should be in NTD
+        bankSummary[fromBankName].value -=
+          fromAmount * fromExchangeRate - (record.charge ?? 0); // the charge should be in NTD
       }
 
       if (toBank) {
         const toBankName = toBank.name;
         const toExchangeRate = toBank.currency?.exchangeRate ?? 1;
-        bankSummary[toBankName].value += toAmount * toExchangeRate - (record.charge ?? 0); // the charge should be in NTD
+        bankSummary[toBankName].value +=
+          toAmount * toExchangeRate - (record.charge ?? 0); // the charge should be in NTD
       }
     });
 

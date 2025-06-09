@@ -1,6 +1,7 @@
 import {
   CreateStockBundleSellRecord,
   CreateStockRecord,
+  CreateStockSplit,
   CreateUserStock,
   StockBundleSellRecord,
   StockRecord,
@@ -9,7 +10,7 @@ import {
   UpdateStockRecord,
   UpdateStockSellRecord,
   UserStock,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 
 import { apiSlice } from "@/lib/api/apiSlice";
 
@@ -83,6 +84,20 @@ export const StockApiSlice = apiSlice
           method: "GET",
         }),
         providesTags: [{ type: "StockSummary", id: "LIST" }],
+      }),
+
+      createStockSplit: builder.mutation<void, CreateStockSplit>({
+        query: (data) => ({
+          url: "/stocks/split",
+          method: "POST",
+          body: data,
+        }),
+        invalidatesTags: [
+          { type: "StockSummary", id: "LIST" },
+          { type: "StockRecord", id: "LIST" },
+          "BrokerageFirmSummary",
+          "StockBundleSellRecord",
+        ],
       }),
 
       createStockRecord: builder.mutation<StockRecord, CreateStockRecord>({
@@ -211,6 +226,7 @@ export const {
 
   useGetStockRecordsQuery,
   useGetStockSummaryQuery,
+  useCreateStockSplitMutation,
   useCreateStockRecordMutation,
   useUpdateStockRecordMutation,
 

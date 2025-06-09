@@ -4,7 +4,7 @@ import {
   Currency,
   CurrencyTransactionRecord,
   UserCurrency,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 
 import { apiSlice } from "@/lib/api/apiSlice";
 

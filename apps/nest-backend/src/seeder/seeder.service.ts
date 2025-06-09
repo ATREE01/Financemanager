@@ -1,4 +1,4 @@
-import { CurrencyNames } from '@financemanager/financemanager-webiste-types';
+import { CurrencyNames } from '@financemanager/financemanager-website-types';
 import { Injectable } from '@nestjs/common';
 
 import { CurrencyService } from '../currency/currency.service';

@@ -1,4 +1,4 @@
-import { CreateStockSellRecord } from '@financemanager/financemanager-webiste-types';
+import { CreateStockSellRecord } from '@financemanager/financemanager-website-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 

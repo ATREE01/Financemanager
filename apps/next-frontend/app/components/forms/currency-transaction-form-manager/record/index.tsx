@@ -4,7 +4,7 @@ import {
   CurrencyTransactionRecord,
   CurrencyTransactionRecordType,
   ShowState,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
 import * as Yup from "yup";

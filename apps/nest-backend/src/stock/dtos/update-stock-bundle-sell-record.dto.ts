@@ -1,4 +1,4 @@
-import { UpdateStockBundleSellRecord } from '@financemanager/financemanager-webiste-types';
+import { UpdateStockBundleSellRecord } from '@financemanager/financemanager-website-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 

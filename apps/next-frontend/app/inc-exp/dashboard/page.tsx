@@ -1,6 +1,6 @@
 "use client";
 
-import { IncExpRecordType } from "@financemanager/financemanager-webiste-types";
+import { IncExpRecordType } from "@financemanager/financemanager-website-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";

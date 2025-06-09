@@ -1,7 +1,7 @@
 import {
   CreateCategory,
   IncExpRecordType,
-} from '@financemanager/financemanager-webiste-types';
+} from '@financemanager/financemanager-website-types';
 import { IsEnum, IsString } from 'class-validator';
 
 export class CreateCategoryDto implements CreateCategory {

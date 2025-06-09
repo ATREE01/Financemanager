@@ -1,7 +1,7 @@
 import {
   ShowState,
   TimeDepositRecord,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { useState } from "react";
 
 import TimeDepositRecordForm from "@/app/components/forms/time-deposit-manager/record/index";
