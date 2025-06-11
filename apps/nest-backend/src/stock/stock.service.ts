@@ -3,7 +3,7 @@ import {
   StockRecordSummary,
   StockSummary,
   UpdateStockRecord,
-} from '@financemanager/financemanager-webiste-types';
+} from '@financemanager/financemanager-website-types';
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -62,8 +62,9 @@ export class StockService {
         });
         const price = data.meta.regularMarketPrice;
         if (price !== null) await this.updateStockClose(stock, price);
-      } catch (e) {
+      } catch (error) {
         console.error(`Failed to update stock price for ${stock.code}`);
+        console.error(error);
       }
     }
   }
@@ -80,6 +81,45 @@ export class StockService {
     }
   }
 
+  async getStockByCode(code: string): Promise<Stock | null> {
+    return this.stockRepository.findOne({
+      where: {
+        code: code,
+      },
+    });
+  }
+
+  async getUserStocksByUserId(userId: string) {
+    return await this.userStockRepository.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      relations: {
+        stock: true,
+      },
+    });
+  }
+
+  async getUserStockById(userStockId: string): Promise<UserStock | null> {
+    return await this.userStockRepository.findOne({
+      where: {
+        id: userStockId,
+      },
+    });
+  }
+
+  async getStockHistory(code: string): Promise<StockHistory[]> {
+    return await this.stockHistoryRepository.find({
+      where: {
+        stock: {
+          code: code,
+        },
+      },
+    });
+  }
+
   async createStock(
     currency: Currency,
     code: string,
@@ -94,35 +134,93 @@ export class StockService {
     );
   }
 
-  async getStockByCode(code: string): Promise<Stock | null> {
-    return this.stockRepository.findOne({
-      where: {
-        code: code,
+  private async applySplitToStockSellRecord(
+    stockSellRecord: StockSellRecord,
+    ratio: number,
+  ): Promise<void> {
+    // Calculate the new sell price for the associated stock bundle sell record.
+    const newSellPrice =
+      stockSellRecord.stockBundleSellRecord.sellPrice / ratio;
+
+    // Update the stock bundle sell record's sell price in the database.
+    await this.stockBundleSellRecordsRepository.update(
+      stockSellRecord.stockBundleSellRecord.id,
+      {
+        sellPrice: newSellPrice,
       },
+    );
+
+    // Calculate the new share number for the individual stock sell record.
+    const newShareNumber = Math.round(stockSellRecord.shareNumber * ratio);
+
+    // Update the stock sell record's share number in the database.
+    await this.stockSellRecordRepository.update(stockSellRecord.id, {
+      shareNumber: newShareNumber,
     });
   }
 
-  async getUserStocksById(userId: string) {
-    return await this.userStockRepository.find({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-      relations: {
-        stock: true,
-      },
+  private async applySplitToStockBuyRecord(
+    stockBuyRecord: StockBuyRecord,
+    ratio: number,
+  ): Promise<void> {
+    // Calculate the new share number.
+    // Note: Math.round is used here as per your original code. Consider if fractional shares are possible
+    // and how your system handles them (e.g., cash-in-lieu for odd lots).
+    const newShareNumber = Math.round(stockBuyRecord.shareNumber * ratio);
+
+    // Update the stock buy record's share number in the database.
+    await this.stockBuyRecordRepository.update(stockBuyRecord.id, {
+      shareNumber: newShareNumber,
     });
   }
 
-  async getStockHistory(code: string): Promise<StockHistory[]> {
-    return await this.stockHistoryRepository.find({
-      where: {
-        stock: {
-          code: code,
-        },
-      },
+  private async applySplitToIndividualStockRecord(
+    stockRecord: StockRecord,
+    ratio: number,
+  ): Promise<void> {
+    // Calculate the new buy price based on the ratio.
+    const newPrice = stockRecord.buyPrice / ratio;
+
+    // Update the stock record's buy price in the database.
+    await this.stockRecordRepository.update(stockRecord.id, {
+      buyPrice: newPrice,
     });
+
+    // Iterate through all associated stock buy records and apply the split to each.
+    for (const stockBuyRecord of stockRecord.stockBuyRecords) {
+      await this.applySplitToStockBuyRecord(stockBuyRecord, ratio);
+    }
+
+    // Iterate through all associated stock sell records and apply the split to each.
+    for (const stockSellRecord of stockRecord.stockSellRecords) {
+      await this.applySplitToStockSellRecord(stockSellRecord, ratio);
+    }
+  }
+
+  async splitStockRecord(userStock: UserStock, ratio: number): Promise<void> {
+    try {
+      const stockRecords = await this.stockRecordRepository.find({
+        where: { userStock: userStock },
+        relations: {
+          stockBuyRecords: true,
+          stockSellRecords: {
+            stockBundleSellRecord: true,
+          },
+        },
+      });
+
+      for (const stockRecord of stockRecords) {
+        await this.applySplitToIndividualStockRecord(stockRecord, ratio);
+      }
+    } catch (error) {
+      // Log or handle any errors that occur during the process.
+      // In a real application, you might want more sophisticated error reporting.
+      console.error(
+        `Error splitting stock records for user stock ${userStock.id}:`,
+        error,
+      );
+      throw new Error('Failed to complete stock split operation.');
+    }
   }
 
   convertToHistoricalResult(result: ChartResultArray): HistoricalHistoryResult {

@@ -1,4 +1,4 @@
-import { ShowState } from "@financemanager/financemanager-webiste-types";
+import { ShowState } from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Link from "next/link";
 import * as Yup from "yup";

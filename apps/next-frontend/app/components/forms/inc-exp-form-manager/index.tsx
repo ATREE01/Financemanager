@@ -1,7 +1,7 @@
 import {
   IncExpRecord,
   ShowState,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { useState } from "react";
 
 import CategoryForm from "@/app/components/forms/inc-exp-form-manager/category";

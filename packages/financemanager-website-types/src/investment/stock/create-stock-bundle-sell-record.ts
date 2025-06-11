@@ -1,5 +1,5 @@
 import { CreateStockSellRecord } from "./create-stock-sell-record";
-import { StockBundleSellRecord } from "./stcok-bundle-sell-record";
+import { StockBundleSellRecord } from "./stock-bundle-sell-record";
 
 export interface CreateStockBundleSellRecord
   extends Omit<

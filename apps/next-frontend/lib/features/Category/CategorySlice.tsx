@@ -1,4 +1,4 @@
-import { Category } from "@financemanager/financemanager-webiste-types";
+import { Category } from "@financemanager/financemanager-website-types";
 import { createSlice } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 

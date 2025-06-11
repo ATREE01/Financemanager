@@ -3,7 +3,7 @@ import {
   CreateTimeDepositRecord,
   ShowState,
   TimeDepositRecord,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";

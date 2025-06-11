@@ -1,4 +1,4 @@
-import { CreateTimeDepositRecord } from '@financemanager/financemanager-webiste-types';
+import { CreateTimeDepositRecord } from '@financemanager/financemanager-website-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, MaxLength } from 'class-validator';
 

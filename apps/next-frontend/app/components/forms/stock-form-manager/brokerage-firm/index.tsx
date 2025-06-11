@@ -1,7 +1,7 @@
 import {
   CreateBrokerageFirm,
   ShowState,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";

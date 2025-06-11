@@ -1,7 +1,7 @@
 import {
   IncExpMethodType,
   IncExpRecord,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { createSlice } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 

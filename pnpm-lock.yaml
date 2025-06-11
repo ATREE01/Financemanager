@@ -72,7 +72,7 @@ importers:
 
   apps/nest-backend:
     dependencies:
-      '@financemanager/financemanager-webiste-types':
+      '@financemanager/financemanager-website-types':
         specifier: workspace:*
         version: link:../../packages/financemanager-website-types
       '@nestjs/axios':
@@ -248,7 +248,7 @@ importers:
         specifier: ^1.4.0
         version: 1.6.1
     devDependencies:
-      '@financemanager/financemanager-webiste-types':
+      '@financemanager/financemanager-website-types':
         specifier: workspace:*
         version: link:../../packages/financemanager-website-types
       '@types/node':

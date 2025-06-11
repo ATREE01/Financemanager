@@ -22,7 +22,7 @@
     "seed:currency": "node ./dist/src/seeder.js currency"
   },
   "dependencies": {
-    "@financemanager/financemanager-webiste-types": "workspace:*",
+    "@financemanager/financemanager-website-types": "workspace:*",
     "@nestjs/axios": "^3.1.2",
     "@nestjs/bullmq": "^10.2.3",
     "@nestjs/common": "^10.4.12",

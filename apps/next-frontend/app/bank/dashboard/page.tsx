@@ -4,7 +4,7 @@ import {
   BankRecordType,
   CurrencyTransactionRecordType,
   IncExpRecordType,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Chart from "react-google-charts";

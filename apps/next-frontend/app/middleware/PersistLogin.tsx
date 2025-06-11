@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@financemanager/financemanager-webiste-types";
+import { User } from "@financemanager/financemanager-website-types";
 import { useEffect, useState } from "react";
 
 import { setCredentials } from "@/lib/features/Auth/AuthSlice";

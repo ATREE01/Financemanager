@@ -1,4 +1,4 @@
-import type { User } from "@financemanager/financemanager-webiste-types";
+import type { User } from "@financemanager/financemanager-website-types";
 
 import { apiSlice } from "@/lib/api/apiSlice";
 

@@ -1,4 +1,4 @@
-import { Options } from "@financemanager/financemanager-webiste-types";
+import { Options } from "@financemanager/financemanager-website-types";
 import { Dispatch, SetStateAction } from "react";
 
 export default function ConditionFilter({

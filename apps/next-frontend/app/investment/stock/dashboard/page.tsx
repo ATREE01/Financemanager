@@ -3,7 +3,7 @@
 import type {
   CreateStockSellRecord,
   StockRecordSummarySell,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import * as React from "react";
@@ -23,7 +23,7 @@ export default function Deashboard() {
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const normalTableTitles = [
     "券商",
@@ -234,12 +234,9 @@ export default function Deashboard() {
               setMarketValue - stockSummary.totalSettlementCost,
             ).toFixed()}
             (
-            {stockSummary.averageBuyPrice !== 0
+            {stockSummary.totalSettlementCost !== 0
               ? Number(
-                  (stockSummary.userStock.stock.close /
-                    stockSummary.averageBuyPrice -
-                    1) *
-                    100,
+                  (setMarketValue / stockSummary.totalSettlementCost - 1) * 100,
                 ).toFixed(1)
               : 0}
             %)

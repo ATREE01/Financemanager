@@ -1,7 +1,7 @@
 import {
   BankRecordType,
   CreateBankRecord,
-} from '@financemanager/financemanager-webiste-types';
+} from '@financemanager/financemanager-website-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 

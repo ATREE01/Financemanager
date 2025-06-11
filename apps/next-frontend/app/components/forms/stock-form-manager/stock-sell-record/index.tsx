@@ -1,7 +1,7 @@
 import {
   ShowState,
   UpdateStockSellRecord,
-} from "@financemanager/financemanager-webiste-types";
+} from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 

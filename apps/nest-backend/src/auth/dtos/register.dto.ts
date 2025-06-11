@@ -1,4 +1,4 @@
-import { Register } from '@financemanager/financemanager-webiste-types';
+import { Register } from '@financemanager/financemanager-website-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 

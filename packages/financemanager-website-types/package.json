@@ -1,5 +1,5 @@
 {
-  "name": "@financemanager/financemanager-webiste-types",
+  "name": "@financemanager/financemanager-website-types",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -24,7 +24,7 @@
     "unbuild": "^2.0.0"
   },
   "dependencies": {
-    "@financemanager/financemanager-webiste-types": "file:",
+    "@financemanager/financemanager-website-types": "file:",
     "react": "^18.3.1"
   }
 }

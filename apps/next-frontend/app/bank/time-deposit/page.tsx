@@ -1,6 +1,6 @@
 "use client";
 
-import { TimeDepositRecord } from "@financemanager/financemanager-webiste-types";
+import { TimeDepositRecord } from "@financemanager/financemanager-website-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

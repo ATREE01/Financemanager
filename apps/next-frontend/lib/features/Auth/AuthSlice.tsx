@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@financemanager/financemanager-webiste-types";
+import { User } from "@financemanager/financemanager-website-types";
 import { createSlice } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 

@@ -1,4 +1,4 @@
-import { CreateUser } from '@financemanager/financemanager-webiste-types';
+import { CreateUser } from '@financemanager/financemanager-website-types';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto implements CreateUser {

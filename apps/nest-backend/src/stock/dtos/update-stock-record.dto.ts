@@ -1,7 +1,7 @@
 import {
   UpdateStockBuyRecord,
   UpdateStockRecord,
-} from '@financemanager/financemanager-webiste-types';
+} from '@financemanager/financemanager-website-types';
 
 export class UpdateStockRecordDto implements UpdateStockRecord {
   id: number;

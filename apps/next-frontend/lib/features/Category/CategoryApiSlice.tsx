@@ -1,4 +1,4 @@
-import { Category } from "@financemanager/financemanager-webiste-types";
+import { Category } from "@financemanager/financemanager-website-types";
 
 import { apiSlice } from "@/lib/api/apiSlice";
 

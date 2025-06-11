@@ -1,4 +1,4 @@
-import { UpdateStockSellRecord } from '@financemanager/financemanager-webiste-types';
+import { UpdateStockSellRecord } from '@financemanager/financemanager-website-types';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
   BadRequestException,
@@ -22,6 +22,7 @@ import { CurrencyService } from '../currency/currency.service';
 import { CreateStockBundleSellRecordDto } from './dtos/create-stock-bundle-sell-record.dto';
 import { CreateStockBuyRecordDto } from './dtos/create-stock-buy-record.dto';
 import { CreateStockRecordDto } from './dtos/create-stock-record.dto';
+import { CreateStockSplitDto } from './dtos/create-stock-split.dto';
 import { CreateUserStockDto } from './dtos/create-user-stock.dto';
 import { UpdateStockBundleSellRecordDto } from './dtos/update-stock-bundle-sell-record.dto';
 import { UpdateStockBuyRecordDto } from './dtos/update-stock-buy-record.dto';
@@ -83,6 +84,7 @@ export class StockController {
           createUserStockDto,
         );
       } catch (e) {
+        console.error(e);
         throw new BadRequestException();
       }
     } else {
@@ -93,8 +95,33 @@ export class StockController {
           createUserStockDto,
         );
       } catch (e) {
+        console.error(e);
         throw new InternalServerErrorException();
       }
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('split')
+  async createStockSplit(@Body() createStockSplit: CreateStockSplitDto) {
+    const userStock = await this.stockService.getUserStockById(
+      createStockSplit.userStockId,
+    );
+
+    if (userStock === null) throw new BadRequestException();
+    if (createStockSplit.splitRatio < 1)
+      throw new BadRequestException(
+        'Split ratio must be greater than or equal to 1',
+      );
+
+    try {
+      await this.stockService.splitStockRecord(
+        userStock,
+        createStockSplit.splitRatio,
+      );
+    } catch (e) {
+      console.error(e);
+      throw new InternalServerErrorException();
     }
   }
 
@@ -195,6 +222,7 @@ export class StockController {
       }
       return;
     } catch (e) {
+      console.error(e);
       throw new InternalServerErrorException();
     }
   }
@@ -214,6 +242,7 @@ export class StockController {
         updateStockBundleSellRecordDto,
       );
     } catch (e) {
+      console.error(e);
       throw new InternalServerErrorException();
     }
   }
@@ -245,6 +274,7 @@ export class StockController {
         updateStockSellRecordDto.shareNumber,
       );
     } catch (e) {
+      console.error(e);
       throw new InternalServerErrorException();
     }
   }
@@ -256,6 +286,7 @@ export class StockController {
     try {
       await this.stockService.deleteStockSellRecord(userId, id);
     } catch (e) {
+      console.error(e);
       throw new InternalServerErrorException();
     }
   }
