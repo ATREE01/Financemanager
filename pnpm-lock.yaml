@@ -272,7 +272,7 @@ importers:
 
   packages/financemanager-website-types:
     dependencies:
-      '@financemanager/financemanager-webiste-types':
+      '@financemanager/financemanager-website-types':
         specifier: 'file:'
         version: 'link:'
       react:
