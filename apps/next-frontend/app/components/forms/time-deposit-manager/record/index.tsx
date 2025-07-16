@@ -5,14 +5,15 @@ import {
   TimeDepositRecord,
 } from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
+import LoadingPage from "@/app/components/loading-page";
 import {
   useCreateTimeDepositRecordMutation,
+  useGetBanksQuery,
   useModifyTimeDepositRecordMutation,
 } from "@/lib/features/Bank/BankApiSlice";
-import { useBanks } from "@/lib/features/Bank/BankSlice";
 
 export default function TimeDepositRecordForm({
   showState,
@@ -21,7 +22,7 @@ export default function TimeDepositRecordForm({
   showState: ShowState;
   formData?: TimeDepositRecord | null;
 }) {
-  const banks = useBanks();
+  const { data: banks = [], isLoading: bankIsLoading } = useGetBanksQuery();
   const [bank, setBank] = useState<Bank>();
 
   const [createTimeDepositRecord] = useCreateTimeDepositRecordMutation();
@@ -53,6 +54,8 @@ export default function TimeDepositRecordForm({
     startDate: formData?.startDate || new Date().toISOString().split("T")[0],
     endDate: formData?.endDate || "",
   };
+
+  if (bankIsLoading) return <LoadingPage />;
 
   return (
     <>
@@ -105,7 +108,7 @@ export default function TimeDepositRecordForm({
               if (mode === "new") window.alert("新增成功");
               else window.alert("修改成功");
               actions.resetForm();
-            } catch (e) {
+            } catch {
               window.alert("伺服器錯誤，請稍後再試");
             }
           }}

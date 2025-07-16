@@ -12,6 +12,7 @@ import * as React from "react";
 
 import DetailTable from "@/app/components/detail-table";
 import StockFormManager from "@/app/components/forms/stock-form-manager";
+import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
@@ -19,18 +20,16 @@ import {
   useDeleteStockBundleSellRecordMutation,
   useDeleteStockBuyRecordMutation,
   useDeleteStockSellRecordMutation,
+  useGetStockBundleSellRecordsQuery,
+  useGetStockRecordsQuery,
 } from "@/lib/features/stock/StockApiSlice";
-import {
-  useStockBundleSellRecords,
-  useStockRecords,
-} from "@/lib/features/stock/StockSlice";
 
 export default function Detail() {
   const userId = useUserId();
   const router = useRouter();
   React.useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const [stockRecordFormData, setStockRecordFormData] =
     useState<UpdateStockRecord>();
@@ -52,8 +51,20 @@ export default function Detail() {
   const [deleteStockSellRecord] = useDeleteStockSellRecordMutation();
 
   const phraseMap = usePhraseMap();
-  const stockRecords = useStockRecords();
-  const stockBundleSelRecords = useStockBundleSellRecords();
+  const { data: stockRecords, isLoading: stockRecordsIsLoading } =
+    useGetStockRecordsQuery();
+  const {
+    data: stockBundleSelRecords,
+    isLoading: stockBundleSellRecordsIsLoading,
+  } = useGetStockBundleSellRecordsQuery();
+
+  if (
+    !stockRecords ||
+    stockRecordsIsLoading ||
+    !stockBundleSelRecords ||
+    stockBundleSellRecordsIsLoading
+  )
+    return <LoadingPage />;
 
   const buyTableTitles = [
     "日期",
@@ -93,7 +104,7 @@ export default function Detail() {
       try {
         await deleteStockBuyRecord(id).unwrap();
         window.alert("刪除成功");
-      } catch (e) {
+      } catch {
         window.alert("伺服器錯誤，請稍後再試");
       }
   }
@@ -104,7 +115,7 @@ export default function Detail() {
       try {
         await deleteStockBundleSellRecord(id).unwrap();
         window.alert("刪除成功");
-      } catch (e) {
+      } catch {
         window.alert("伺服器錯誤，請稍後再試");
       }
   }
@@ -115,7 +126,7 @@ export default function Detail() {
       try {
         await deleteStockSellRecord(id).unwrap();
         window.alert("刪除成功");
-      } catch (e) {
+      } catch {
         window.alert("伺服器錯誤，請稍後再試");
       }
   }

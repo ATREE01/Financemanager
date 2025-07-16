@@ -12,10 +12,11 @@ import Chart from "react-google-charts";
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import BankFormManager from "@/app/components/forms/bank-form-manager";
+import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useBanks } from "@/lib/features/Bank/BankSlice";
-import { useCurrencyTransactionRecord } from "@/lib/features/Currency/CurrencySlice";
+import { useGetBanksQuery } from "@/lib/features/Bank/BankApiSlice";
+import { useGetCurrencyTransactionRecordsQuery } from "@/lib/features/Currency/CurrencyApiSlice";
 
 const DashboardBank = () => {
   const userId = useUserId();
@@ -61,9 +62,14 @@ const DashboardBank = () => {
     "sell",
   ];
 
-  const banks = useBanks();
+  const { data: banks = [], isLoading: isLoadingBanks } = useGetBanksQuery();
+  const {
+    data: currencyTransactionRecords = [],
+    isLoading: isLoadingCurrencyTransactionRecords,
+  } = useGetCurrencyTransactionRecordsQuery();
   // this record only contains income expense record with method equals to finance
-  const currencyTransactionRecords = useCurrencyTransactionRecord();
+  if (isLoadingBanks || isLoadingCurrencyTransactionRecords)
+    return <LoadingPage />;
 
   // inv record sum
   // this buy and sell here is about foreign exchange

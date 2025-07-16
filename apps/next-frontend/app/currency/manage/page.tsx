@@ -2,34 +2,36 @@
 
 import { Currency } from "@financemanager/financemanager-website-types";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
+import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
   useCreateUserCurrencyMutation,
   useDeleteUserCurrencyMutation,
+  useGetCurrenciesQuery,
+  useGetUserCurrenciesQuery,
 } from "@/lib/features/Currency/CurrencyApiSlice";
-import {
-  useCurrencies,
-  useUserCurrencies,
-} from "@/lib/features/Currency/CurrencySlice";
 
 export default function CurrencyManage() {
   const userId = useUserId();
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const [createUserCurrency] = useCreateUserCurrencyMutation();
   const [deleteUserCurrency] = useDeleteUserCurrencyMutation();
 
-  const currencies = useCurrencies();
-  const userCurrencies = useUserCurrencies();
+  const { data: currencies } = useGetCurrenciesQuery();
+  const { data: userCurrencies } = useGetUserCurrenciesQuery();
   const selectedCurrencies: { [key: string]: boolean } = {};
+
+  if (!currencies || !userCurrencies) return <LoadingPage />;
+
   userCurrencies.forEach((userCurrency) => {
     selectedCurrencies[userCurrency.currency.code] = true;
   });
@@ -49,13 +51,13 @@ export default function CurrencyManage() {
         await deleteUserCurrency(Number(currency.id)).unwrap();
         window.alert("刪除成功");
       }
-    } catch (e) {
+    } catch {
       window.alert("伺服器錯誤，請稍後再試");
     }
   };
 
   const tableTitles = ["勾選", "代號", "名稱", "匯率"];
-  const tableContent = currencies.slice(1).map((currency, index) => (
+  const tableContent = (currencies || []).slice(1).map((currency, index) => (
     <tr key={index}>
       <td className={styles["table-data-cell"]}>
         <input

@@ -9,8 +9,10 @@ import styles from "@/app/components/detail-table/index.module.css";
 import CurrenyTransactionFormManager from "@/app/components/forms/currency-transaction-form-manager";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useDeleteCurrencyTransactionRecordMutation } from "@/lib/features/Currency/CurrencyApiSlice";
-import { useCurrencyTransactionRecord } from "@/lib/features/Currency/CurrencySlice";
+import {
+  useDeleteCurrencyTransactionRecordMutation,
+  useGetCurrencyTransactionRecordsQuery,
+} from "@/lib/features/Currency/CurrencyApiSlice";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 
 export default function CurrencyTransaction() {
@@ -18,9 +20,10 @@ export default function CurrencyTransaction() {
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
-  const currencyTransactionRecords = useCurrencyTransactionRecord();
+  const { data: currencyTransactionRecords } =
+    useGetCurrencyTransactionRecordsQuery();
   const phraseMap = usePhraseMap();
 
   const [showUpdateForm, setShowUpdateForm] = useState(false);
@@ -35,7 +38,7 @@ export default function CurrencyTransaction() {
       try {
         await deleteCurrencyTransactionRecord(id).unwrap();
         window.alert("刪除成功");
-      } catch (e) {
+      } catch {
         window.alert("伺服器錯誤，請稍後再試");
       }
     }
@@ -54,6 +57,9 @@ export default function CurrencyTransaction() {
     "手續費",
     "功能",
   ];
+
+  if (!currencyTransactionRecords) return <div>Loading...</div>;
+
   const tableContent = currencyTransactionRecords.map((record) => {
     return (
       <tr key={record.id} className="border-b hover:bg-gray-100">

@@ -6,8 +6,9 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
+import LoadingPage from "@/app/components/loading-page";
 import { useCreateBrokerageFirmMutation } from "@/lib/features/BrokerageFirm/BrokerageFirmApiSlice";
-import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
+import { useGetUserCurrenciesQuery } from "@/lib/features/Currency/CurrencyApiSlice";
 
 export default function BrokerageFirmForm({
   showState,
@@ -17,7 +18,9 @@ export default function BrokerageFirmForm({
   const [createBrokerageFirm] = useCreateBrokerageFirmMutation();
 
   const onClick = () => showState.setShow(!showState.isShow);
-  const userCurrencies = useUserCurrencies();
+  const { data: userCurrencies, isLoading: userCurrenciesIsLoading } =
+    useGetUserCurrenciesQuery();
+  if (!userCurrencies || userCurrenciesIsLoading) return <LoadingPage />;
   const currencyIds = userCurrencies.map((userCurrency) =>
     userCurrency.currency.id.toString(),
   );

@@ -21,7 +21,6 @@ export const StockApiSlice = apiSlice
       "StockRecord",
       "StockSummary",
       "StockBundleSellRecord",
-      "BrokerageFirmSummary",
     ],
   })
   .injectEndpoints({
@@ -110,6 +109,7 @@ export const StockApiSlice = apiSlice
           { type: "StockSummary", id: "LIST" },
           { type: "StockRecord", id: "LIST" },
           "BrokerageFirmSummary",
+          "BankSummary",
         ],
       }),
       updateStockRecord: builder.mutation<void, UpdateStockRecord>({

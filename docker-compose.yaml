@@ -1,10 +1,10 @@
 version: "3"
 services: 
   frontend:
-    image:
-      financemanager-frontend:1.0.0
-    # build: 
-    #   dockerfile: Dockerfile.frontend
+    # image:
+    #   financemanager-frontend:1.0.0
+    build: 
+      dockerfile: Dockerfile.frontend
     restart: always
     # depends_on:
     #   - backend
@@ -13,10 +13,10 @@ services:
     environment:
       - PORT=${FRONTEND_PORT}
   backend:
-    image:
-      financemanager-backend:1.0.0
-    # build: 
-    #   dockerfile: Dockerfile.backend
+    # image:
+    #   financemanager-backend:1.0.0
+    build: 
+      dockerfile: Dockerfile.backend
     restart: always
     depends_on:
       - redis

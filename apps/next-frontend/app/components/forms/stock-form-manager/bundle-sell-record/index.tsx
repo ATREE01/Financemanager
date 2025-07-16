@@ -7,10 +7,11 @@ import {
   UpdateStockBundleSellRecord,
 } from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
-import { useBanks } from "@/lib/features/Bank/BankSlice";
+import LoadingPage from "@/app/components/loading-page";
+import { useGetBanksQuery } from "@/lib/features/Bank/BankApiSlice";
 import {
   useCreateStockBundleSellRecordMutation,
   useUdpateStockBundleSellRecordMutation,
@@ -27,7 +28,7 @@ export default function BundleSellRecord({
 }) {
   const isNew = formData === undefined;
 
-  const banks = useBanks();
+  const { data: banks = [], isLoading: bankIsLoading } = useGetBanksQuery();
   const bankIds = banks.map((bank) => bank.id);
 
   const [brokerageFirm, setBrokerageFirm] = useState<BrokerageFirm | null>(
@@ -61,7 +62,9 @@ export default function BundleSellRecord({
     } else if (formData) {
       setBrokerageFirm(formData.brokerageFirm);
     }
-  }, [stockRecordSummarySell, formData]);
+  }, [stockRecordSummarySell, formData, banks, isNew, initialValues.bankId]);
+
+  if (bankIsLoading) return <LoadingPage />;
 
   return (
     <>
@@ -154,7 +157,7 @@ export default function BundleSellRecord({
               window.location.reload();
               if (isNew) window.alert("新增成功");
               else window.alert("修改成功");
-            } catch (e) {
+            } catch {
               window.alert("發生不明錯誤");
             }
           }}

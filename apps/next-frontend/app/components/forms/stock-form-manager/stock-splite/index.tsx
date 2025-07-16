@@ -5,8 +5,11 @@ import {
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
-import { useCreateStockSplitMutation } from "@/lib/features/stock/StockApiSlice";
-import { useUserStocks } from "@/lib/features/stock/StockSlice";
+import LoadingPage from "@/app/components/loading-page";
+import {
+  useCreateStockSplitMutation,
+  useGetUserStocksQuery,
+} from "@/lib/features/stock/StockApiSlice";
 
 export default function StockSplitForm({
   showState,
@@ -14,8 +17,11 @@ export default function StockSplitForm({
   showState: ShowState;
 }) {
   const onClick = () => showState.setShow(!showState.isShow);
-  const userStocks = useUserStocks();
+  const { data: userStocks, isLoading: userStocksIsLoading } =
+    useGetUserStocksQuery();
   const [createStockSplit] = useCreateStockSplitMutation();
+
+  if (!userStocks || userStocksIsLoading) return <LoadingPage />;
 
   const stockOptions = userStocks.map((userStock) => (
     <option key={userStock.id} value={userStock.id}>

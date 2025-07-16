@@ -13,13 +13,16 @@ import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import DurationFilter from "@/app/components/duration-filter";
 import IncExpFormManager from "@/app/components/forms/inc-exp-form-manager";
+import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useBanks } from "@/lib/features/Bank/BankSlice";
-import { useCategories } from "@/lib/features/Category/CategorySlice";
-import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
-import { useDeleteIncExpRecordMutation } from "@/lib/features/IncExp/IncExpApiSlice";
-import { useIncExpRecords } from "@/lib/features/IncExp/IncExpSlice";
+import { useGetBanksQuery } from "@/lib/features/Bank/BankApiSlice";
+import { useGetCategoriesQuery } from "@/lib/features/Category/CategoryApiSlice";
+import { useGetUserCurrenciesQuery } from "@/lib/features/Currency/CurrencyApiSlice";
+import {
+  useDeleteIncExpRecordMutation,
+  useGetIncExpRecordsQuery,
+} from "@/lib/features/IncExp/IncExpApiSlice";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 
 export default function Detail() {
@@ -27,7 +30,7 @@ export default function Detail() {
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const [startDate, setStartDate] = useState(new Date("1900-01-01"));
   const [endDate, setEndDate] = useState(new Date());
@@ -59,14 +62,16 @@ export default function Detail() {
       try {
         await deleteIncExpRecord(id).unwrap();
         window.alert("刪除成功");
-      } catch (e) {
+      } catch {
         window.alert("伺服器錯誤，請稍後再試");
       }
     }
   }
 
   const phraseMap = usePhraseMap();
-  const incExpRecords = useIncExpRecords().filter((record) => {
+  const { data: incExpRecords } = useGetIncExpRecordsQuery();
+
+  const filteredIncExpRecords = (incExpRecords || []).filter((record) => {
     const recordDate = new Date(record.date);
     return (
       startDate <= recordDate &&
@@ -79,11 +84,20 @@ export default function Detail() {
     );
   });
 
-  const categories = useCategories();
-  const userCurrencies = useUserCurrencies();
-  const banks = useBanks();
+  const { data: banks = [], isLoading: bankIsLoading } = useGetBanksQuery();
+  const { data: userCurrencies = [], isLoading: userCurrenciesIsLoading } =
+    useGetUserCurrenciesQuery();
+  const { data: categories, isLoading: categoriesIsLoading } =
+    useGetCategoriesQuery();
+  if (
+    bankIsLoading ||
+    userCurrenciesIsLoading ||
+    !categories ||
+    categoriesIsLoading
+  )
+    return <LoadingPage />;
 
-  const tableContent = incExpRecords.map((record) => {
+  const tableContent = filteredIncExpRecords.map((record) => {
     return (
       <tr key={record.id} className="border-b hover:bg-gray-100">
         <td className={styles["table-data-cell"]}>{record.date}</td>

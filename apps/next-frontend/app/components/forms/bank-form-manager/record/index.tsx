@@ -8,11 +8,12 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
+import LoadingPage from "@/app/components/loading-page";
 import {
   useCreateBankRecordMutation,
+  useGetBanksQuery,
   useUpdateBankRecordMutation,
 } from "@/lib/features/Bank/BankApiSlice";
-import { useBanks } from "@/lib/features/Bank/BankSlice";
 
 export default function BankRecordFrom({
   showState,
@@ -37,7 +38,8 @@ export default function BankRecordFrom({
     charge: formData?.charge !== undefined ? formData?.charge : 0,
     note: formData?.note || "",
   };
-  const banks = useBanks();
+  const { data: banks = [], isLoading: bankIsLoading } = useGetBanksQuery();
+
   const bankIds: string[] = banks.map((bank) => bank.id);
 
   const bankNode = banks.map((bank) => (
@@ -50,7 +52,7 @@ export default function BankRecordFrom({
     if (formData !== undefined && formData !== null)
       setBankCurrency(formData.bank.currency.name);
   }, [formData]);
-
+  if (bankIsLoading) return <LoadingPage />;
   // TODO: need to add a illustrate of how the value will be record.
 
   return (

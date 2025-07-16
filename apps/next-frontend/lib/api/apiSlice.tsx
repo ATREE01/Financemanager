@@ -40,4 +40,5 @@ const baseQueryWithReAuth: BaseQueryFn<
 export const apiSlice = createApi({
   baseQuery: baseQueryWithReAuth,
   endpoints: () => ({}),
+  tagTypes: ["BankSummary", "BrokerageFirmSummary"],
 });

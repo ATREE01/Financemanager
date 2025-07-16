@@ -8,12 +8,13 @@ import {
   ShowState,
 } from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
-import { useBanks } from "@/lib/features/Bank/BankSlice";
-import { useCategories } from "@/lib/features/Category/CategorySlice";
-import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
+import LoadingPage from "@/app/components/loading-page";
+import { useGetBanksQuery } from "@/lib/features/Bank/BankApiSlice";
+import { useGetCategoriesQuery } from "@/lib/features/Category/CategoryApiSlice";
+import { useGetUserCurrenciesQuery } from "@/lib/features/Currency/CurrencyApiSlice";
 import {
   useCreateIncExpRecordMutation,
   useUpdateIncExpRecordMutation,
@@ -55,20 +56,33 @@ export default function IncExpRecordForm({
 
   const onClick = () => showState.setShow(!showState.isShow);
 
+  // get datas
+  const { data: banks, isLoading: bankIsLoading } = useGetBanksQuery();
+  const { data: categories, isLoading: categoriesIsLoading } =
+    useGetCategoriesQuery();
+  const { data: userCurrencies = [], isLoading: userCurrenciesIsLoading } =
+    useGetUserCurrenciesQuery();
   // get categories
-  const categories = useCategories();
+  if (
+    !banks ||
+    bankIsLoading ||
+    !categories ||
+    categoriesIsLoading ||
+    userCurrenciesIsLoading
+  )
+    return <LoadingPage />;
   const categoryIds: string[] = [
-    ...categories["income"],
-    ...categories["expense"],
+    ...categories.income,
+    ...categories.expense,
   ].map((item: Category) => item.id);
-  const incomeCategoryNode = categories["income"].map((item) => {
+  const incomeCategoryNode = categories.income.map((item) => {
     return (
       <option key={item.id} value={item.id}>
         {item.name}
       </option>
     );
   });
-  const expenseCategoryNode = categories["expense"].map((item) => {
+  const expenseCategoryNode = categories.expense.map((item) => {
     return (
       <option key={item.id} value={item.id}>
         {item.name}
@@ -77,7 +91,7 @@ export default function IncExpRecordForm({
   });
 
   //get banks
-  const banks = useBanks();
+
   const bankIds = banks.map((item: Bank) => item.id);
   const bankNode = banks.map((item: Bank) => {
     return (
@@ -88,7 +102,6 @@ export default function IncExpRecordForm({
   });
 
   //get user currencies
-  const userCurrencies = useUserCurrencies();
   const currencyIds = userCurrencies.map((item) => item.currency.id);
   const userCurrenciesNode = userCurrencies.map((item) => {
     return (
@@ -186,7 +199,7 @@ export default function IncExpRecordForm({
               setMethod("");
               actions.resetForm();
               showState.setShow(false);
-            } catch (err) {
+            } catch {
               window.alert("伺服器錯誤，請稍後再試");
             }
           }}

@@ -5,14 +5,18 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
+import LoadingPage from "@/app/components/loading-page";
 import { useCreateBankMutation } from "@/lib/features/Bank/BankApiSlice";
-import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
+import { useGetUserCurrenciesQuery } from "@/lib/features/Currency/CurrencyApiSlice";
 
 export default function BankForm({ showState }: { showState: ShowState }) {
   const onClick = () => showState.setShow(!showState.isShow);
   const [createBank] = useCreateBankMutation();
 
-  const userCurrencies = useUserCurrencies();
+  const { data: userCurrencies, isLoading: userCurrenciesIsLoading } =
+    useGetUserCurrenciesQuery();
+
+  if (!userCurrencies || userCurrenciesIsLoading) return <LoadingPage />;
   const currencyIds = userCurrencies.map((userCurrency) =>
     userCurrency.currency.id.toString(),
   );

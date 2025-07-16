@@ -12,7 +12,7 @@ import { apiSlice } from "@/lib/api/apiSlice";
 
 const BankApiSlice = apiSlice
   .enhanceEndpoints({
-    addTagTypes: ["Bank", "BankRecord", "TimeDeposits", "BankSummary"],
+    addTagTypes: ["Bank", "BankRecord", "TimeDeposits"],
   })
   .injectEndpoints({
     endpoints: (builder) => ({
@@ -35,7 +35,7 @@ const BankApiSlice = apiSlice
           url: `/users/banks`,
           method: "GET",
         }),
-        providesTags: ["Bank", "BankSummary"],
+        providesTags: ["Bank"],
       }),
       createBank: builder.mutation<Bank, { name: string; currencyId: number }>({
         query: (args) => ({
@@ -45,7 +45,7 @@ const BankApiSlice = apiSlice
             ...args,
           },
         }),
-        invalidatesTags: ["Bank"],
+        invalidatesTags: ["Bank", "BankSummary"],
       }),
       getBankRecords: builder.query<BankRecord[], void>({
         query: () => ({

@@ -9,16 +9,17 @@ import {
   UpdateStockRecord,
 } from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
-import { useBanks } from "@/lib/features/Bank/BankSlice";
-import { useBrokerageFirms } from "@/lib/features/BrokerageFirm/BrokerageFirmSlice";
+import LoadingPage from "@/app/components/loading-page";
+import { useGetBanksQuery } from "@/lib/features/Bank/BankApiSlice";
+import { useGetBrokerageFirmsQuery } from "@/lib/features/BrokerageFirm/BrokerageFirmApiSlice";
 import {
   useCreateStockRecordMutation,
+  useGetUserStocksQuery,
   useUpdateStockRecordMutation,
 } from "@/lib/features/stock/StockApiSlice";
-import { useUserStocks } from "@/lib/features/stock/StockSlice";
 
 export default function StockRecordForm({
   showState,
@@ -30,20 +31,21 @@ export default function StockRecordForm({
   const isNew = formData === undefined;
   const record = formData?.updateStockBuyRecord;
 
-  const banks = useBanks();
-  const brokerageFirms = useBrokerageFirms();
-  const userStocks = useUserStocks();
-  const bankIds = banks.map((bank) => bank.id);
-  const brokerageFirmIds = brokerageFirms.map((brokerageFirm) =>
-    brokerageFirm.id.toString(),
-  );
-  const stockIds = userStocks.map((userStock) => userStock.stock.id);
-
   const [bank, setBank] = useState<Bank>();
   const [brokerageFirm, setBrokerageFirm] = useState<BrokerageFirm>();
 
   const [createStockRecord] = useCreateStockRecordMutation();
   const [updateStockRecord] = useUpdateStockRecordMutation();
+
+  const { data: banks = [], isLoading: bankIsLoading } = useGetBanksQuery();
+  const { data: brokerageFirms, isLoading: brokerageFirmIsLoading } =
+    useGetBrokerageFirmsQuery();
+  const { data: userStocks, isLoading: userStocksIsLoading } =
+    useGetUserStocksQuery();
+  const bankIds = banks.map((bank) => bank.id);
+  const brokerageFirmIds = (brokerageFirms || []).map((brokerageFirm) =>
+    brokerageFirm.id.toString(),
+  );
 
   const initialValues = {
     brokerageFirmId: formData?.brokerageFirmId || "default",
@@ -61,14 +63,32 @@ export default function StockRecordForm({
 
   useEffect(() => {
     const bankIdx = banks.findIndex((item) => item.id === initialValues.bankId);
-    const brokerageFirmIdx = brokerageFirms.findIndex(
+    const brokerageFirmIdx = (brokerageFirms || []).findIndex(
       (item) => item.id.toString() === initialValues.brokerageFirmId,
     );
     setBank(banks[bankIdx]);
-    setBrokerageFirm(brokerageFirms[brokerageFirmIdx]);
-  }, [formData]);
+    setBrokerageFirm((brokerageFirms || [])[brokerageFirmIdx]);
+  }, [
+    formData,
+    banks,
+    brokerageFirms,
+    initialValues.bankId,
+    initialValues.brokerageFirmId,
+  ]);
 
-  const brokeragesNode = brokerageFirms.map((brokerageFirm) => (
+  if (
+    bankIsLoading ||
+    brokerageFirmIsLoading ||
+    userStocksIsLoading ||
+    !banks ||
+    !brokerageFirms ||
+    !userStocks
+  )
+    return <LoadingPage />;
+
+  const stockIds = userStocks.map((userStock) => userStock.stock.id);
+
+  const brokeragesNode = (brokerageFirms || []).map((brokerageFirm) => (
     <option key={brokerageFirm.id} value={brokerageFirm.id}>
       {brokerageFirm.name}
     </option>
@@ -183,7 +203,7 @@ export default function StockRecordForm({
               if (isNew) window.alert("新增成功");
               else window.alert("修改成功");
               actions.resetForm();
-            } catch (e) {
+            } catch {
               window.alert("發生不明錯誤");
             }
           }}

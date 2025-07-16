@@ -8,19 +8,6 @@ export const CategoryApiSlice = apiSlice
   })
   .injectEndpoints({
     endpoints: (builder) => ({
-      createCategory: builder.mutation<
-        { category: Category },
-        { name: string; type: string }
-      >({
-        query: (args) => ({
-          url: "/categories",
-          method: "POST",
-          body: {
-            ...args,
-          },
-        }),
-        invalidatesTags: ["Category"],
-      }),
       getCategories: builder.query<
         {
           income: Category[];
@@ -42,6 +29,19 @@ export const CategoryApiSlice = apiSlice
           };
         },
         providesTags: ["Category"],
+      }),
+      createCategory: builder.mutation<
+        { category: Category },
+        { name: string; type: string }
+      >({
+        query: (args) => ({
+          url: "/categories",
+          method: "POST",
+          body: {
+            ...args,
+          },
+        }),
+        invalidatesTags: ["Category"],
       }),
     }),
   });

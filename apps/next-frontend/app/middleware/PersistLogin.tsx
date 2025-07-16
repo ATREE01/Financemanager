@@ -1,10 +1,12 @@
 "use client";
 
 import { User } from "@financemanager/financemanager-website-types";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { setCredentials } from "@/lib/features/Auth/AuthSlice";
 import { useAppDispatch } from "@/lib/hook";
+
+import LoadingPage from "../components/loading-page";
 
 export default function PersistLogin({
   children,
@@ -35,17 +37,7 @@ export default function PersistLogin({
       }
     };
     verifyRefreshToken();
-  }, []);
+  }, [dispatch]);
 
-  return (
-    <>
-      {isLoading ? (
-        <div className="flex justify-center items-center h-screen">
-          <div className="w-16 h-16 border-4 border-blue-500 border-solid border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        children
-      )}
-    </>
-  );
+  return <>{isLoading ? <LoadingPage /> : children}</>;
 }

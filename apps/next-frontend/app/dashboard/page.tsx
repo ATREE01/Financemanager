@@ -7,20 +7,20 @@ import Chart from "react-google-charts";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
-  useBankHistoryData,
-  useBankSummary,
-} from "@/lib/features/Bank/BankSlice";
+  useGetBankhistoryDataQuery,
+  useGetBankSummaryQuery,
+} from "@/lib/features/Bank/BankApiSlice";
 import {
-  useBrokerageFirmHistoryData,
-  useBrokerageFirmSummary,
-} from "@/lib/features/BrokerageFirm/BrokerageFirmSlice";
+  useGetBrokerageFirmSummaryQuery,
+  useGetBrokerageFrimHistoryDataQuery,
+} from "@/lib/features/BrokerageFirm/BrokerageFirmApiSlice";
 
 export default function Dashboard() {
   const userId = useUserId();
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const pieChartOptions = {
     legend: {
@@ -52,10 +52,11 @@ export default function Dashboard() {
     chartArea: { height: "70%" },
   };
 
-  const bankSummary = useBankSummary();
-  const bankHistoryData = useBankHistoryData();
-  const brokerageFirmSummary = useBrokerageFirmSummary();
-  const brokerageFirmHistoryData = useBrokerageFirmHistoryData();
+  const { data: bankSummary } = useGetBankSummaryQuery();
+  const { data: bankHistoryData } = useGetBankhistoryDataQuery();
+  const { data: brokerageFirmSummary } = useGetBrokerageFirmSummaryQuery();
+  const { data: brokerageFirmHistoryData } =
+    useGetBrokerageFrimHistoryDataQuery();
 
   let bankTotal = 0,
     brokerageFirmTotal = 0;

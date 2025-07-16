@@ -10,15 +10,15 @@ import DurationFilter from "@/app/components/duration-filter";
 import IncExpFormManager from "@/app/components/forms/inc-exp-form-manager";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
-import { useIncExpRecords } from "@/lib/features/IncExp/IncExpSlice";
+import { useGetUserCurrenciesQuery } from "@/lib/features/Currency/CurrencyApiSlice";
+import { useGetIncExpRecordsQuery } from "@/lib/features/IncExp/IncExpApiSlice";
 
 export default function Dashboard() {
   const userId = useUserId();
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const pieChartOptions = {
     title: "",
@@ -43,9 +43,9 @@ export default function Dashboard() {
   const [startDate, setStartDate] = useState(new Date("1900-01-01"));
   const [endDate, setEndDate] = useState(new Date());
 
-  const userCurrencies = useUserCurrencies();
+  const { data: userCurrencies } = useGetUserCurrenciesQuery();
   const currencyOptions = [
-    ...userCurrencies.map((userCurrency) => ({
+    ...(userCurrencies || []).map((userCurrency) => ({
       value: userCurrency.currency.id.toString(),
       name: userCurrency.currency.name,
     })),
@@ -56,7 +56,9 @@ export default function Dashboard() {
   const incSumData: Array<Array<string | number>> = [["Category", "Amount"]];
   const expSumData: Array<Array<string | number>> = [["Category", "Amount"]];
 
-  const incExpRecords = useIncExpRecords().filter((record) => {
+  const { data: incExpRecords } = useGetIncExpRecordsQuery();
+
+  const filteredIncExpRecords = (incExpRecords || []).filter((record) => {
     const recordDate = new Date(record.date);
     return (
       startDate <= recordDate &&
@@ -67,7 +69,7 @@ export default function Dashboard() {
 
   // TODO: add the sum of charge.
   const categorySum = {
-    income: incExpRecords.reduce(
+    income: filteredIncExpRecords.reduce(
       (acc, record) => {
         if (record.type === IncExpRecordType.INCOME)
           acc[record.category.name] =
@@ -76,7 +78,7 @@ export default function Dashboard() {
       },
       {} as { [key: string]: number },
     ),
-    expense: incExpRecords.reduce(
+    expense: filteredIncExpRecords.reduce(
       (acc, record) => {
         if (record.type === IncExpRecordType.EXPENSE)
           acc[record.category.name] =
