@@ -98,24 +98,36 @@ export default function Dashboard() {
   let bankIndex = 1;
   let brokerageIndex = 1;
 
+  const safeBankAreaChartData = bankAreaChartData || [["Date", "總額"]];
+  const safeBrokerageFirmAreaChartData = brokerageFirmAreaChartData || [
+    ["Date", "總額"],
+  ];
+
   while (
-    bankIndex < bankAreaChartData.length ||
-    brokerageIndex < brokerageFirmAreaChartData.length
+    bankIndex < safeBankAreaChartData.length ||
+    brokerageIndex < safeBrokerageFirmAreaChartData.length
   ) {
-    const bankEntry = bankAreaChartData[bankIndex] || [];
-    const brokerageEntry = brokerageFirmAreaChartData[brokerageIndex] || [];
+    const bankEntry = safeBankAreaChartData[bankIndex] || [];
+    const brokerageEntry = safeBrokerageFirmAreaChartData[brokerageIndex] || [];
     const [bankDate, bankValue] = bankEntry;
     const [brokerageDate, brokerageValue] = brokerageEntry;
-    if (bankDate === brokerageDate) {
+
+    if (bankDate && bankDate === brokerageDate) {
       totalAreaChartData.push([bankDate, bankValue, brokerageValue]);
       bankIndex++;
       brokerageIndex++;
-    } else if (!brokerageDate || (bankDate && bankDate < brokerageDate)) {
+    } else if (
+      !brokerageDate ||
+      (bankDate && brokerageDate && bankDate < brokerageDate)
+    ) {
       totalAreaChartData.push([bankDate, bankValue, null]);
       bankIndex++;
-    } else {
+    } else if (brokerageDate) {
       totalAreaChartData.push([brokerageDate, null, brokerageValue]);
       brokerageIndex++;
+    } else {
+      // Both are out of bounds, break the loop
+      break;
     }
   }
 
