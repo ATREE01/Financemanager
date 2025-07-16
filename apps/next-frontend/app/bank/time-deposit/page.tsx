@@ -7,17 +7,20 @@ import { useEffect, useState } from "react";
 import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import TimeDepositRecordFormManager from "@/app/components/forms/time-deposit-manager";
+import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useDeleteTimeDepositRecordMutation } from "@/lib/features/Bank/BankApiSlice";
-import { useTimeDepositRecords } from "@/lib/features/Bank/BankSlice";
+import {
+  useDeleteTimeDepositRecordMutation,
+  useGetTimeDepositRecordsQuery,
+} from "@/lib/features/Bank/BankApiSlice";
 
 export default function TimeDeposit() {
   const userId = useUserId();
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const [updateShow, setupdateShow] = useState(false);
 
@@ -29,13 +32,15 @@ export default function TimeDeposit() {
     if (ans) {
       try {
         await deleteTimeDepositRecord(id);
-      } catch (e) {
+      } catch {
         window.alert("伺服器錯誤，請稍後再試");
       }
     }
   }
 
-  const timeDeposiRecords = useTimeDepositRecords();
+  const { data: timeDepositRecords, isLoading } =
+    useGetTimeDepositRecordsQuery();
+  if (!timeDepositRecords || isLoading) return <LoadingPage />;
   const tableTitles = [
     "金融機構",
     "幣別",
@@ -46,7 +51,7 @@ export default function TimeDeposit() {
     "結束日期",
     "功能",
   ];
-  const tableContent = timeDeposiRecords.map((record) => {
+  const tableContent = timeDepositRecords.map((record) => {
     return (
       <tr key={record.id} className="border-b hover:bg-gray-100">
         <td className={styles["table-data-cell"]}>{record.bank.name}</td>

@@ -12,11 +12,15 @@ import DetailTable from "@/app/components/detail-table";
 import styles from "@/app/components/detail-table/index.module.css";
 import DurationFilter from "@/app/components/duration-filter";
 import BankFormManager from "@/app/components/forms/bank-form-manager";
+import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useDeleteBankRecordMutation } from "@/lib/features/Bank/BankApiSlice";
-import { useBankRecords, useBanks } from "@/lib/features/Bank/BankSlice";
-import { useUserCurrencies } from "@/lib/features/Currency/CurrencySlice";
+import {
+  useDeleteBankRecordMutation,
+  useGetBankRecordsQuery,
+  useGetBanksQuery,
+} from "@/lib/features/Bank/BankApiSlice";
+import { useGetUserCurrenciesQuery } from "@/lib/features/Currency/CurrencyApiSlice";
 import { usePhraseMap } from "@/lib/features/PhraseMap/PhraseMapSlice";
 
 export default function Detail() {
@@ -24,7 +28,7 @@ export default function Detail() {
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [formData, setFormData] = useState<BankRecord | null>(null);
@@ -36,10 +40,18 @@ export default function Detail() {
   const [currency, setCurrency] = useState("default");
 
   const phraseMap = usePhraseMap();
-  const banks = useBanks();
-  const userCurrencies = useUserCurrencies();
+  const { data: banks = [], isLoading: isLoadingBanks } = useGetBanksQuery();
+  const { data: userCurrencies = [], isLoading: isLoadingUserCurrencies } =
+    useGetUserCurrenciesQuery();
+  const { data: bankRecords = [], isLoading: isLoadingBankRecords } =
+    useGetBankRecordsQuery();
+  const [deleteBankRecord] = useDeleteBankRecordMutation();
+  const isLoading =
+    isLoadingBanks || isLoadingUserCurrencies || isLoadingBankRecords;
 
-  const bankRecords = useBankRecords().filter(
+  if (isLoading) return <LoadingPage />;
+
+  const filteredBankRecords = bankRecords.filter(
     (record) =>
       (type === "default" || record.type === type) &&
       (bank === "default" || record.bank.id === bank) &&
@@ -68,13 +80,12 @@ export default function Detail() {
     ...banks.map((bank) => ({ value: bank.id, name: bank.name })),
   ];
 
-  const [deleteBankRecord] = useDeleteBankRecordMutation();
   function deleteRecord(id: number) {
     const ans = window.confirm("確定要刪除此筆紀錄嗎?");
     if (ans) {
       try {
         deleteBankRecord(id).unwrap();
-      } catch (e) {
+      } catch {
         window.alert("伺服器錯誤，請稍後再試");
       }
     }
@@ -90,7 +101,7 @@ export default function Detail() {
     "備註",
     "功能",
   ];
-  const tableContent = bankRecords.map((record) => {
+  const tableContent = filteredBankRecords.map((record) => {
     return (
       <tr key={record.id} className="border-b hover:bg-gray-100">
         <td className={styles["table-data-cell"]}>{record.date}</td>

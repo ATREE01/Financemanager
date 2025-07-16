@@ -6,18 +6,17 @@ import {
   ShowState,
 } from "@financemanager/financemanager-website-types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useState } from "react";
+import React, { useState } from "react";
 import * as Yup from "yup";
 
-import { useBanks } from "@/lib/features/Bank/BankSlice";
+import LoadingPage from "@/app/components/loading-page";
+import { useGetBanksQuery } from "@/lib/features/Bank/BankApiSlice";
 import {
   useCreateCurrencyTransactionRecordMutation,
+  useGetCurrenciesQuery,
+  useGetUserCurrenciesQuery,
   useUpdateCurrencyTransactionRecordMutation,
 } from "@/lib/features/Currency/CurrencyApiSlice";
-import {
-  useCurrencies,
-  useUserCurrencies,
-} from "@/lib/features/Currency/CurrencySlice";
 
 export default function CurrencyTransactionRecordForm({
   showState,
@@ -29,9 +28,11 @@ export default function CurrencyTransactionRecordForm({
   const mode = formData === undefined ? "new" : "update";
   const onClick = () => showState.setShow(!showState.isShow);
 
-  const banks = useBanks();
-  const userCurrencies = useUserCurrencies();
-  const currencies = useCurrencies();
+  const { data: banks = [], isLoading: bankIsLoading } = useGetBanksQuery();
+  const { data: userCurrencies = [], isLoading: userCurrenciesIsLoading } =
+    useGetUserCurrenciesQuery();
+  const { data: currencies = [], isLoading: currenciesIsLoading } =
+    useGetCurrenciesQuery();
   const currencyIds = currencies.map((item) => item.id.toString());
   const bankIds = banks.map((item) => item.id);
   const [createCurrencyTransactionRecord] =
@@ -41,6 +42,9 @@ export default function CurrencyTransactionRecordForm({
   const [type, setType] = useState("default");
   const [fromBank, setFromBank] = useState<Bank>();
   const [toBank, setToBank] = useState<Bank>();
+
+  if (bankIsLoading || currenciesIsLoading || userCurrenciesIsLoading)
+    return <LoadingPage />;
 
   const banksNode = banks.map((item) => (
     <option key={item.id} value={item.id}>
@@ -179,7 +183,7 @@ export default function CurrencyTransactionRecordForm({
               setFromBank(undefined);
               setToBank(undefined);
               window.alert(`${mode === "new" ? "新增" : "修改"}成功`);
-            } catch (e) {
+            } catch {
               window.alert("伺服器錯誤，請稍後再試");
             }
           }}

@@ -10,9 +10,10 @@ import * as React from "react";
 
 import DetailTable from "@/app/components/detail-table";
 import StockFormManager from "@/app/components/forms/stock-form-manager";
+import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useStockSummaries } from "@/lib/features/stock/StockSlice";
+import { useGetStockSummaryQuery } from "@/lib/features/stock/StockApiSlice";
 
 /* 
   這邊所計算的報酬率當中都不包含手續費或是稅金
@@ -74,8 +75,6 @@ export default function Deashboard() {
     "功能",
   ];
 
-  const stockSummaries = useStockSummaries();
-
   const [expandedIdx, setExpandedIdx] = useState(-1);
   const [sellIdx, setSellIdx] = useState(-1);
   const [checkedItems, setCheckedItems] = useState<{ [key: number]: boolean }>(
@@ -90,6 +89,20 @@ export default function Deashboard() {
     });
 
   const [bundleSellShowState, setBundleSellShowState] = useState(false);
+
+  const { data: stockSummaries = [], isLoading: stockSummariesIsLoading } =
+    useGetStockSummaryQuery();
+
+  useEffect(() => {
+    setTotalSellShare(
+      Object.values(stockRecordSummarySell.stockRecordSellShare).reduce(
+        (acc: number, curr: CreateStockSellRecord) => acc + curr.shareNumber,
+        0,
+      ),
+    );
+  }, [stockRecordSummarySell]);
+
+  if (!stockSummaries || stockSummariesIsLoading) return <LoadingPage />;
 
   function handleSubTableExpand(index: number) {
     setExpandedIdx(expandedIdx === index ? -1 : index);
@@ -162,15 +175,6 @@ export default function Deashboard() {
       event.currentTarget.blur();
     }
   }
-
-  useEffect(() => {
-    setTotalSellShare(
-      Object.values(stockRecordSummarySell.stockRecordSellShare).reduce(
-        (acc: number, curr: CreateStockSellRecord) => acc + curr.shareNumber,
-        0,
-      ),
-    );
-  }, [stockRecordSummarySell]);
 
   const normalTableContents: React.ReactNode[] = [];
   const exchangeTableContents: React.ReactNode[] = [];
