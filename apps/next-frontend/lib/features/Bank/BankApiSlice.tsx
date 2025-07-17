@@ -18,21 +18,21 @@ const BankApiSlice = apiSlice
     endpoints: (builder) => ({
       getBankSummary: builder.query<BankSummary, void>({
         query: () => ({
-          url: "/users/banks/summary",
+          url: "/banks/summary",
           method: "GET",
         }),
         providesTags: ["BankSummary"],
       }),
       getBankhistoryData: builder.query<BankHistoryData[], void>({
         query: () => ({
-          url: "/users/banks/history-data",
+          url: "/banks/history-data",
           method: "GET",
         }),
         providesTags: ["BankSummary"],
       }),
       getBanks: builder.query<Bank[], void>({
         query: () => ({
-          url: `/users/banks`,
+          url: `/banks`,
           method: "GET",
         }),
         providesTags: ["Bank"],
@@ -49,7 +49,7 @@ const BankApiSlice = apiSlice
       }),
       getBankRecords: builder.query<BankRecord[], void>({
         query: () => ({
-          url: "/users/banks/records",
+          url: "/banks/records",
           method: "GET",
         }),
         providesTags: (result) => {
@@ -66,7 +66,7 @@ const BankApiSlice = apiSlice
       }),
       createBankRecord: builder.mutation<BankRecord, CreateBankRecord>({
         query: (args) => ({
-          url: "/banks/records",
+          url: "/banks/record",
           method: "POST",
           body: {
             ...args,
@@ -102,20 +102,10 @@ const BankApiSlice = apiSlice
       }),
       getTimeDepositRecords: builder.query<TimeDepositRecord[], void>({
         query: () => ({
-          url: "/users/banks/time-deposit/records",
+          url: "/banks/time-deposit/records",
           method: "GET",
         }),
-        providesTags: (result) => {
-          return result
-            ? [
-                ...result.map(({ id }) => ({
-                  type: "TimeDeposits" as const,
-                  id,
-                })),
-                { type: "TimeDeposits", id: "LIST" },
-              ]
-            : [{ type: "TimeDeposits", id: "LIST" }];
-        },
+        providesTags: [{ type: "TimeDeposits", id: "LIST" }],
       }),
       createTimeDepositRecord: builder.mutation<
         TimeDepositRecord,

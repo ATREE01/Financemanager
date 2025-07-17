@@ -13,7 +13,7 @@ export const IncExpApiSlice = apiSlice
     endpoints: (builder) => ({
       getIncExpRecords: builder.query<IncExpRecord[], void>({
         query: () => ({
-          url: `/users/inc-exp`,
+          url: `/inc-exp`,
           method: "GET",
         }),
         keepUnusedDataFor: 600,
@@ -26,6 +26,22 @@ export const IncExpApiSlice = apiSlice
             : [{ type: "IncExp", id: "LIST" }];
         },
       }),
+      getFinIncExpRecords: builder.query<IncExpRecord[], void>({
+        query: () => ({
+          url: `/inc-exp/finance`,
+          method: "GET",
+        }),
+        keepUnusedDataFor: 600,
+        providesTags: (result) => {
+          return result
+            ? [
+                ...result.map(({ id }) => ({ type: "IncExp" as const, id })),
+                { type: "IncExp", id: "LIST" },
+              ]
+            : [{ type: "IncExp", id: "LIST" }];
+        },
+      }),
+
       createIncExpRecord: builder.mutation<IncExpRecord, CreateIncExpRecord>({
         query: (body) => ({
           url: "/inc-exp",
@@ -57,6 +73,7 @@ export const IncExpApiSlice = apiSlice
 
 export const {
   useGetIncExpRecordsQuery,
+  useGetFinIncExpRecordsQuery,
   useCreateIncExpRecordMutation,
   useUpdateIncExpRecordMutation,
   useDeleteIncExpRecordMutation,

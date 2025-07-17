@@ -58,43 +58,19 @@ export class UserService {
 
   // this get is in term of bank(like group by bank)
   async getUserBank(userId: string): Promise<User | null> {
-    return await this.userRepository.findOne({
+    const result = await this.userRepository.findOne({
       where: {
         id: userId,
       },
       relations: {
         bank: {
           currency: true,
-          incExpRecords: true,
-          bankRecords: true,
-          stockBuyRecords: true,
-          stockBundleSellRecords: true,
-          timeDepositRecords: true,
         },
       },
     });
+    return result;
   }
-
-  async getUserBankRecords(userId: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-      relations: {
-        bankRecords: {
-          bank: {
-            currency: true,
-          },
-        },
-      },
-      order: {
-        bankRecords: {
-          date: 'DESC',
-        },
-      },
-    });
-  }
-
+  
   async getUserCurrencyTransactionRecords(
     userId: string,
   ): Promise<User | null> {
@@ -194,30 +170,6 @@ export class UserService {
           stockBuyRecords: {
             date: 'DESC',
           },
-        },
-      },
-    });
-  }
-
-  async getUserStockBundleSellRecords(userId: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-      relations: {
-        stockBundleSellRecords: {
-          bank: true,
-          brokerageFirm: {
-            transactionCurrency: true,
-            settlementCurrency: true,
-          },
-          userStock: true,
-          stockSellRecords: true,
-        },
-      },
-      order: {
-        stockBundleSellRecords: {
-          date: 'DESC',
         },
       },
     });

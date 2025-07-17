@@ -5,6 +5,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   InternalServerErrorException,
   Param,
   Post,
@@ -37,6 +38,20 @@ export class StockController {
     private readonly stockService: StockService,
     private readonly currencyService: CurrencyService,
   ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('buy-records')
+  async getStockBuyRecords(@Req() req: Request) {
+    const userId = (req.user as UserInfo).userId;
+    return await this.stockService.getStockBuyRecordsByUserId(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('bundle-sell-records')
+  async getStockBundleSellRecords(@Req() req: Request) {
+    const userId = (req.user as UserInfo).userId;    
+    return await this.stockService.getStockBundleSellRecordsByUserId(userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -256,7 +271,7 @@ export class StockController {
     const userId = (req.user as UserInfo).userId;
     try {
       await this.stockService.deleteStockBundleSellRecord(userId, id);
-    } catch (e) {
+    } catch {
       throw new InternalServerErrorException();
     }
   }

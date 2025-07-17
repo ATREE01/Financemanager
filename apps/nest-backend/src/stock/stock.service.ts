@@ -110,6 +110,45 @@ export class StockService {
     });
   }
 
+  async getStockBuyRecordsByUserId(userId: string): Promise<StockBuyRecord[]> {
+    return this.stockBuyRecordRepository.find({
+      where: {
+        stockRecord: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+      relations: {
+        bank: {
+          currency: true,
+        },
+        stockRecord: {
+          userStock: {
+            stock: true,
+          },
+          brokerageFirm: true,
+        },
+      },
+    });
+  }
+
+  async getUserStockRecordsByUserId(userId: string): Promise<StockRecord[]> {
+    return await this.stockRecordRepository.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      relations: {
+        userStock: {
+          stock: true,
+        },
+        brokerageFirm: true,
+      },
+    });
+  }
+
   async getStockHistory(code: string): Promise<StockHistory[]> {
     return await this.stockHistoryRepository.find({
       where: {
@@ -571,6 +610,26 @@ export class StockService {
       },
     });
     return result !== null;
+  }
+
+  async getStockBundleSellRecordsByUserId(
+    userId: string,
+  ): Promise<StockBundleSellRecord[]> {
+    return this.stockBundleSellRecordsRepository.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      relations: {
+        bank: {
+          currency: true,
+        },
+        brokerageFirm: true,
+        userStock: true,
+        stockSellRecords: true,
+      },
+    });
   }
 
   async createStockBundleSellRecord(
