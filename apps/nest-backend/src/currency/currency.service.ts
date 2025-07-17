@@ -10,6 +10,7 @@ import { CreateCurrencyTransactionRecordDto } from './dtos/create-currency-trans
 import { Currency } from './entities/currency.entity';
 import { CurrencyTransactionRecord } from './entities/currency-transaction-record.entity';
 import { UserCurrency } from './user-currency/entities/user-currency.entity';
+
 @Injectable()
 export class CurrencyService {
   private readonly logger = new Logger(CurrencyService.name);
@@ -132,6 +133,27 @@ export class CurrencyService {
   }
 
   // currency transaction record functions
+
+  async getTransactionRecords(
+    userId: string,
+  ): Promise<CurrencyTransactionRecord[]> {
+    return await this.currencyTransactionRecordRepository.find({
+      where: {
+        user: { id: userId },
+      },
+      relations: {
+        fromBank: {
+          currency: true,
+        },
+        toBank: {
+          currency: true,
+        },
+        fromCurrency: true,
+        toCurrency: true,
+      },
+      order: { date: 'DESC' },
+    });
+  }
 
   async createTransactionRecord(
     userid: string,

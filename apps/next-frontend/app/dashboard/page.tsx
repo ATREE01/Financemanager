@@ -120,10 +120,10 @@ export default function Dashboard() {
       !brokerageDate ||
       (bankDate && brokerageDate && bankDate < brokerageDate)
     ) {
-      totalAreaChartData.push([bankDate, bankValue, null]);
+      totalAreaChartData.push([bankDate, bankValue, 0]);
       bankIndex++;
     } else if (brokerageDate) {
-      totalAreaChartData.push([brokerageDate, null, brokerageValue]);
+      totalAreaChartData.push([brokerageDate, 0, brokerageValue]);
       brokerageIndex++;
     } else {
       // Both are out of bounds, break the loop

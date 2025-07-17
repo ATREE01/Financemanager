@@ -15,15 +15,24 @@ import BankFormManager from "@/app/components/forms/bank-form-manager";
 import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
-import { useGetBanksQuery } from "@/lib/features/Bank/BankApiSlice";
+import {
+  useGetBankRecordsQuery,
+  useGetBanksQuery,
+  useGetTimeDepositRecordsQuery,
+} from "@/lib/features/Bank/BankApiSlice";
 import { useGetCurrencyTransactionRecordsQuery } from "@/lib/features/Currency/CurrencyApiSlice";
+import { useGetFinIncExpRecordsQuery } from "@/lib/features/IncExp/IncExpApiSlice";
+import {
+  useGetStockBundleSellRecordsQuery,
+  useGetStockBuyRecordsQuery,
+} from "@/lib/features/stock/StockApiSlice";
 
 const DashboardBank = () => {
   const userId = useUserId();
   const router = useRouter();
   useEffect(() => {
     if (!userId) router.push("/auth/login");
-  }, [userId]);
+  }, [router, userId]);
 
   const pieChartOptions = {
     legend: { position: "top", maxLines: 3 },
@@ -62,13 +71,24 @@ const DashboardBank = () => {
     "sell",
   ];
 
-  const { data: banks = [], isLoading: isLoadingBanks } = useGetBanksQuery();
-  const {
-    data: currencyTransactionRecords = [],
-    isLoading: isLoadingCurrencyTransactionRecords,
-  } = useGetCurrencyTransactionRecordsQuery();
+  const { data: banks } = useGetBanksQuery();
+  const { data: finIncExpRecords } = useGetFinIncExpRecordsQuery();
+  const { data: bankRecords } = useGetBankRecordsQuery();
+  const { data: stockBuyRecords } = useGetStockBuyRecordsQuery();
+  const { data: stockBundleSellRecords } = useGetStockBundleSellRecordsQuery();
+  const { data: timeDepositRecords } = useGetTimeDepositRecordsQuery();
+  const { data: currencyTransactionRecords } =
+    useGetCurrencyTransactionRecordsQuery();
   // this record only contains income expense record with method equals to finance
-  if (isLoadingBanks || isLoadingCurrencyTransactionRecords)
+  if (
+    !banks ||
+    !finIncExpRecords ||
+    !bankRecords ||
+    !stockBuyRecords ||
+    !stockBundleSellRecords ||
+    !timeDepositRecords ||
+    !currencyTransactionRecords
+  )
     return <LoadingPage />;
 
   // inv record sum
@@ -94,54 +114,57 @@ const DashboardBank = () => {
       buy: 0,
       sell: 0,
     };
+  });
 
-    bank.incExpRecords.forEach((record) => {
-      const bankId = bank.id;
-      switch (record.type) {
-        case IncExpRecordType.INCOME:
-          bankData[bankId].total += record.amount;
-          bankData[bankId].income += record.amount;
-          break;
-        case IncExpRecordType.EXPENSE:
-          bankData[bankId].total -= record.amount + (record.charge ?? 0);
-          bankData[bankId].expense += record.amount;
-          bankData[bankId].charge += record.charge ?? 0;
-          break;
-      }
-    });
+  timeDepositRecords.forEach((record) => {
+    const bankId = record.bank.id;
+    const today = new Date().toISOString().split("T")[0];
+    if (record.startDate > today || record.endDate <= today) return;
+    bankData[bankId].timeDeposit += record.amount;
+    bankData[bankId].total -= record.amount;
+  });
 
-    bank.bankRecords.forEach((record) => {
-      const bankId = bank.id;
-      bankData[bankId].charge += record.charge ?? 0;
-      bankData[bankId].total -= record.charge ?? 0;
-      switch (record.type) {
-        case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
-          bankData[bankId].total += record.amount;
-          bankData[bankId].deposit += record.amount;
-          break;
-        case BankRecordType.WITHDRAW || BankRecordType.TRANSFEROUT:
-          bankData[bankId].total -= record.amount;
-          bankData[bankId].withdraw += record.amount;
-          break;
-      }
-    });
+  stockBundleSellRecords.forEach((record) => {
+    const bankId = record.bank.id;
+    bankData[bankId].invt += Number(record.amount);
+    bankData[bankId].total += Number(record.amount);
+  });
 
-    bank.stockBuyRecords.forEach((record) => {
-      bankData[bank.id].invt -= Number(record.amount);
-      bankData[bank.id].total -= Number(record.amount);
-    });
+  stockBuyRecords.forEach((record) => {
+    const bankId = record.bank.id;
+    bankData[bankId].invt -= Number(record.amount);
+    bankData[bankId].total -= Number(record.amount);
+  });
 
-    bank.stockBundleSellRecords.forEach((record) => {
-      bankData[bank.id].invt += Number(record.amount);
-      bankData[bank.id].total += Number(record.amount);
-    });
+  bankRecords.forEach((record) => {
+    const bankId = record.bank.id;
+    bankData[bankId].charge += record.charge ?? 0;
+    bankData[bankId].total -= record.charge ?? 0;
+    switch (record.type) {
+      case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
+        bankData[bankId].total += record.amount;
+        bankData[bankId].deposit += record.amount;
+        break;
+      case BankRecordType.WITHDRAW || BankRecordType.TRANSFEROUT:
+        bankData[bankId].total -= record.amount;
+        bankData[bankId].withdraw += record.amount;
+        break;
+    }
+  });
 
-    bank.timeDepositRecords.forEach((record) => {
-      const today = new Date().toISOString().split("T")[0];
-      if (record.startDate > today || record.endDate <= today) return;
-      bankData[bank.id].timeDeposit += record.amount;
-      bankData[bank.id].total -= record.amount;
-    });
+  finIncExpRecords.forEach((record) => {
+    const bankId = record.bank?.id as string;
+    switch (record.type) {
+      case IncExpRecordType.INCOME:
+        bankData[bankId].total += record.amount;
+        bankData[bankId].income += record.amount;
+        break;
+      case IncExpRecordType.EXPENSE:
+        bankData[bankId].total -= record.amount + (record.charge ?? 0);
+        bankData[bankId].expense += record.amount;
+        bankData[bankId].charge += record.charge ?? 0;
+        break;
+    }
   });
 
   currencyTransactionRecords.forEach((record) => {

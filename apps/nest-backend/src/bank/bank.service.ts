@@ -19,6 +19,31 @@ export class BankService {
     private readonly timeDepositRecordRepository: Repository<TimeDepositRecord>,
   ) {}
 
+  async getUserBanks(userId: string): Promise<Bank[]> {
+    return await this.bankRepository.find({
+      where: {
+        user: { id: userId },
+      },
+      relations: {
+        currency: true,
+      },
+    });
+  }
+
+  async getUserBankRecord(userId: string): Promise<BankRecord[]> {
+    return await this.bankRecordRepository.find({
+      where: {
+        user: { id: userId },
+      },
+      relations: {
+        bank: {
+          currency: true,
+        },
+      },
+      order: { date: 'DESC' },
+    });
+  }
+
   async getUserBankByName(userId: string, name: string): Promise<Bank | null> {
     return await this.bankRepository.findOne({
       where: {

@@ -1,3 +1,4 @@
+import { IncExpMethodType } from '@financemanager/financemanager-website-types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +12,36 @@ export class IncExpService {
     @InjectRepository(IncExpRecord)
     private readonly incExpRepository: Repository<IncExpRecord>,
   ) {}
+
+  async getIncExpRecords(userId: string): Promise<IncExpRecord[]> {
+    return await this.incExpRepository.find({
+      where: {
+        user: { id: userId },
+      },
+      relations: {
+        category: true,
+        currency: true,
+        bank: {
+          currency: true,
+        },
+      },
+      order: { date: 'DESC' },
+    });
+  }
+
+  async getFinRecords(userId: string): Promise<IncExpRecord[]> {
+    return await this.incExpRepository.find({
+      where: {
+        user: { id: userId },
+        method: IncExpMethodType.FINANCE,
+      },
+      relations: {
+        bank: {
+          currency: true,
+        },
+      },
+    });
+  }
 
   async createIncExpRecord(
     userId: string,

@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   InternalServerErrorException,
   Param,
   Post,
@@ -21,6 +22,23 @@ import { IncExpService } from './inc-exp.service';
 @Controller('inc-exp')
 export class IncExpController {
   constructor(private readonly incExpService: IncExpService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getIncExpRecords(@Req() req: Request): Promise<IncExpRecord[]> {
+    const result = await this.incExpService.getIncExpRecords(
+      (req.user as UserInfo).userId,
+    );
+    return result;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('finance')
+  async getFinIncExpRecords(@Req() req: Request): Promise<IncExpRecord[]> {
+    return await this.incExpService.getFinRecords(
+      (req.user as UserInfo).userId,
+    );
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -53,7 +71,7 @@ export class IncExpController {
         id,
         updateIncExpRecordDto,
       );
-    } catch (e) {
+    } catch {
       throw new InternalServerErrorException();
     }
   }
@@ -70,7 +88,7 @@ export class IncExpController {
     }
     try {
       return await this.incExpService.deleteRecord(id);
-    } catch (e) {
+    } catch {
       throw new InternalServerErrorException();
     }
   }

@@ -1,14 +1,7 @@
 import type {
-  BankHistoryData,
-  BankSummary,
   BrokerageFirmHistoryData,
   BrokerageFirmSummary,
   BrokerageStockSummary,
-} from '@financemanager/financemanager-website-types';
-import {
-  BankRecordType,
-  CurrencyTransactionRecordType,
-  IncExpRecordType,
 } from '@financemanager/financemanager-website-types';
 import {
   BadRequestException,
@@ -25,8 +18,6 @@ import * as moment from 'moment';
 
 import { UserInfo } from '../auth/dtos/user-info';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { BankService } from '../bank/bank.service';
-import { Bank } from '../bank/entities/bank.entity';
 import { CategoryService } from '../category/category.service';
 import { CurrencyService } from '../currency/currency.service';
 import { Stock } from '../stock/entities/stock.entity';
@@ -37,7 +28,6 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly bankService: BankService,
     private readonly currencyService: CurrencyService,
     private readonly categoryService: CategoryService,
     private readonly stockService: StockService,
@@ -57,37 +47,12 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('inc-exp')
-  async getUserIncExpRecords(@Req() req: Request) {
-    const id = (req.user as UserInfo).userId;
-    const result = await this.userService.getUserIncExpRecord(id);
-    if (result === null) throw new NotFoundException();
-    return result.incExpRecords;
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get('banks')
   async getUserBanks(@Req() req: Request) {
     const id = (req.user as UserInfo).userId;
     const result = await this.userService.getUserBank(id);
     if (result === null) throw new NotFoundException();
     return result.bank;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('banks/records')
-  async getUserBankRecords(@Req() req: Request) {
-    const id = (req.user as UserInfo).userId;
-    const result = await this.userService.getUserBankRecords(id);
-    if (result === null) throw new NotFoundException();
-    return result.bankRecords;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('banks/time-deposit/records')
-  async getUserTimeDepositRecords(@Req() req: Request) {
-    const id = (req.user as UserInfo).userId;
-    return await this.bankService.getTimeDepositRecordsByUserId(id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -147,16 +112,6 @@ export class UserController {
     return result.stockRecords;
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('stocks/bundle-sell-records')
-  async getStockBundleSellRecords(@Req() req: Request) {
-    const userId = (req.user as UserInfo).userId;
-
-    const result = await this.userService.getUserStockBundleSellRecords(userId);
-    if (result === null) throw new NotFoundException();
-
-    return result.stockBundleSellRecords;
-  }
 
   @UseGuards(JwtAuthGuard)
   @Get('stocks/summaries')
@@ -173,231 +128,6 @@ export class UserController {
       this.stockService.summarizeStockRecord(stockRecord),
     );
     return this.stockService.summarizeStock(stockRecordSummaries);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('banks/summary')
-  async getBankSummary(@Req() req: Request) {
-    const userId = (req.user as UserInfo).userId;
-
-    const userBank = await this.userService.getUserBank(userId);
-    if (userBank === null) throw new NotFoundException();
-
-    const bankSummary: BankSummary = {};
-
-    (userBank.bank as Bank[]).forEach((bank) => {
-      bankSummary[bank.name] = {
-        value: 0,
-      };
-
-      bank.incExpRecords?.forEach((record) => {
-        if (record.type === IncExpRecordType.EXPENSE)
-          bankSummary[bank.name].value -= record.amount + (record.charge ?? 0);
-        else if (record.type === IncExpRecordType.INCOME)
-          bankSummary[bank.name].value += record.amount;
-      });
-
-      bank.bankRecords?.forEach((bankRecord) => {
-        if (
-          bankRecord.type === BankRecordType.DEPOSIT ||
-          bankRecord.type === BankRecordType.TRANSFERIN
-        ) {
-          bankSummary[bank.name].value += Number(bankRecord.amount);
-        } else if (
-          bankRecord.type === BankRecordType.WITHDRAW ||
-          bankRecord.type === BankRecordType.TRANSFEROUT
-        ) {
-          bankSummary[bank.name].value -= Number(bankRecord.amount);
-        }
-        bankSummary[bank.name].value -= bankRecord.charge ?? 0;
-      });
-
-      bank.stockBuyRecords?.forEach((stockBuyRecord) => {
-        bankSummary[bank.name].value -= Number(stockBuyRecord.amount);
-      });
-
-      bank.stockBundleSellRecords?.forEach((stockBundleSellRecord) => {
-        bankSummary[bank.name].value += Number(stockBundleSellRecord.amount);
-      });
-
-      bankSummary[bank.name].value *= bank.currency.exchangeRate;
-    });
-
-    const userCurrencyTransactionRecords =
-      await this.userService.getUserCurrencyTransactionRecords(userId);
-    if (
-      userCurrencyTransactionRecords === null ||
-      userCurrencyTransactionRecords.currencyTransactionRecords === undefined
-    )
-      throw new NotFoundException();
-
-    const currencyTransactionRecords =
-      userCurrencyTransactionRecords.currencyTransactionRecords;
-    currencyTransactionRecords.forEach((record) => {
-      if (record.type === CurrencyTransactionRecordType.COUNTER) return;
-
-      const { fromBank, toBank, fromAmount, toAmount } = record;
-
-      if (fromBank) {
-        const fromBankName = fromBank.name;
-        const fromExchangeRate = fromBank.currency?.exchangeRate ?? 1;
-        bankSummary[fromBankName].value -=
-          fromAmount * fromExchangeRate - (record.charge ?? 0); // the charge should be in NTD
-      }
-
-      if (toBank) {
-        const toBankName = toBank.name;
-        const toExchangeRate = toBank.currency?.exchangeRate ?? 1;
-        bankSummary[toBankName].value +=
-          toAmount * toExchangeRate - (record.charge ?? 0); // the charge should be in NTD
-      }
-    });
-
-    return bankSummary;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('banks/history-data')
-  async getbankHistoryData(@Req() req: Request) {
-    const userId = (req.user as UserInfo).userId;
-    const userBank = await this.userService.getUserBank(userId);
-    if (userBank === null || userBank.bank === undefined)
-      throw new NotFoundException();
-
-    const now = moment();
-    let minYear = now.isoWeekYear(),
-      minWeek = now.isoWeek();
-
-    const valueByYearAndWeek: { [year: number]: { [week: number]: number } } =
-      {};
-
-    const addValueToYearAndWeek = (
-      year: number,
-      week: number,
-      value: number,
-    ) => {
-      if (!valueByYearAndWeek[year]) valueByYearAndWeek[year] = {};
-      if (!valueByYearAndWeek[year][week]) valueByYearAndWeek[year][week] = 0;
-
-      valueByYearAndWeek[year][week] += value;
-      if (year < minYear || (year === minYear && week < minWeek)) {
-        minYear = year;
-        minWeek = week;
-      }
-    };
-
-    userBank.bank.forEach((bank) => {
-      bank.incExpRecords?.forEach((record) => {
-        const date = moment(record.date);
-        const value =
-          (record.type === IncExpRecordType.EXPENSE
-            ? -record.amount
-            : record.amount) - (record.charge ?? 0);
-
-        addValueToYearAndWeek(
-          date.isoWeekYear(),
-          date.isoWeek(),
-          value * bank.currency.exchangeRate,
-        );
-      });
-
-      bank.bankRecords?.forEach((bankRecord) => {
-        const date = moment(bankRecord.date);
-        let value: number = 0;
-        if (
-          bankRecord.type === BankRecordType.DEPOSIT ||
-          bankRecord.type === BankRecordType.TRANSFERIN
-        )
-          value = Number(bankRecord.amount) - (bankRecord.charge ?? 0);
-        else if (
-          bankRecord.type === BankRecordType.WITHDRAW ||
-          bankRecord.type === BankRecordType.TRANSFEROUT
-        )
-          value = -Number(bankRecord.amount) - (bankRecord.charge ?? 0);
-
-        addValueToYearAndWeek(
-          date.isoWeekYear(),
-          date.isoWeek(),
-          value * bank.currency.exchangeRate,
-        );
-      });
-
-      bank.stockBuyRecords?.forEach((stockBuyRecord) => {
-        const date = moment(stockBuyRecord.date);
-        const value = -Number(stockBuyRecord.amount);
-        addValueToYearAndWeek(
-          date.isoWeekYear(),
-          date.isoWeek(),
-          value * bank.currency.exchangeRate,
-        );
-      });
-
-      bank.stockBundleSellRecords?.forEach((stockBundleSellRecord) => {
-        const date = moment(stockBundleSellRecord.date);
-        const value = Number(stockBundleSellRecord.amount);
-        addValueToYearAndWeek(
-          date.isoWeekYear(),
-          date.isoWeek(),
-          value * bank.currency.exchangeRate,
-        );
-      });
-    });
-
-    const userCurrencyTransactionRecords =
-      await this.userService.getUserCurrencyTransactionRecords(userId);
-    if (
-      userCurrencyTransactionRecords === null ||
-      userCurrencyTransactionRecords.currencyTransactionRecords === undefined
-    )
-      throw new NotFoundException();
-
-    const currencyTransactionRecords =
-      userCurrencyTransactionRecords.currencyTransactionRecords;
-    currencyTransactionRecords.forEach((record) => {
-      if (record.type === CurrencyTransactionRecordType.COUNTER) return;
-      const date = moment(record.date);
-      const year = date.isoWeekYear();
-      const week = date.isoWeek();
-      const { fromBank, toBank, fromAmount, toAmount } = record;
-      if (fromBank) {
-        const fromExchangeRate = fromBank.currency?.exchangeRate ?? 1;
-        addValueToYearAndWeek(
-          year,
-          week,
-          -fromAmount * fromExchangeRate - (record.charge ?? 0),
-        ); // the charge should be in NTD;
-      }
-      if (toBank) {
-        const toExchangeRate = toBank.currency?.exchangeRate ?? 1;
-        addValueToYearAndWeek(
-          year,
-          week,
-          toAmount * toExchangeRate - (record.charge ?? 0),
-        ); // the charge should be in NTD
-      }
-    });
-
-    const bankHistoryData = [] as BankHistoryData[];
-    const date = moment().isoWeekYear(minYear).isoWeek(minWeek);
-    let value = 0;
-    for (let year = minYear; year <= now.isoWeekYear(); year++) {
-      const startWeek = year === minYear ? minWeek : 1;
-      const endWeek =
-        year === now.isoWeekYear()
-          ? now.isoWeek() - 1
-          : moment().isoWeekYear(year).isoWeeksInYear();
-      for (let week = startWeek; week <= endWeek; week++) {
-        if (valueByYearAndWeek[year] && valueByYearAndWeek[year][week])
-          value += valueByYearAndWeek[year][week];
-
-        bankHistoryData.push({
-          date: date.endOf('isoWeek').format('YYYY-MM-DD'),
-          value: value,
-        });
-        date.add(1, 'week');
-      }
-    }
-    return bankHistoryData;
   }
 
   @UseGuards(JwtAuthGuard)

@@ -4,6 +4,7 @@ import {
   CreateStockSplit,
   CreateUserStock,
   StockBundleSellRecord,
+  StockBuyRecord,
   StockRecord,
   StockSummary,
   UpdateStockBundleSellRecord,
@@ -30,6 +31,13 @@ export const StockApiSlice = apiSlice
           url: "/users/stocks",
         }),
         providesTags: ["Stock"],
+      }),
+      getStockBuyRecords: builder.query<StockBuyRecord[], void>({
+        query: () => ({
+          url: "/stocks/buy-records",
+          method: "GET",
+        }),
+        providesTags: ["StockRecord"],
       }),
       createUserStock: builder.mutation<UserStock, CreateUserStock>({
         query: (data) => ({
@@ -137,7 +145,7 @@ export const StockApiSlice = apiSlice
 
       getStockBundleSellRecords: builder.query<StockBundleSellRecord[], void>({
         query: () => ({
-          url: "/users/stocks/bundle-sell-records",
+          url: "/stocks/bundle-sell-records",
           method: "GET",
         }),
         providesTags: [{ type: "StockBundleSellRecord", id: "LIST" }],
@@ -220,6 +228,7 @@ export const StockApiSlice = apiSlice
 
 export const {
   useGetUserStocksQuery,
+  useGetStockBuyRecordsQuery,
   useCreateUserStockMutation,
   useUpdateUserStockMutation,
   useDeleteUserStockMutation,
