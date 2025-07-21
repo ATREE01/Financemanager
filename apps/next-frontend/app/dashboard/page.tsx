@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Chart from "react-google-charts";
 
+import AreaChartCard from "@/app/components/area-chart-card";
 import PageLabel from "@/app/components/page-label";
+import PieChartCard from "@/app/components/pie-chart-card";
+import SummaryCard from "@/app/components/summary-card";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
   useGetBankhistoryDataQuery,
@@ -21,36 +23,6 @@ export default function Dashboard() {
   useEffect(() => {
     if (!userId) router.push("/auth/login");
   }, [router, userId]);
-
-  const pieChartOptions = {
-    legend: {
-      position: "bottom",
-      textStyle: { fontSize: 14 }, // Increased font size for legend
-      alignment: "center",
-      maxLines: 3,
-      pagingTextStyle: { color: "#999" },
-      pageSize: 5,
-    },
-    pieSliceText: "percentage",
-    backgroundColor: "transparent",
-    colors: ["#3366CC", "#DC3912", "#FF9900", "#109618", "#990099"],
-    pieHole: 0.3,
-    chartArea: { left: 10, top: 10, width: "100%", height: "80%" },
-  };
-
-  const areaGraphoptions = {
-    isStacked: true,
-    height: 300,
-    legend: { position: "top" },
-    vAxis: { minValue: 0, gridlines: { color: "#f5f5f5" } },
-    backgroundColor: "transparent",
-    crosshair: {
-      trigger: "both",
-      opacity: 0.5,
-    },
-    colors: ["#3366CC", "#DC3912"],
-    chartArea: { height: "70%" },
-  };
 
   const { data: bankSummary } = useGetBankSummaryQuery();
   const { data: bankHistoryData } = useGetBankhistoryDataQuery();
@@ -126,104 +98,58 @@ export default function Dashboard() {
       totalAreaChartData.push([brokerageDate, 0, brokerageValue]);
       brokerageIndex++;
     } else {
-      // Both are out of bounds, break the loop
       break;
     }
   }
 
+  const totalAssets = bankTotal + brokerageFirmTotal;
+
   return (
-    <main>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen pt-[--navbar-height]">
+    <main className="bg-gray-50 min-h-screen">
+      <div className="pt-[--navbar-height]">
         <PageLabel title="資產總覽" />
-        <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-[95vw] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {[
-              {
-                title: "總資產",
-                value: bankTotal + brokerageFirmTotal,
-                data: totalPieChartData,
-              },
-              {
-                title: "銀行資產",
-                value: bankTotal,
-                data: bankPieChartData,
-              },
-              {
-                title: "投資資產",
-                value: brokerageFirmTotal,
-                data: brokerageFirmPieChartData,
-              },
-            ].map((card, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md"
-              >
-                <h3 className="text-lg font-medium text-gray-500">
-                  {card.title}
-                </h3>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  ${card.value.toLocaleString()}
-                </p>
-                {card.data.length <= 1 ? (
-                  <div className="flex items-center justify-center text-gray-500 mt-4">
-                    無可用資料
-                  </div>
-                ) : (
-                  <div>
-                    <Chart
-                      chartType="PieChart"
-                      data={card.data}
-                      options={{
-                        ...pieChartOptions,
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <SummaryCard title="總資產" value={totalAssets} />
+            <SummaryCard title="銀行資產" value={bankTotal} />
+            <SummaryCard title="投資資產" value={brokerageFirmTotal} />
+            <SummaryCard
+              title="資產比例 (銀行/投資)"
+              value={`${
+                totalAssets ? ((bankTotal / totalAssets) * 100).toFixed(2) : 0
+              }% / ${
+                totalAssets
+                  ? ((brokerageFirmTotal / totalAssets) * 100).toFixed(2)
+                  : 0
+              }%`}
+              isPercentage
+            />
           </div>
 
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "總資產趨勢",
-                data: totalAreaChartData,
-              },
-              {
-                title: "投資資產趨勢",
-                data: brokerageFirmAreaChartData,
-              },
-              {
-                title: "銀行資產趨勢",
-                data: bankAreaChartData,
-              },
-            ].map((chart, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 pb-20 transition-all hover:shadow-md"
-              >
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  {chart.title}
-                </h3>
-                {chart.data.length <= 1 ? (
-                  <div className="flex items-center justify-center text-gray-500">
-                    無可用資料
-                  </div>
-                ) : (
-                  <div>
-                    <Chart
-                      chartType="AreaChart"
-                      data={chart.data}
-                      options={areaGraphoptions}
-                      width={"100%"}
-                      height={"250px"}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* Pie Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <PieChartCard title="總資產分佈" data={totalPieChartData} />
+            <PieChartCard title="銀行資產分佈" data={bankPieChartData} />
+            <PieChartCard
+              title="投資資產分佈"
+              data={brokerageFirmPieChartData}
+            />
+          </div>
+
+          {/* Area Charts */}
+          <div className="grid grid-cols-1 gap-6">
+            <AreaChartCard title="總資產趨勢" data={totalAreaChartData} />
+            <AreaChartCard
+              title="銀行資產趨勢"
+              data={bankAreaChartData}
+              options={{ colors: ["#2563eb"] }}
+            />
+            <AreaChartCard
+              title="投資資產趨勢"
+              data={brokerageFirmAreaChartData}
+              options={{ colors: ["#9333ea"] }}
+            />
           </div>
         </div>
       </div>
