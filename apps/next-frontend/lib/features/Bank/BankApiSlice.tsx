@@ -131,19 +131,14 @@ const BankApiSlice = apiSlice
             ...data,
           },
         }),
-        invalidatesTags: (result, error, arg) => [
-          { type: "TimeDeposits", id: arg.id },
-        ],
+        invalidatesTags: [{ type: "TimeDeposits", id: "LIST" }],
       }),
       deleteTimeDepositRecord: builder.mutation<boolean, number>({
         query: (id) => ({
           url: `/banks/time-deposit/records/${id}`,
           method: "DELETE",
         }),
-        invalidatesTags: (result, error, id) => [
-          { type: "TimeDeposits", id },
-          "BankSummary",
-        ],
+        invalidatesTags: [{ type: "TimeDeposits", id: "LIST" }, "BankSummary"],
       }),
     }),
   });
