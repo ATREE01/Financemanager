@@ -73,7 +73,7 @@ export default function CurrencyManage() {
   ));
 
   return (
-    <main className="pt-[--navbar-height] bg-slate-100">
+    <main className="pt-[--navbar-height]">
       <PageLabel title={"外幣管理"} />
       <div className="flex justify-center pt-1">
         <div className="w-full h-[80vh] sm:w-[80vw] lg:w-[35vw] p-4">

@@ -105,7 +105,7 @@ export default function Dashboard() {
   const totalAssets = bankTotal + brokerageFirmTotal;
 
   return (
-    <main className="bg-gray-50 min-h-screen">
+    <main className="min-h-screen">
       <div className="pt-[--navbar-height]">
         <PageLabel title="資產總覽" />
         <div className="max-w-[95vw] mx-auto px-4 sm:px-6 lg:px-8 py-8">

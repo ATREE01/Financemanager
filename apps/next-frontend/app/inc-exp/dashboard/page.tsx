@@ -100,13 +100,15 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="bg-slate-100 pt-[--navbar-height] min-h-screen">
+    <main className="pt-[--navbar-height] min-h-screen">
       <PageLabel title={"收支紀錄:總覽"} />
 
       <div className="w-full h-full flex flex-col items-center text-black">
-        <div className="w-60 h-16 flex items-center">
-          <ConditionFilter options={currencyOptions} setFilter={setCurrency} />
-        </div>
+        <ConditionFilter
+          className="mb-4"
+          options={currencyOptions}
+          setFilter={setCurrency}
+        />
 
         <div className="w-full max-w-7xl px-4">
           <DurationFilter
@@ -118,7 +120,7 @@ export default function Dashboard() {
         {/* Summary Cards */}
         <div className="w-full max-w-[80vw] sm:max-w-[90vw] px-4 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 transition-all hover:shadow-md">
+            <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-4 sm:p-6 transition-all hover:shadow-md">
               <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-4">
                 收入
               </div>
@@ -136,7 +138,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 transition-all hover:shadow-md">
+            <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-4 sm:p-6 transition-all hover:shadow-md">
               <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-4">
                 支出
               </div>

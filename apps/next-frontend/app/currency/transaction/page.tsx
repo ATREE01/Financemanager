@@ -105,7 +105,7 @@ export default function CurrencyTransaction() {
   });
 
   return (
-    <main className="pt-[--navbar-height] bg-slate-100">
+    <main className="pt-[--navbar-height]">
       <PageLabel title={"外幣交易"} />
 
       <div className="h-[80vh] w-full flex flex-col items-center py-10">

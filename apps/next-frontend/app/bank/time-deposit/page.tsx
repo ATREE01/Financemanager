@@ -85,7 +85,7 @@ export default function TimeDeposit() {
   });
 
   return (
-    <main className="bg-slate-100 py-5 min-h-screen pt-[--navbar-height]">
+    <main className="y-5 min-h-screen pt-[--navbar-height]">
       <PageLabel title={"金融機構:定存"} />
       <div className="mt-20 h-[80vh] w-full flex flex-col items-center">
         <div className="w-4/5 max-h-[60vh] overflow-auto">
