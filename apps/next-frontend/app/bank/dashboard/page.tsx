@@ -135,19 +135,31 @@ const DashboardBank = () => {
     bankData[bankId].invt -= Number(record.amount);
     bankData[bankId].total -= Number(record.amount);
   });
-
   bankRecords.forEach((record) => {
     const bankId = record.bank.id;
-    bankData[bankId].charge += record.charge ?? 0;
-    bankData[bankId].total -= record.charge ?? 0;
-    switch (record.type) {
-      case BankRecordType.DEPOSIT || BankRecordType.TRANSFERIN:
-        bankData[bankId].total += record.amount;
-        bankData[bankId].deposit += record.amount;
+    const { amount, charge = 0, type } = record;
+
+    bankData[bankId].charge += charge ?? 0;
+    bankData[bankId].total -= charge ?? 0;
+
+    const isIncoming =
+      type === BankRecordType.DEPOSIT || type === BankRecordType.TRANSFERIN;
+    const multiplier = isIncoming ? 1 : -1;
+
+    bankData[bankId].total += amount * multiplier;
+
+    switch (type) {
+      case BankRecordType.DEPOSIT:
+        bankData[bankId].deposit += amount;
         break;
-      case BankRecordType.WITHDRAW || BankRecordType.TRANSFEROUT:
-        bankData[bankId].total -= record.amount;
-        bankData[bankId].withdraw += record.amount;
+      case BankRecordType.TRANSFERIN:
+        bankData[bankId].transferIn += amount;
+        break;
+      case BankRecordType.WITHDRAW:
+        bankData[bankId].withdraw += amount;
+        break;
+      case BankRecordType.TRANSFEROUT:
+        bankData[bankId].transferOut += amount;
         break;
     }
   });
@@ -202,7 +214,7 @@ const DashboardBank = () => {
   });
 
   return (
-    <div className="pt-[--navbar-height] bg-slate-100 py-5 min-h-screen">
+    <div className="pt-[--navbar-height] py-5 min-h-screen">
       <PageLabel title={"金融機構:總覽"} />
       <div className="mt-4 px-10 max-h-full flex flex-wrap justify-center">
         <div className="text-center text-black">

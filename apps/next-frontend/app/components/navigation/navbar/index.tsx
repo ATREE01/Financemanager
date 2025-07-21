@@ -28,7 +28,7 @@ export default function NavBar({ sidebar }: { sidebar: Sidebar }) {
   return (
     <>
       {username === null ? (
-        <div className="fixed w-full h-[50px] px-10 flex items-center z-30 bg-white text-black">
+        <div className="fixed w-full h-[50px] px-10 flex items-center z-30 bg-white text-indigo-800 border-b border-indigo-200">
           <div className="p-2 font-bold ">
             <Link href="/"> 主畫面</Link>
           </div>
@@ -36,7 +36,7 @@ export default function NavBar({ sidebar }: { sidebar: Sidebar }) {
           <div className="flex">
             <Link
               href="/auth/login"
-              className="p-2 font-bold bg-primary-50 hover:bg-primary-200 text-primary-400 rounded-lg border-primary-200 border"
+              className="p-2 font-bold bg-indigo-400 hover:bg-indigo-500 text-white rounded-lg border-indigo-200 border"
             >
               {" "}
               登入
@@ -44,8 +44,8 @@ export default function NavBar({ sidebar }: { sidebar: Sidebar }) {
           </div>
         </div>
       ) : (
-        <div className="text-black">
-          <div className="fixed w-full h-[50px] px-10 flex items-center z-30 bg-white">
+        <div className="text-indigo-800">
+          <div className="fixed w-full h-[50px] px-10 flex items-center z-30 bg-white border-b border-indigo-200">
             <div className="Link p-2 cursor-pointer" onClick={onClick}>
               {" "}
               <i className="text-xl bi bi-list"></i>
@@ -54,14 +54,14 @@ export default function NavBar({ sidebar }: { sidebar: Sidebar }) {
               <Link href="/"> Home</Link>
             </div>
             <div className="flex-1"></div>
-            <div className="flex">
+            <div className="flex items-center">
               <div className="Link p-2 font-bold">
                 {" "}
-                <Link href="Dashboard"> {username} </Link>{" "}
+                <Link href="/dashboard"> {username} </Link>{" "}
               </div>
 
               <div
-                className="p-2 font-bold bg-primary-50 hover:bg-primary-200 text-primary-400 rounded-lg border-primary-200 border cursor-pointer"
+                className="p-2 font-bold bg-indigo-400 hover:bg-indigo-500 text-white rounded-lg border-indigo-200 border cursor-pointer"
                 onClick={async () => {
                   await logOut({});
                   dispatch(resetCredentials());

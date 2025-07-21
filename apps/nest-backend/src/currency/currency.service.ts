@@ -31,36 +31,43 @@ export class CurrencyService {
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async updateExchangeRate(): Promise<void> {
-    const {
-      data: exchangeRates,
-    }: {
-      data: {
-        [key: string]: {
-          name: string;
-          value: number;
+    try {
+      const {
+        data: exchangeRates,
+      }: {
+        data: {
+          [key: string]: {
+            name: string;
+            value: number;
+          };
         };
-      };
-    } = await firstValueFrom(
-      this.httpService
-        .get(
-          `${this.confingService.get<string>('EXCHANGE_RATE_GOOGLE_SHEET_API')}getExchangeRate`,
-        )
-        .pipe(
-          catchError(() => {
-            this.logger.error('Error happened when getting exchange rate');
-            throw 'An error happened!';
-          }),
-        ),
-    );
-    for (const key in exchangeRates) {
-      await this.currencyRepository.update(
-        {
-          code: key,
-        },
-        {
-          exchangeRate: exchangeRates[key]['value'],
-        },
+      } = await firstValueFrom(
+        this.httpService
+          .get(
+            `${this.confingService.get<string>('EXCHANGE_RATE_GOOGLE_SHEET_API')}getExchangeRate`,
+          )
+          .pipe(
+            catchError((error) => {
+              this.logger.error(
+                'Error happened when getting exchange rate',
+                error,
+              );
+              throw 'An error happened!';
+            }),
+          ),
       );
+      for (const key in exchangeRates) {
+        await this.currencyRepository.update(
+          {
+            code: key,
+          },
+          {
+            exchangeRate: exchangeRates[key]['value'],
+          },
+        );
+      }
+    } finally {
+      this.logger.log('Exchange rate updated operation finished');
     }
   }
 

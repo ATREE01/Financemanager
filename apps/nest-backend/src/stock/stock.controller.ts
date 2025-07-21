@@ -193,6 +193,8 @@ export class StockController {
         updateStockRecordDto,
       );
 
+    // TODO: If the original stockRecord become empty after the update, consider to delete it
+
     await this.stockService.updateStockBuyRecord(
       toStockRecord,
       updateStockRecordDto.updateStockBuyRecord as UpdateStockBuyRecordDto,

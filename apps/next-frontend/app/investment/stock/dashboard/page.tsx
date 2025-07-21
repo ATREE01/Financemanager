@@ -428,7 +428,7 @@ export default function Deashboard() {
   });
 
   return (
-    <main className="pt-[--navbar-height] bg-slate-100">
+    <main className="pt-[--navbar-height]">
       <PageLabel title="股票總覽" />
       <div className="flex justify-center p-2">
         <div className="h-[80vh]">

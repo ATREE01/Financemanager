@@ -19,7 +19,7 @@ export default function Register() {
   const [dupEmailError, setDupEmailError] = useState(false);
 
   return (
-    <div className="content  h-screen bg-slate-200 flex items-center justify-center">
+    <div className="content  h-screen flex items-center justify-center">
       <div className="w-full bg-white rounded-lg shadow-xl md:mt-0 sm:max-w-md xl:p-0">
         <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
           <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
@@ -71,7 +71,7 @@ export default function Register() {
                     window.alert("發生未知錯誤");
                   }
                 }
-              } catch (error) {
+              } catch {
                 window.alert("發生未知錯誤");
               }
             }}

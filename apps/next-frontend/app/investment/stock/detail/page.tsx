@@ -150,7 +150,7 @@ export default function Detail() {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
-    <main className="pt-[--navbar-height] bg-slate-100">
+    <main className="pt-[--navbar-height]">
       <PageLabel title="股票紀錄" />
       <div className="h-[80vh] flex flex-col items-center">
         <div className="w-4/5 m-1">

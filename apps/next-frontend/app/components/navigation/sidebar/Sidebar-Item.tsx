@@ -29,11 +29,11 @@ export default function SidebarItem({
   if ((item as ParentLink).childrens !== undefined) {
     return (
       <div
-        className={`sidebar-item py-1 mx-2 my-1 block rounded ${open ? "bg-primary-300" : ""}`}
+        className={`sidebar-item py-1 mx-2 my-1 block rounded ${open ? "bg-indigo-200" : ""}`}
       >
         {/* "sidebar-item sidebar-item-toggle" */}
         <div
-          className="sidebar-item py-2 mx-2 my-1 cursor-pointer rounded text-xl font-bold hover:bg-primary-500"
+          className="sidebar-item py-2 mx-2 my-1 cursor-pointer rounded text-xl font-bold hover:bg-indigo-300"
           onClick={() => setOpen(!open)}
         >
           {item.title}
@@ -52,7 +52,7 @@ export default function SidebarItem({
     return (
       <>
         <Link
-          className={`sidebar-item py-2 mx-2 my-1 block text-xl rounded hover:bg-primary-500 ${currentPath === (item as ChildLink).path ? " bg-primary-500 rounded" : ""}`}
+          className={`sidebar-item py-2 mx-2 my-1 block text-xl rounded hover:bg-indigo-300 ${currentPath === (item as ChildLink).path ? " bg-indigo-300 rounded" : ""}`}
           href={(item as ChildLink).path}
           onClick={onClick}
         >
