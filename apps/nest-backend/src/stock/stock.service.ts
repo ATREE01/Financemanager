@@ -304,27 +304,19 @@ export class StockService {
     const historyData = this.convertToHistoricalResult(chartResult);
     const operations = historyData.map(async (data) => {
       const date = moment(data.date);
-      const existingRecord = await this.stockHistoryRepository.findOne({
-        where: {
+      return this.stockHistoryRepository.upsert(
+        {
           stock: stock,
           date: date.format('YYYY-MM-DD'),
-        },
-      });
-      if (existingRecord) {
-        return this.stockHistoryRepository.update(existingRecord.id, {
+          year: date.isoWeekYear(),
+          week: date.isoWeek(),
           close: parseFloat(data.close.toFixed(6)),
-        });
-      } else {
-        return this.stockHistoryRepository.save(
-          this.stockHistoryRepository.create({
-            stock: stock,
-            date: date.format('YYYY-MM-DD'),
-            year: date.isoWeekYear(),
-            week: date.isoWeek(),
-            close: parseFloat(data.close.toFixed(6)),
-          }),
-        );
-      }
+        },
+        {
+          conflictPaths: ['stock', 'date'],
+          skipUpdateIfNoValuesChanged: true,
+        },
+      );
     });
     await Promise.all(operations);
   }
