@@ -103,7 +103,7 @@ export default function Dashboard() {
     <main className="pt-[--navbar-height] min-h-screen">
       <PageLabel title={"收支紀錄:總覽"} />
 
-      <div className="w-full h-full flex flex-col items-center text-black">
+      <div className="pt-2 w-full h-full flex flex-col items-center text-black">
         <ConditionFilter
           className="mb-4"
           options={currencyOptions}

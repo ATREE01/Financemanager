@@ -192,12 +192,14 @@ export default function Detail() {
   return (
     <main className="pt-[--navbar-height] pb-8">
       <PageLabel title={"收支紀錄:明細"} />
-      <div className="h-[80vh] pt-2 w-full flex flex-col justify-start items-center">
-        <DurationFilter
-          startDate={{ data: startDate, setData: setStartDate }}
-          endDate={{ data: endDate, setData: setEndDate }}
-        />
-        <div className="w-[60vw] my-2 flex flex-wrap items-center justify-center gap-2">
+      <div className="pt-2 w-full flex flex-col justify-start items-center">
+        <div className="w-full max-w-7xl px-4">
+          <DurationFilter
+            startDate={{ data: startDate, setData: setStartDate }}
+            endDate={{ data: endDate, setData: setEndDate }}
+          />
+        </div>
+        <div className="w-[90vw] md:w-[60vw] my-2 flex flex-wrap items-center justify-center gap-2">
           <ConditionFilter
             className="flex-1"
             options={typeOptions}
@@ -244,7 +246,7 @@ export default function Detail() {
         </div>
         {/* --- */}
 
-        <div className="w-[90vw] max-h-[60vh] overflow-auto">
+        <div className="w-[90vw] max-h-[60vh] overflow-x-auto">
           <DetailTable titles={titles} tableContent={tableContent} />
         </div>
 
