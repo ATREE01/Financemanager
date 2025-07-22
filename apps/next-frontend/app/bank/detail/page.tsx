@@ -162,23 +162,24 @@ export default function Detail() {
   return (
     <main className="pt-[--navbar-height] pb-5">
       <PageLabel title={"金融機構:明細"} />
-      <div className="h-[80vh] w-full flex flex-col items-center pt-2">
-        <DurationFilter
-          startDate={{ data: startDate, setData: setStartDate }}
-          endDate={{ data: endDate, setData: setEndDate }}
-        />
-
-        <div className="w-[60vw] my-2 flex flex-wrap items-center justify-center gap-4">
-          <div className="flex-1 min-w-[200px]">
+      <div className="w-full flex flex-col items-center pt-2">
+        <div className="w-full max-w-7xl px-4">
+          <DurationFilter
+            startDate={{ data: startDate, setData: setStartDate }}
+            endDate={{ data: endDate, setData: setEndDate }}
+          />
+        </div>
+        <div className="w-[90vw] md:w-[60vw] my-2 flex flex-wrap items-center justify-center gap-4">
+          <div className="flex-1">
             <ConditionFilter options={typeOptions} setFilter={setType} />
           </div>
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1">
             <ConditionFilter
               options={currencyOptions}
               setFilter={setCurrency}
             />
           </div>
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1">
             <ConditionFilter options={banksOptions} setFilter={setBank} />
           </div>
         </div>
