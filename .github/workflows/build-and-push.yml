@@ -1,0 +1,94 @@
+name: build and push
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  workflow_dispatch:
+  push:
+    #branches: [ "main" ]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
+  #pull_request:
+  #  branches: [ "main" ]
+
+env:
+  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
+
+
+jobs:
+  build-backend:
+    runs-on: staging-runner
+    container:
+      image: gcr.io/kaniko-project/executor:debug
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJSON(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - name: build backend image
+      run: |
+        # Write config file, change to your destination registry
+        echo "{
+          \"auths\": {
+            \"harbor.lan\": {
+              \"auth\": \"${{ secrets.HARBOR_AUTH }}\"
+            }
+          }
+        }" > /kaniko/.docker/config.json
+
+        # Configure git
+        export GIT_USERNAME="kaniko-bot"
+        export GIT_PASSWORD="${{ secrets.GITHUB_TOKEN }}" # works for GHEC or GHES container registry
+
+        # Build and push (sub in your image, of course)
+        /kaniko/executor --dockerfile="./Dockerfile.backend" \
+          --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
+            --destination="harbor.lan/finance-manager/backend:${{ github.ref_name }}" \
+            --push-retry 5
+
+  build-frontend:
+    runs-on: staging-runner
+    container:
+      image: gcr.io/kaniko-project/executor:debug
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJSON(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - name: Build and push container test
+      run: |
+        # Write config file, change to your destination registry
+        echo "{
+          \"auths\": {
+            \"harbor.lan\": {
+              \"auth\": \"${{ secrets.HARBOR_AUTH }}\"
+            }
+          }
+        }" > /kaniko/.docker/config.json
+
+        # Configure git
+        export GIT_USERNAME="kaniko-bot"
+        export GIT_PASSWORD="${{ secrets.GITHUB_TOKEN }}" # works for GHEC or GHES container registry
+
+        # Build and push (sub in your image, of course)
+        /kaniko/executor --dockerfile="./Dockerfile.frontend" \
+          --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
+          --destination="harbor.lan/finance-manager/frontend:${{ github.ref_name }}" \
+          --push-retry 5
