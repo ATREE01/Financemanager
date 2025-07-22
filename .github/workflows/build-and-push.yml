@@ -55,7 +55,7 @@ jobs:
           --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
           --destination="harbor.lan/finance-manager/frontend:${{ github.ref_name }}" \
           --destination="harbor.lan/finance-manager/frontend:latest" \
-          --skip-tls-verify-registry="${{ inputs.registry }}
+          --skip-tls-verify-registry="harbor.lan" \
           --push-retry 5
           
   build-backend:
@@ -94,7 +94,7 @@ jobs:
           --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
             --destination="harbor.lan/finance-manager/backend:${{ github.ref_name }}" \
             --destination="harbor.lan/finance-manager/backend:latest" \
-            --skip-tls-verify-registry="${{ inputs.registry }}
+            --skip-tls-verify-registry="harbor.lan" \
             --push-retry 5
 
 
