@@ -20,7 +20,7 @@ env:
 
 jobs:
   build-backend:
-    runs-on: staging-runner
+    runs-on: self-hosted
     container:
       image: gcr.io/kaniko-project/executor:debug
     permissions:
@@ -57,7 +57,7 @@ jobs:
             --push-retry 5
 
   build-frontend:
-    runs-on: staging-runner
+    runs-on: self-hosted
     container:
       image: gcr.io/kaniko-project/executor:debug
     permissions:
