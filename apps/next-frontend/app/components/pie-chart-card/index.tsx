@@ -4,11 +4,13 @@ const PieChartCard = ({
   title,
   data,
   options,
+  height = "250px",
 }: {
   title: string;
   data: (string | number)[][];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: any;
+  height?: string;
 }) => {
   const pieChartOptions = {
     legend: {
@@ -56,7 +58,7 @@ const PieChartCard = ({
           data={data}
           options={pieChartOptions}
           width={"100%"}
-          height={"250px"}
+          height={height}
         />
       )}
     </div>
