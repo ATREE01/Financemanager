@@ -2,14 +2,14 @@ frontend:
   replicas: 2
   image:
     repository: harbor.lan/finance-manager/frontend
-    tag: v1.3.1
+    tag: v1.3.2
   envFromConfigMap: "frontend-env-config"
 
 backend:
   replicas: 1
   image:
     repository: harbor.lan/finance-manager/backend
-    tag: v1.3.1
+    tag: v1.3.2
   envFromConfigMap: 
     - name: "backend-env-config"
     - name: "database-env-config"
