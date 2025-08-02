@@ -111,7 +111,11 @@ export default function Dashboard() {
         <div className="max-w-[95vw] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <SummaryCard title="總資產" value={totalAssets} />
+            <SummaryCard
+              className="bg-purple-100 border-purple-200 text-purple-800"
+              title="總資產"
+              value={totalAssets}
+            />
             <SummaryCard title="銀行資產" value={bankTotal} />
             <SummaryCard title="投資資產" value={brokerageFirmTotal} />
             <SummaryCard
@@ -129,11 +133,20 @@ export default function Dashboard() {
 
           {/* Pie Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <PieChartCard title="總資產分佈" data={totalPieChartData} />
-            <PieChartCard title="銀行資產分佈" data={bankPieChartData} />
+            <PieChartCard
+              title="總資產分佈"
+              data={totalPieChartData}
+              height="250px"
+            />
+            <PieChartCard
+              title="銀行資產分佈"
+              data={bankPieChartData}
+              height="250px"
+            />
             <PieChartCard
               title="投資資產分佈"
               data={brokerageFirmPieChartData}
+              height="250px"
             />
           </div>
 
