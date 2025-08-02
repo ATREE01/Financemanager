@@ -5,13 +5,14 @@ import type {
   StockRecordSummarySell,
 } from "@financemanager/financemanager-website-types";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as React from "react";
 
 import DetailTable from "@/app/components/detail-table";
 import StockFormManager from "@/app/components/forms/stock-form-manager";
 import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
+import SummaryCard from "@/app/components/summary-card";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import { useGetStockSummaryQuery } from "@/lib/features/stock/StockApiSlice";
 
@@ -92,6 +93,35 @@ export default function Deashboard() {
 
   const { data: stockSummaries = [], isLoading: stockSummariesIsLoading } =
     useGetStockSummaryQuery();
+
+  const investmentSummary = useMemo(() => {
+    let totalInvestment = 0;
+    let currentMarketValue = 0;
+    let totalUnrealizedGain = 0;
+
+    stockSummaries.forEach((summary) => {
+      totalInvestment += summary.totalSettlementCost;
+      currentMarketValue +=
+        summary.totalShare *
+        summary.userStock.stock.close *
+        summary.brokerageFirm.transactionCurrency.exchangeRate;
+      totalUnrealizedGain +=
+        summary.totalShare *
+          summary.userStock.stock.close *
+          summary.brokerageFirm.transactionCurrency.exchangeRate -
+        summary.totalSettlementCost;
+    });
+
+    return {
+      totalInvestment,
+      currentMarketValue,
+      totalUnrealizedGain,
+      unrealizedGainPercentage:
+        totalInvestment === 0
+          ? 0
+          : (totalUnrealizedGain / totalInvestment) * 100,
+    };
+  }, [stockSummaries]);
 
   useEffect(() => {
     setTotalSellShare(
@@ -430,32 +460,56 @@ export default function Deashboard() {
   return (
     <main className="pt-[--navbar-height]">
       <PageLabel title="股票總覽" />
-      <div className="flex justify-center p-2">
-        <div className="h-[80vh]">
-          <div className="max-w-[90vw] overflow-auto mb-4">
-            <DetailTable
-              titles={normalTableTitles}
-              tableContent={normalTableContents}
-            />
-          </div>
-          <div className="max-w-[90vw] overflow-auto mb-4">
-            <DetailTable
-              titles={exchnageTableTitles}
-              tableContent={exchangeTableContents}
-            />
-          </div>
+      <div className="p-4 flex flex-col justify-start items-center">
+        <div className="w-[90vw] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <SummaryCard
+            title="總投資"
+            className=" border-blue-200 text-blue-700"
+            value={investmentSummary.totalInvestment.toFixed(2)}
+          />
+          <SummaryCard
+            title="當前市值"
+            className="border-yellow-200 text-yellow-700"
+            value={investmentSummary.currentMarketValue.toFixed(2)}
+          />
+          <SummaryCard
+            title="未實現損益"
+            value={investmentSummary.totalUnrealizedGain.toFixed(2)}
+            percentage={investmentSummary.unrealizedGainPercentage}
+            className={
+              investmentSummary.totalUnrealizedGain >= 0
+                ? "bg-red-100 border border-red-200 text-red-700"
+                : "bg-green-100 border border-green-200 text-green-700"
+            }
+          />
         </div>
+        <div className="flex justify-center p-2">
+          <div className="w-[90vw] h-[80vh]">
+            <div className="overflow-auto mb-4">
+              <DetailTable
+                titles={normalTableTitles}
+                tableContent={normalTableContents}
+              />
+            </div>
+            <div className="overflow-auto mb-4">
+              <DetailTable
+                titles={exchnageTableTitles}
+                tableContent={exchangeTableContents}
+              />
+            </div>
+          </div>
 
-        <StockFormManager
-          updateStockRecordShowState={null}
-          updateBundleSellShowState={null}
-          updateStockSellShowState={null}
-          bundleSellShowState={{
-            isShow: bundleSellShowState,
-            setShow: setBundleSellShowState,
-          }}
-          stockRecordSummarySell={stockRecordSummarySell}
-        />
+          <StockFormManager
+            updateStockRecordShowState={null}
+            updateBundleSellShowState={null}
+            updateStockSellShowState={null}
+            bundleSellShowState={{
+              isShow: bundleSellShowState,
+              setShow: setBundleSellShowState,
+            }}
+            stockRecordSummarySell={stockRecordSummarySell}
+          />
+        </div>
       </div>
     </main>
   );
