@@ -3,7 +3,7 @@ import Chart from "react-google-charts";
 const PieChartCard = ({
   title,
   data,
-  options,
+  options = {},
   height = "250px",
 }: {
   title: string;
@@ -12,14 +12,12 @@ const PieChartCard = ({
   options?: any;
   height?: string;
 }) => {
-  const pieChartOptions = {
+  const defaultOptions = {
     legend: {
       position: "bottom",
-      textStyle: { fontSize: 14 }, // Increased font size for legend
+      textStyle: { fontSize: 14, color: "#4b5563" },
       alignment: "center",
       maxLines: 3,
-      pagingTextStyle: { color: "#999" },
-      pageSize: 5,
     },
     pieSliceText: "percentage",
     backgroundColor: "transparent",
@@ -42,7 +40,22 @@ const PieChartCard = ({
       },
       showColorCode: true,
     },
+  };
+
+  // Deep merge options to allow parent to override specific nested properties
+  const mergedOptions = {
+    ...defaultOptions,
     ...options,
+    legend: { ...defaultOptions.legend, ...options.legend },
+    chartArea: { ...defaultOptions.chartArea, ...options.chartArea },
+    tooltip: {
+      ...defaultOptions.tooltip,
+      ...options.tooltip,
+      textStyle: {
+        ...defaultOptions.tooltip.textStyle,
+        ...options.tooltip?.textStyle,
+      },
+    },
   };
 
   return (
@@ -56,7 +69,7 @@ const PieChartCard = ({
         <Chart
           chartType="PieChart"
           data={data}
-          options={pieChartOptions}
+          options={mergedOptions}
           width={"100%"}
           height={height}
         />
