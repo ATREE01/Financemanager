@@ -18,6 +18,7 @@ import PieChartCard from "@/app/components/pie-chart-card";
 import SummaryCard from "@/app/components/summary-card";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
+  useGetBankhistoryDataQuery,
   useGetBankRecordsQuery,
   useGetBanksQuery,
   useGetTimeDepositRecordsQuery,
@@ -73,181 +74,27 @@ const DashboardBank = () => {
   const { data: stockBuyRecords } = useGetStockBuyRecordsQuery();
   const { data: stockBundleSellRecords } = useGetStockBundleSellRecordsQuery();
   const { data: timeDepositRecords } = useGetTimeDepositRecordsQuery();
+  const { data: bankHistoryData } = useGetBankhistoryDataQuery();
   const { data: currencyTransactionRecords } =
     useGetCurrencyTransactionRecordsQuery();
 
-  const { bankData, summaryData, bankChartData, monthlyIncExpData } =
-    useMemo(() => {
-      const data: {
-        [key: string]: {
-          [key: string]: number;
-        };
-      } = {};
+  const { bankData, summaryData, bankChartData } = useMemo(() => {
+    const data: {
+      [key: string]: {
+        [key: string]: number;
+      };
+    } = {};
 
-      let totalAssets = 0;
-      let totalTimeDeposit = 0;
-      let totalIncome = 0;
-      let totalExpense = 0;
-      const chartData: Array<Array<string | number>> = [["bank", "amount"]];
-      const monthlyData: {
-        [key: string]: { income: number; expense: number };
-      } = {};
+    let totalAssets = 0;
+    let totalTimeDeposit = 0;
+    let totalIncome = 0;
+    let totalExpense = 0;
+    const chartData: Array<Array<string | number>> = [["bank", "amount"]];
+    const monthlyData: {
+      [key: string]: { income: number; expense: number };
+    } = {};
 
-      if (!banks)
-        return {
-          bankData: data,
-          summaryData: {
-            totalAssets,
-            totalTimeDeposit,
-            totalIncome,
-            totalExpense,
-          },
-          bankChartData: chartData,
-          monthlyIncExpData: [["Month", "收入", "支出"]],
-        };
-
-      banks.forEach((bank) => {
-        data[bank.id] = {
-          total: 0,
-          timeDeposit: 0,
-          income: 0,
-          expense: 0,
-          deposit: 0,
-          withdraw: 0,
-          transferIn: 0,
-          transferOut: 0,
-          invt: 0,
-          charge: 0,
-          buy: 0,
-          sell: 0,
-        };
-      });
-
-      timeDepositRecords?.forEach((record) => {
-        const bankId = record.bank.id;
-        const today = new Date().toISOString().split("T")[0];
-        if (record.startDate > today || record.endDate <= today) return;
-        data[bankId].timeDeposit += record.amount;
-        data[bankId].total -= record.amount;
-      });
-
-      stockBundleSellRecords?.forEach((record) => {
-        const bankId = record.bank.id;
-        data[bankId].invt += Number(record.amount);
-        data[bankId].total += Number(record.amount);
-      });
-
-      stockBuyRecords?.forEach((record) => {
-        const bankId = record.bank.id;
-        data[bankId].invt -= Number(record.amount);
-        data[bankId].total -= Number(record.amount);
-      });
-
-      bankRecords?.forEach((record) => {
-        const bankId = record.bank.id;
-        const { amount, charge = 0, type } = record;
-
-        data[bankId].charge += charge ?? 0;
-        data[bankId].total -= charge ?? 0;
-
-        const isIncoming =
-          type === BankRecordType.DEPOSIT || type === BankRecordType.TRANSFERIN;
-        const multiplier = isIncoming ? 1 : -1;
-
-        data[bankId].total += amount * multiplier;
-
-        switch (type) {
-          case BankRecordType.DEPOSIT:
-            data[bankId].deposit += amount;
-            break;
-          case BankRecordType.TRANSFERIN:
-            data[bankId].transferIn += amount;
-            break;
-          case BankRecordType.WITHDRAW:
-            data[bankId].withdraw += amount;
-            break;
-          case BankRecordType.TRANSFEROUT:
-            data[bankId].transferOut += amount;
-            break;
-        }
-      });
-
-      finIncExpRecords?.forEach((record) => {
-        const bankId = record.bank?.id as string;
-        if (!bankId || !data[bankId]) return;
-        const bank = banks.find((b) => b.id === bankId);
-        const exchangeRate = bank?.currency.exchangeRate ?? 1;
-
-        // Process monthly data
-        const month = record.date.substring(0, 7);
-        if (!monthlyData[month]) {
-          monthlyData[month] = { income: 0, expense: 0 };
-        }
-
-        switch (record.type) {
-          case IncExpRecordType.INCOME:
-            data[bankId].total += record.amount;
-            data[bankId].income += record.amount;
-            monthlyData[month].income += record.amount * exchangeRate;
-            break;
-          case IncExpRecordType.EXPENSE:
-            data[bankId].total -= record.amount + (record.charge ?? 0);
-            data[bankId].expense += record.amount;
-            data[bankId].charge += record.charge ?? 0;
-            monthlyData[month].expense += record.amount * exchangeRate;
-            break;
-        }
-      });
-
-      currencyTransactionRecords?.forEach((record) => {
-        const fromBankId = record.fromBank?.id as string;
-        const toBankId = record.toBank?.id as string;
-        if (!fromBankId || !toBankId || !data[fromBankId] || !data[toBankId])
-          return;
-        switch (record.type) {
-          case CurrencyTransactionRecordType.ONLINE:
-            data[fromBankId].sell += record.fromAmount;
-            data[fromBankId].total -= record.fromAmount;
-            data[toBankId].buy += record.toAmount;
-            data[toBankId].total += record.toAmount;
-            break;
-        }
-      });
-
-      // Calculate summary data and chart data
-      banks.forEach((bank) => {
-        const bankInfo = data[bank.id];
-        if (bankInfo) {
-          const exchangeRate = bank.currency.exchangeRate;
-          totalAssets += (bankInfo.total + bankInfo.timeDeposit) * exchangeRate;
-          totalTimeDeposit += bankInfo.timeDeposit * exchangeRate;
-          totalIncome += bankInfo.income * exchangeRate;
-          totalExpense += bankInfo.expense * exchangeRate;
-
-          // Chart data
-          if (bankInfo.total + bankInfo.timeDeposit >= 0) {
-            chartData.push([
-              bank.name,
-              (bankInfo.total + bankInfo.timeDeposit) * exchangeRate,
-            ]);
-          }
-        }
-      });
-
-      // Monthly chart data
-      const monthlyChartData: (string | number | null)[][] = [
-        ["Month", "收入", "支出"],
-      ];
-      Object.keys(monthlyData)
-        .sort()
-        .forEach((month) => {
-          monthlyChartData.push([
-            month,
-            monthlyData[month].income,
-            monthlyData[month].expense,
-          ]);
-        });
-
+    if (!banks)
       return {
         bankData: data,
         summaryData: {
@@ -257,17 +104,162 @@ const DashboardBank = () => {
           totalExpense,
         },
         bankChartData: chartData,
-        monthlyIncExpData: monthlyChartData,
       };
-    }, [
-      banks,
-      timeDepositRecords,
-      stockBundleSellRecords,
-      stockBuyRecords,
-      bankRecords,
-      finIncExpRecords,
-      currencyTransactionRecords,
-    ]);
+
+    banks.forEach((bank) => {
+      data[bank.id] = {
+        total: 0,
+        timeDeposit: 0,
+        income: 0,
+        expense: 0,
+        deposit: 0,
+        withdraw: 0,
+        transferIn: 0,
+        transferOut: 0,
+        invt: 0,
+        charge: 0,
+        buy: 0,
+        sell: 0,
+      };
+    });
+
+    timeDepositRecords?.forEach((record) => {
+      const bankId = record.bank.id;
+      const today = new Date().toISOString().split("T")[0];
+      if (record.startDate > today || record.endDate <= today) return;
+      data[bankId].timeDeposit += record.amount;
+      data[bankId].total -= record.amount;
+    });
+
+    stockBundleSellRecords?.forEach((record) => {
+      const bankId = record.bank.id;
+      data[bankId].invt += Number(record.amount);
+      data[bankId].total += Number(record.amount);
+    });
+
+    stockBuyRecords?.forEach((record) => {
+      const bankId = record.bank.id;
+      data[bankId].invt -= Number(record.amount);
+      data[bankId].total -= Number(record.amount);
+    });
+
+    bankRecords?.forEach((record) => {
+      const bankId = record.bank.id;
+      const { amount, charge = 0, type } = record;
+
+      data[bankId].charge += charge ?? 0;
+      data[bankId].total -= charge ?? 0;
+
+      const isIncoming =
+        type === BankRecordType.DEPOSIT || type === BankRecordType.TRANSFERIN;
+      const multiplier = isIncoming ? 1 : -1;
+
+      data[bankId].total += amount * multiplier;
+
+      switch (type) {
+        case BankRecordType.DEPOSIT:
+          data[bankId].deposit += amount;
+          break;
+        case BankRecordType.TRANSFERIN:
+          data[bankId].transferIn += amount;
+          break;
+        case BankRecordType.WITHDRAW:
+          data[bankId].withdraw += amount;
+          break;
+        case BankRecordType.TRANSFEROUT:
+          data[bankId].transferOut += amount;
+          break;
+      }
+    });
+
+    finIncExpRecords?.forEach((record) => {
+      const bankId = record.bank?.id as string;
+      if (!bankId || !data[bankId]) return;
+      const bank = banks.find((b) => b.id === bankId);
+      const exchangeRate = bank?.currency.exchangeRate ?? 1;
+
+      // Process monthly data
+      const month = record.date.substring(0, 7);
+      if (!monthlyData[month]) {
+        monthlyData[month] = { income: 0, expense: 0 };
+      }
+
+      switch (record.type) {
+        case IncExpRecordType.INCOME:
+          data[bankId].total += record.amount;
+          data[bankId].income += record.amount;
+          monthlyData[month].income += record.amount * exchangeRate;
+          break;
+        case IncExpRecordType.EXPENSE:
+          data[bankId].total -= record.amount + (record.charge ?? 0);
+          data[bankId].expense += record.amount;
+          data[bankId].charge += record.charge ?? 0;
+          monthlyData[month].expense += record.amount * exchangeRate;
+          break;
+      }
+    });
+
+    currencyTransactionRecords?.forEach((record) => {
+      const fromBankId = record.fromBank?.id as string;
+      const toBankId = record.toBank?.id as string;
+      if (!fromBankId || !toBankId || !data[fromBankId] || !data[toBankId])
+        return;
+      switch (record.type) {
+        case CurrencyTransactionRecordType.ONLINE:
+          data[fromBankId].sell += record.fromAmount;
+          data[fromBankId].total -= record.fromAmount;
+          data[toBankId].buy += record.toAmount;
+          data[toBankId].total += record.toAmount;
+          break;
+      }
+    });
+
+    // Calculate summary data and chart data
+    banks.forEach((bank) => {
+      const bankInfo = data[bank.id];
+      if (bankInfo) {
+        const exchangeRate = bank.currency.exchangeRate;
+        totalAssets += (bankInfo.total + bankInfo.timeDeposit) * exchangeRate;
+        totalTimeDeposit += bankInfo.timeDeposit * exchangeRate;
+        totalIncome += bankInfo.income * exchangeRate;
+        totalExpense += bankInfo.expense * exchangeRate;
+
+        // Chart data
+        if (bankInfo.total + bankInfo.timeDeposit >= 0) {
+          chartData.push([
+            bank.name,
+            (bankInfo.total + bankInfo.timeDeposit) * exchangeRate,
+          ]);
+        }
+      }
+    });
+
+    return {
+      bankData: data,
+      summaryData: {
+        totalAssets,
+        totalTimeDeposit,
+        totalIncome,
+        totalExpense,
+      },
+      bankChartData: chartData,
+    };
+  }, [
+    banks,
+    timeDepositRecords,
+    stockBundleSellRecords,
+    stockBuyRecords,
+    bankRecords,
+    finIncExpRecords,
+    currencyTransactionRecords,
+  ]);
+
+  const bankAreaChartData = useMemo(() => {
+    return [
+      ["Date", "總額"],
+      ...(bankHistoryData || []).map((data) => [data.date, data.value]),
+    ];
+  }, [bankHistoryData]);
 
   if (
     !banks ||
@@ -276,6 +268,7 @@ const DashboardBank = () => {
     !stockBuyRecords ||
     !stockBundleSellRecords ||
     !timeDepositRecords ||
+    !bankHistoryData ||
     !currencyTransactionRecords
   )
     return <LoadingPage />;
@@ -293,8 +286,6 @@ const DashboardBank = () => {
       </tr>
     );
   });
-
-  console.log(monthlyIncExpData);
 
   return (
     <div className="min-h-screen bg-gray-50 py-5 pt-[--navbar-height]">
@@ -325,8 +316,8 @@ const DashboardBank = () => {
             height={"300px"}
           />
           <AreaChartCard
-            title="收支趨勢"
-            data={monthlyIncExpData}
+            title="資產變化圖"
+            data={bankAreaChartData}
             height={"300px"}
             options={{
               isStacked: false,
