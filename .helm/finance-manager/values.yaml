@@ -25,7 +25,7 @@ ingress:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "8m"
   hosts:
-    - host: financemanager.ddns.net
+    - host: financemanager.shihubs.com
       paths:
         - path: /api
           pathType: Prefix
@@ -39,7 +39,7 @@ ingress:
             servicePort: 80
   tls:
     - hosts:
-        - "financemanager.ddns.net"
+        - "financemanager.shihubs.com"
       secretName: finance-manager-tls
 
 database:

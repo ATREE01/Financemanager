@@ -1,6 +1,6 @@
 kubectl create configmap frontend-env-config \
     --from-literal=PORT=3000 \
-    --from-literal=API_URL="http://financemanager.ddns.net/" \
+    --from-literal=API_URL="http://financemanager.shihubs.com/" \
     -n finance-manager
 
 kubectl create configmap backend-env-config \
