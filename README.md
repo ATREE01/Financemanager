@@ -1,4 +1,7 @@
-# Finance Manager App (NextJS & NestJS)  
+# Finance Manager Application
+
+A comprehensive financial management solution built with  Next.js frontend and NestJS backend architecture for robust performance and scalability.
+
 
 ## Deployment Guide  
 
@@ -10,41 +13,52 @@
    ```  
 
 2. Open the `.env` file for editing:  
-   ```bash  
-   vim .env  
-   ```  
+    ```bash  
+    vim .env  
+    ```  
 
 3. Configure the following environment variables:  
 
-#### Frontend Configuration  
-```bash  
-FRONTEND_PORT=3000  
-```  
+    #### Frontend Configuration  
+    ```bash  
+    FRONTEND_PORT=3000  
+    ```  
 
-#### Backend Configuration  
-```bash  
-BACKEND_PORT=3000  
+    #### Backend Configuration  
+    ```bash  
+    BACKEND_PORT=3000  
 
-ACCESS_TOKEN_SECRET=  
-REFRESH_TOKEN_SECRET=  
+    ACCESS_TOKEN_SECRET=  
+    REFRESH_TOKEN_SECRET=  
 
-DB_TYPE=mariadb  
-DB_HOST=database  
-DB_USER=  
-DB_PASSWORD=  
-DB_ROOT_PASSWORD=  
-DB_NAME=  
+    DB_TYPE=mariadb  
+    DB_HOST=database  
+    DB_USER=  
+    DB_PASSWORD=  
+    DB_ROOT_PASSWORD=  
+    DB_NAME=  
 
-EXCHANGE_RATE_GOOGLE_SHEET_API=  
+    EXCHANGE_RATE_GOOGLE_SHEET_API=https://script.google.com/macros/s/{deploy id}/exec?action=  
 
-REDIS_HOST=redis  
-REDIS_PORT=6379  
-```  
+    REDIS_HOST=redis  
+    REDIS_PORT=6379  
+    ```  
 
-4. Start the services using Docker Compose:  
+5. Start the services using Docker Compose:  
    ```bash
    docker compose up -d
    ```
+5.
+    Initial the database.
+    ```bash
+    cd /apps/nest-backend
+    pnpm build
+    pnpm typeorm migration:run -d ./data-source.ts
+    pnpm seed:currency
+    ```
+
+    > **Note**: After the database init you can remove the expose of database in `docker-compose.yml` file and restart the docker compose.
+
 
 ---
 
