@@ -6,7 +6,7 @@ frontend:
   envFromConfigMap: "frontend-env-config"
 
 backend:
-  replicas: 1
+  replicas: 2
   image:
     repository: harbor.lan/finance-manager/backend
     tag: v1.3.2
