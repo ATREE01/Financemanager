@@ -1,0 +1,51 @@
+config:
+  target: "{{ $env.BASE_URL }}"
+  phases:
+    - name: Warm-up
+      duration: 30
+      arrivalRate: 5
+    - name: Ramp-up
+      duration: 60
+      arrivalRate: 10
+      rampTo: 30
+    - name: Sustained load
+      duration: 120
+      arrivalRate: 30
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Accept: "application/json"
+  http:
+    timeout: 10
+    pool: 50
+  plugins:
+    expect: {} # enable assertions
+
+scenarios:
+  - name: "Login and view dashboard"
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ $env.TEST_EMAIL }}"
+            password: "{{ $env.TEST_PASSWORD }}"
+          capture:
+            - json: "$.accessToken"
+              as: accessToken
+          expect:
+            - statusCode: 200
+            - contentType: json
+          log: false
+      - think: 2
+
+      # - get:
+      #     url: "/dashboard"
+      #     headers:
+      #       Authorization: "Bearer {{ accessToken }}"
+      #     expect:
+      #       - statusCode: 200
