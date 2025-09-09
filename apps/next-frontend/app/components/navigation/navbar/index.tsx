@@ -51,7 +51,7 @@ export default function NavBar({ sidebar }: { sidebar: Sidebar }) {
               <i className="text-xl bi bi-list"></i>
             </div>
             <div className="Link p-2 font-bold">
-              <Link href="/"> Home</Link>
+              <Link href="/dashboard"> Dashboard</Link>
             </div>
             <div className="flex-1"></div>
             <div className="flex items-center">
