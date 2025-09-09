@@ -51,7 +51,7 @@ export default function App() {
                   password: values.password,
                 }).unwrap();
                 dispatch(setCredentials({ ...result }));
-                router.replace("/");
+                router.replace("/dashboard");
               } catch {
                 setLoginError(true);
               }
