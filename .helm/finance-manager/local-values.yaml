@@ -1,25 +1,39 @@
 frontend:
-  replicas: 1
+  replicas: 2
   image:
     repository: harbor.lan/finance-manager/frontend
     tag: v1.3.4
   envFromConfigMap: "frontend-env-config"
   autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 2
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
     targetCPUUtilizationPercentage: 80
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
 
 backend:
-  replicas: 1
+  replicas: 2
   image:
     repository: harbor.lan/finance-manager/backend
     tag: v1.3.2
   autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 2
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
     targetCPUUtilizationPercentage: 80
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 400m
+      memory: 512Mi
   envFromConfigMap: 
     - name: "backend-env-config"
     - name: "database-env-config"
@@ -53,9 +67,9 @@ database:
     tag: 11.6-noble
   claimName: ""
   persistentVolumeClaim:
-    className: "standard"
+    className: "longhorn"
     name: "database"
-    size: "1Gi"
+    size: "500Mi"
   envFromConfigMap: "database-env-config"
   envFromSecret: "database-env-secret"
 
