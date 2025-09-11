@@ -1,39 +1,25 @@
 frontend:
-  replicas: 2
+  replicas: 1
   image:
     repository: harbor.lan/finance-manager/frontend
     tag: v1.3.4
   envFromConfigMap: "frontend-env-config"
   autoscaling:
-    enabled: true
-    minReplicas: 2
-    maxReplicas: 5
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
     targetCPUUtilizationPercentage: 80
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
 
 backend:
-  replicas: 2
+  replicas: 1
   image:
     repository: harbor.lan/finance-manager/backend
     tag: v1.3.2
   autoscaling:
-    enabled: true
-    minReplicas: 2
-    maxReplicas: 5
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
     targetCPUUtilizationPercentage: 80
-  resources:
-    requests:
-      cpu: 200m
-      memory: 256Mi
-    limits:
-      cpu: 400m
-      memory: 512Mi
   envFromConfigMap: 
     - name: "backend-env-config"
     - name: "database-env-config"
@@ -45,11 +31,9 @@ ingress:
   enabled: true
   className: "nginx"
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "8m"
   hosts:
-    - host: financemanager.shihubs.com
+    - host: financemanager.local
       paths:
         - path: /api
           pathType: Prefix
@@ -61,21 +45,17 @@ ingress:
           backend:
             serviceName: finance-manager-frontend
             servicePort: 80
-  tls:
-    - hosts:
-        - "financemanager.shihubs.com"
-      secretName: finance-manager-tls
+  tls: []
 
 database:
   image:
     repository: mariadb
     tag: 11.6-noble
-  # If the claimName is filled than the persistentVolumeClaim won't do anything
-  claimName: "database-storage-finance-manager-database-0"
+  claimName: ""
   persistentVolumeClaim:
-    className: "longhorn"
+    className: "standard"
     name: "database"
-    size: "5Gi"
+    size: "1Gi"
   envFromConfigMap: "database-env-config"
   envFromSecret: "database-env-secret"
 

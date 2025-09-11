@@ -4,7 +4,7 @@ metadata:
   name: finance-manager-backend
 spec:
   selector:
-    app: finance-manager-backend
+    app: {{ .Release.Name }}-backend
   ports:
     - protocol: TCP
       port: 3000
