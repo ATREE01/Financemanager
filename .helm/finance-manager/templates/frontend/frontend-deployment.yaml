@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}-frontend
 spec:
-  replicas: {{ if not .Values.frontend.autoscaling.enabled }}{{ .Values.frontend.replicas }}{{ end }}
+  replicas: {{ if .Values.frontend.autoscaling.enabled }}{{ .Values.frontend.autoscaling.minReplicas }}{{ else }}{{ .Values.frontend.replicas }}{{ end }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-frontend
