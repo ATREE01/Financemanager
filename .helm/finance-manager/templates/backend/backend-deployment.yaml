@@ -6,7 +6,7 @@ metadata:
     app: {{ .Release.Name }}-backend
 
 spec:
-  replicas: {{ .Values.backend.replicas }}
+  replicas: {{ if .Values.backend.autoscaling.enabled }}{{ .Values.backend.autoscaling.minReplicas }}{{ else }}{{ .Values.backend.replicas }}{{ end }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-backend
@@ -19,7 +19,7 @@ spec:
       containers:
       - name: backend
         image: {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         envFrom:
@@ -31,3 +31,5 @@ spec:
         - secretRef:
             name: {{ .name }}
         {{- end }}
+        resources:
+{{ toYaml .Values.backend.resources | indent 10 }}

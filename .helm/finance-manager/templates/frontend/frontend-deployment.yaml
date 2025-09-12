@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}-frontend
 spec:
-  replicas: {{ .Values.frontend.replicas }}
+  replicas: {{ if .Values.frontend.autoscaling.enabled }}{{ .Values.frontend.autoscaling.minReplicas }}{{ else }}{{ .Values.frontend.replicas }}{{ end }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-frontend
@@ -18,10 +18,12 @@ spec:
       containers:
       - name: frontend
         image: {{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         envFrom:
         - configMapRef:
             name: {{ .Values.frontend.envFromConfigMap }}  # Reference ConfigMap
+        resources:
+{{ toYaml .Values.frontend.resources | indent 10 }}
 
