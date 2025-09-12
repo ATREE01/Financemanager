@@ -4,7 +4,7 @@ metadata:
   name: finance-manager-frontend
 spec:
   selector:
-    app: finance-manager-frontend
+    app: {{ .Release.Name }}-frontend
   ports:
     - protocol: TCP
       port: 80
