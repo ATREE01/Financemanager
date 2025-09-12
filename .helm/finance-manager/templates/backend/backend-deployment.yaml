@@ -6,7 +6,7 @@ metadata:
     app: {{ .Release.Name }}-backend
 
 spec:
-  replicas: {{ if not .Values.backend.autoscaling.enabled }}{{ .Values.backend.replicas }}{{ end }}
+  replicas: {{ if .Values.backend.autoscaling.enabled }}{{ .Values.backend.autoscaling.minReplicas }}{{ else }}{{ .Values.backend.replicas }}{{ end }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-backend
