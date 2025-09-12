@@ -11,10 +11,10 @@ frontend:
     targetCPUUtilizationPercentage: 80
   resources:
     requests:
-      cpu: 100m
+      cpu: 250m
       memory: 128Mi
     limits:
-      cpu: 200m
+      cpu: 500m
       memory: 256Mi
 
 backend:
@@ -25,15 +25,15 @@ backend:
   autoscaling:
     enabled: true
     minReplicas: 2
-    maxReplicas: 5
+    maxReplicas: 8
     targetCPUUtilizationPercentage: 80
   resources:
     requests:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 250m
+      memory: 128Mi
     limits:
-      cpu: 400m
-      memory: 512Mi
+      cpu: 500m
+      memory: 256Mi
   envFromConfigMap: 
     - name: "backend-env-config"
     - name: "database-env-config"
