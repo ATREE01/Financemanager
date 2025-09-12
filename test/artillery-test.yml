@@ -2,15 +2,15 @@ config:
   target: "{{ $env.BASE_URL }}"
   phases:
     - name: Warm-up
-      duration: 30
-      arrivalRate: 5
+      duration: 20
+      arrivalRate: 20
     - name: Ramp-up
       duration: 60
-      arrivalRate: 10
-      rampTo: 30
+      arrivalRate: 60
+      rampTo: 120
     - name: Sustained load
-      duration: 120
-      arrivalRate: 30
+      duration: 300
+      arrivalRate: 120
   defaults:
     headers:
       Content-Type: "application/json"
@@ -22,13 +22,17 @@ config:
     expect: {} # enable assertions
 
 scenarios:
-  - name: "Login and view dashboard"
+  - name: "Access frontend homepage"
     flow:
       - get:
           url: "/"
           expect:
             - statusCode: 200
-
+            - contentType:  text/html; charset=utf-8
+      - think: 1
+      
+  - name: "Login and view dashboard"
+    flow:
       - post:
           url: "/api/auth/login"
           json:
@@ -43,9 +47,9 @@ scenarios:
           log: false
       - think: 2
 
-      # - get:
-      #     url: "/dashboard"
-      #     headers:
-      #       Authorization: "Bearer {{ accessToken }}"
-      #     expect:
-      #       - statusCode: 200
+      - get:
+          url: "/dashboard"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          expect:
+            - statusCode: 200
