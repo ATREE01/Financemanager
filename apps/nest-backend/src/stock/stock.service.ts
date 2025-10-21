@@ -306,14 +306,16 @@ export class StockService {
       const date = moment(data.date);
       return this.stockHistoryRepository.upsert(
         {
-          stock: stock,
+          stock: {
+            id: stock.id,
+          },
           date: date.format('YYYY-MM-DD'),
           year: date.isoWeekYear(),
           week: date.isoWeek(),
           close: parseFloat(data.close.toFixed(6)),
         },
         {
-          conflictPaths: ['stock', 'date'],
+          conflictPaths: ['stock', 'year', 'week'],
           skipUpdateIfNoValuesChanged: true,
         },
       );
