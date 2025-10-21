@@ -315,7 +315,7 @@ export class StockService {
           close: parseFloat(data.close.toFixed(6)),
         },
         {
-          conflictPaths: ['year', 'week'],
+          conflictPaths: ['stock', 'year', 'week'],
           skipUpdateIfNoValuesChanged: true,
         },
       );
