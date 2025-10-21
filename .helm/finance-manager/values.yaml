@@ -21,7 +21,7 @@ backend:
   replicas: 2
   image:
     repository: harbor.lan/finance-manager/backend
-    tag: v1.3.2
+    tag: v1.3.5
   autoscaling:
     enabled: true
     minReplicas: 2
