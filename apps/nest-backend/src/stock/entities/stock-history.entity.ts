@@ -1,8 +1,15 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 
 import { Stock } from './stock.entity';
 
 @Entity('StockHistory')
+@Unique(['stock', 'year', 'week'])
 export class StockHistory {
   @PrimaryGeneratedColumn()
   id: number;
