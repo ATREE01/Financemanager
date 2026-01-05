@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { Request } from 'express';
-import yahooFinance from 'yahoo-finance2';
+import YahooFinance from 'yahoo-finance2';
 
 import { UserInfo } from '../auth/dtos/user-info';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -49,7 +49,7 @@ export class StockController {
   @UseGuards(JwtAuthGuard)
   @Get('bundle-sell-records')
   async getStockBundleSellRecords(@Req() req: Request) {
-    const userId = (req.user as UserInfo).userId;    
+    const userId = (req.user as UserInfo).userId;
     return await this.stockService.getStockBundleSellRecordsByUserId(userId);
   }
 
@@ -70,7 +70,7 @@ export class StockController {
         const now = new Date();
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-
+        const yahooFinance = new YahooFinance();
         const data = await yahooFinance.chart(createUserStockDto.code, {
           period1: yesterday,
           period2: now,
