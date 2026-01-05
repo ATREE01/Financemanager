@@ -4,14 +4,14 @@ import {
   StockSummary,
   UpdateStockRecord,
 } from '@financemanager/financemanager-website-types';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { Repository } from 'typeorm';
-import yahooFinance from 'yahoo-finance2';
-import { ChartResultArray } from 'yahoo-finance2/dist/esm/src/modules/chart';
-import { HistoricalHistoryResult } from 'yahoo-finance2/dist/esm/src/modules/historical';
+import YahooFinance from 'yahoo-finance2';
+import { ChartResultArray } from 'yahoo-finance2/script/src/modules/chart';
+import { HistoricalHistoryResult } from 'yahoo-finance2/script/src/modules/historical';
 
 import { Currency } from '../currency/entities/currency.entity';
 import { CreateStockBundleSellRecordDto } from './dtos/create-stock-bundle-sell-record.dto';
@@ -30,6 +30,7 @@ import { UserStock } from './entities/user-stock.entity';
 
 @Injectable()
 export class StockService {
+  private readonly logger = new Logger(StockService.name);
   constructor(
     @InjectRepository(Stock)
     private readonly stockRepository: Repository<Stock>,
@@ -49,6 +50,7 @@ export class StockService {
 
   @Cron(CronExpression.EVERY_DAY_AT_6AM)
   async updateStockPriceRoutine() {
+    const yahooFinance = new YahooFinance();
     const stocks = await this.stockRepository.find();
     for (const stock of stocks) {
       const now = new Date();
@@ -77,7 +79,14 @@ export class StockService {
   async updateStockHistoryRoutine() {
     const stocks = await this.stockRepository.find();
     for (const stock of stocks) {
-      await this.createStockHistory(stock);
+      try {
+        await this.createStockHistory(stock);
+      } catch (error) {
+        this.logger.error(
+          `Failed to update stock history for ${stock.code}`,
+          error,
+        );
+      }
     }
   }
 
@@ -294,6 +303,7 @@ export class StockService {
   }
 
   async createStockHistory(stock: Stock) {
+    const yahooFinance = new YahooFinance();
     const startDate = moment('2020-01-01').startOf('isoWeek').toDate();
     const endDate = moment().subtract(1, 'weeks').endOf('isoWeek');
     const chartResult = await yahooFinance.chart(stock.code, {

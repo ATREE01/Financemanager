@@ -46,8 +46,8 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20",
-    "yahoo-finance2": "^2.13.2"
+    "typeorm": "^0.3.26",
+    "yahoo-finance2": "^3.11.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.8",
