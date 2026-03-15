@@ -28,7 +28,7 @@ export default [
   // 1. Global Ignores and Base JavaScript Rules
   // =================================================================
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '.turbo/**', '.next/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '.turbo/**', '.next/**', './apps/next-frontend/components/**'],
   },
   js.configs.recommended,
 

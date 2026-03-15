@@ -139,6 +139,9 @@ export class StockService {
           brokerageFirm: true,
         },
       },
+      order: {
+        date: 'DESC',
+      },
     });
   }
 
@@ -629,9 +632,15 @@ export class StockService {
         bank: {
           currency: true,
         },
-        brokerageFirm: true,
+        brokerageFirm: {
+          settlementCurrency: true,
+          transactionCurrency: true,
+        },
         userStock: true,
         stockSellRecords: true,
+      },
+      order: {
+        date: 'DESC',
       },
     });
   }
@@ -685,6 +694,11 @@ export class StockService {
     id: number,
     updateStockBundleSellRecordDto: UpdateStockBundleSellRecordDto,
   ) {
+    await this.stockSellRecordRepository.update(
+      { stockBundleSellRecord: { id: id } },
+      { date: updateStockBundleSellRecordDto.date },
+    );
+
     await this.stockBundleSellRecordsRepository.update(
       {
         id: id,
@@ -697,14 +711,6 @@ export class StockService {
         bank: {
           id: updateStockBundleSellRecordDto.bankId,
         },
-        stockSellRecords: (
-          await this.stockSellRecordRepository.find({
-            where: { stockBundleSellRecord: { id: id } },
-          })
-        ).map((stockSellRecord) => ({
-          ...stockSellRecord,
-          date: updateStockBundleSellRecordDto.date,
-        })),
         sellPrice: updateStockBundleSellRecordDto.sellPrice,
         sellExchangeRate: updateStockBundleSellRecordDto.sellExchangeRate,
         charge: updateStockBundleSellRecordDto.charge,

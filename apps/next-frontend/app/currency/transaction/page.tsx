@@ -1,13 +1,15 @@
 "use client";
 
 import { CurrencyTransactionRecord } from "@financemanager/financemanager-website-types";
+import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import DetailTable from "@/app/components/detail-table";
-import styles from "@/app/components/detail-table/index.module.css";
+import { DataTable } from "@/app/components/data-table";
 import CurrenyTransactionFormManager from "@/app/components/forms/currency-transaction-form-manager";
+import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
+import { Button } from "@/components/ui/button";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
   useDeleteCurrencyTransactionRecordMutation,
@@ -22,7 +24,7 @@ export default function CurrencyTransaction() {
     if (!userId) router.push("/auth/login");
   }, [router, userId]);
 
-  const { data: currencyTransactionRecords } =
+  const { data: currencyTransactionRecords, isLoading } =
     useGetCurrencyTransactionRecordsQuery();
   const phraseMap = usePhraseMap();
 
@@ -44,71 +46,92 @@ export default function CurrencyTransaction() {
     }
   }
 
-  const tableTitles = [
-    "日期",
-    "類型",
-    "出金機構",
-    "入金機構",
-    "賣出幣別",
-    "買入幣別",
-    "賣出金額",
-    "買入金額",
-    "匯率",
-    "手續費",
-    "功能",
-  ];
-
-  if (!currencyTransactionRecords) return <div>Loading...</div>;
-
-  const tableContent = currencyTransactionRecords.map((record) => {
-    return (
-      <tr key={record.id} className="border-b hover:bg-gray-100">
-        <td className={styles["table-data-cell"]}>{record.date}</td>
-        <td className={styles["table-data-cell"]}>
-          {phraseMap.currencyTransactionRecordType[record.type]}
-        </td>
-        <td className={styles["table-data-cell"]}>
-          {record.fromBank?.name ?? "X"}
-        </td>
-        <td className={styles["table-data-cell"]}>
-          {record.toBank?.name ?? "X"}
-        </td>
-        <td className={styles["table-data-cell"]}>
-          {record.fromCurrency?.name ?? "X"}
-        </td>
-        <td className={styles["table-data-cell"]}>
-          {record.toCurrency?.name ?? "X"}
-        </td>
-        <td className={styles["table-data-cell"]}>{record.fromAmount}</td>
-        <td className={styles["table-data-cell"]}>{record.toAmount}</td>
-        <td className={styles["table-data-cell"]}>{record.exchangeRate}</td>
-        <td className={styles["table-data-cell"]}>{record.charge}</td>
-        <td className={styles["table-data-cell"]}>
-          <button
-            className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition-colors duration-200 mx-1"
+  const columns: ColumnDef<CurrencyTransactionRecord>[] = [
+    { accessorKey: "date", header: "日期" },
+    {
+      accessorKey: "type",
+      header: "類型",
+      cell: ({ row }) =>
+        phraseMap.currencyTransactionRecordType?.[row.original.type] ||
+        row.original.type,
+    },
+    {
+      accessorKey: "fromBank.name",
+      header: "出金機構",
+      cell: ({ row }) => row.original.fromBank?.name || "-",
+    },
+    {
+      accessorKey: "toBank.name",
+      header: "入金機構",
+      cell: ({ row }) => row.original.toBank?.name || "-",
+    },
+    {
+      accessorKey: "fromCurrency.name",
+      header: "賣出幣別",
+      cell: ({ row }) => row.original.fromCurrency?.name || "-",
+    },
+    {
+      accessorKey: "toCurrency.name",
+      header: "買入幣別",
+      cell: ({ row }) => row.original.toCurrency?.name || "-",
+    },
+    {
+      accessorKey: "fromAmount",
+      header: "賣出金額",
+      cell: ({ row }) => (
+        <span className="font-medium text-red-500">
+          {row.original.fromAmount}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "toAmount",
+      header: "買入金額",
+      cell: ({ row }) => (
+        <span className="font-medium text-green-500">
+          {row.original.toAmount}
+        </span>
+      ),
+    },
+    { accessorKey: "exchangeRate", header: "匯率" },
+    { accessorKey: "charge", header: "手續費" },
+    {
+      id: "actions",
+      header: "功能",
+      cell: ({ row }) => (
+        <div className="flex justify-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700"
             onClick={() => {
-              setFormData(record);
-              setShowUpdateForm(!showUpdateForm);
+              setFormData(row.original);
+              setShowUpdateForm(true);
             }}
           >
             修改
-          </button>
-          <button
-            className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition-colors duration-200 mx-1"
-            onClick={() => deleteRecord(record.id)}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700"
+            onClick={() => deleteRecord(row.original.id)}
           >
             刪除
-          </button>
-        </td>
-      </tr>
-    );
-  });
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  if (isLoading || !phraseMap.currencyTransactionRecordType)
+    return <LoadingPage />;
 
   return (
-    <main className="pt-[--navbar-height]">
+    <main className="min-h-screen pt-[--navbar-height] bg-gray-50 pb-8">
       <PageLabel title={"外幣交易"} />
 
-      <div className="h-[80vh] w-full flex flex-col items-center py-10">
+      <div className="flex flex-col items-center py-6 gap-8">
         <CurrenyTransactionFormManager
           updateShowState={{
             isShow: showUpdateForm,
@@ -116,8 +139,11 @@ export default function CurrencyTransaction() {
           }}
           formData={formData}
         />
-        <div className="w-[90%] h-[60vh]">
-          <DetailTable titles={tableTitles} tableContent={tableContent} />
+        <div className="w-[90vw] max-w-[1400px]">
+          <DataTable
+            columns={columns}
+            data={currencyTransactionRecords || []}
+          />
         </div>
       </div>
     </main>

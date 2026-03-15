@@ -1,5 +1,6 @@
-"use strict";
+"use client";
 
+import { LogOut, Menu, WalletCards } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
@@ -28,50 +29,56 @@ export default function NavBar({ sidebar }: { sidebar: Sidebar }) {
   return (
     <>
       {username === null ? (
-        <div className="fixed w-full h-[50px] px-10 flex items-center z-30 bg-white text-indigo-800 border-b border-indigo-200">
-          <div className="p-2 font-bold ">
-            <Link href="/"> 主畫面</Link>
-          </div>
-          <div className="flex-1"></div>
-          <div className="flex">
-            <Link
-              href="/auth/login"
-              className="p-2 font-bold bg-indigo-400 hover:bg-indigo-500 text-white rounded-lg border-indigo-200 border"
-            >
-              {" "}
-              登入
-            </Link>
-          </div>
+        <div className="fixed w-full h-[var(--navbar-height)] px-6 lg:px-10 flex items-center justify-between z-30 bg-white border-b border-slate-200 shadow-sm">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-xl font-bold tracking-tight text-blue-600 hover:text-blue-700 transition-colors"
+          >
+            <WalletCards className="w-6 h-6" />
+            <span>FinanceManager</span>
+          </Link>
+          <Link
+            href="/auth/login"
+            className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors shadow-sm"
+          >
+            登入
+          </Link>
         </div>
       ) : (
-        <div className="text-indigo-800">
-          <div className="fixed w-full h-[50px] px-10 flex items-center z-30 bg-white border-b border-indigo-200">
-            <div className="Link p-2 cursor-pointer" onClick={onClick}>
-              {" "}
-              <i className="text-xl bi bi-list"></i>
-            </div>
-            <div className="Link p-2 font-bold">
-              <Link href="/dashboard"> Dashboard</Link>
-            </div>
-            <div className="flex-1"></div>
-            <div className="flex items-center">
-              <div className="Link p-2 font-bold">
-                {" "}
-                <Link href="/dashboard"> {username} </Link>{" "}
-              </div>
+        <div className="fixed w-full h-[var(--navbar-height)] px-4 lg:px-6 flex items-center justify-between z-30 bg-white border-b border-slate-200 shadow-sm">
+          <div className="flex items-center gap-4">
+            <button
+              className="p-2 rounded-md hover:bg-slate-100 text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-100"
+              onClick={onClick}
+              aria-label="Toggle Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <Link
+              href="/dashboard"
+              className="hidden sm:flex items-center gap-2 text-lg font-bold tracking-tight text-slate-800 hover:text-blue-600 transition-colors"
+            >
+              <WalletCards className="w-5 h-5 text-blue-600" />
+              <span>FinanceManager</span>
+            </Link>
+          </div>
 
-              <div
-                className="p-2 font-bold bg-indigo-400 hover:bg-indigo-500 text-white rounded-lg border-indigo-200 border cursor-pointer"
-                onClick={async () => {
-                  await logOut({});
-                  dispatch(resetCredentials());
-                  dispatch(apiSlice.util.resetApiState());
-                  router.replace("/");
-                }}
-              >
-                Logout
-              </div>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="text-sm font-medium text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full">
+              {username}
             </div>
+            <button
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-100"
+              onClick={async () => {
+                await logOut({});
+                dispatch(resetCredentials());
+                dispatch(apiSlice.util.resetApiState());
+                router.replace("/");
+              }}
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">登出</span>
+            </button>
           </div>
         </div>
       )}

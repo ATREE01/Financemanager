@@ -1,12 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import AreaChartCard from "@/app/components/area-chart-card";
 import PageLabel from "@/app/components/page-label";
 import PieChartCard from "@/app/components/pie-chart-card";
 import SummaryCard from "@/app/components/summary-card";
+import TimeRangeFilter, {
+  filterDataByTimeRange,
+  TimeRange,
+} from "@/app/components/time-range-filter";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
   useGetBankhistoryDataQuery,
@@ -23,6 +27,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!userId) router.push("/auth/login");
   }, [router, userId]);
+
+  const [timeRange, setTimeRange] = useState<TimeRange>("1Y");
 
   const { data: bankSummary } = useGetBankSummaryQuery();
   const { data: bankHistoryData } = useGetBankhistoryDataQuery();
@@ -50,7 +56,7 @@ export default function Dashboard() {
   const totalPieChartData = [
     ["category", "amount"],
     ["銀行", bankTotal],
-    ["券商", brokerageFirmTotal],
+    ["投資", brokerageFirmTotal],
   ];
 
   const bankAreaChartData = [
@@ -102,10 +108,37 @@ export default function Dashboard() {
     }
   }
 
-  const totalAssets = bankTotal + brokerageFirmTotal;
+  const totalAssets = Number((bankTotal + brokerageFirmTotal).toFixed(2));
+
+  // Filtered Chart Data
+  const filteredTotalChartData = filterDataByTimeRange(
+    totalAreaChartData,
+    timeRange,
+  ).map((row, index) => {
+    if (index === 0) return row;
+    return [
+      row[0],
+      Number(Number(row[1]).toFixed(2)),
+      Number(Number(row[2]).toFixed(2)),
+    ];
+  });
+  const filteredBankChartData = filterDataByTimeRange(
+    bankAreaChartData,
+    timeRange,
+  ).map((row, index) => {
+    if (index === 0) return row;
+    return [row[0], Number(Number(row[1]).toFixed(2))];
+  });
+  const filteredBrokerageChartData = filterDataByTimeRange(
+    brokerageFirmAreaChartData,
+    timeRange,
+  ).map((row, index) => {
+    if (index === 0) return row;
+    return [row[0], Number(Number(row[1]).toFixed(2))];
+  });
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-gray-50 py-5">
       <div className="pt-[--navbar-height]">
         <PageLabel title="資產總覽" />
         <div className="max-w-[95vw] mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -136,32 +169,42 @@ export default function Dashboard() {
             <PieChartCard
               title="總資產分佈"
               data={totalPieChartData}
-              height="250px"
+              height="280px"
             />
             <PieChartCard
               title="銀行資產分佈"
               data={bankPieChartData}
-              height="250px"
+              height="280px"
             />
             <PieChartCard
               title="投資資產分佈"
               data={brokerageFirmPieChartData}
-              height="250px"
+              height="280px"
             />
+          </div>
+
+          {/* Time Filter for Area Charts */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">歷史資產趨勢</h2>
+            <TimeRangeFilter value={timeRange} onChange={setTimeRange} />
           </div>
 
           {/* Area Charts */}
           <div className="grid grid-cols-1 gap-6">
-            <AreaChartCard title="總資產趨勢" data={totalAreaChartData} />
+            <AreaChartCard
+              title="總資產趨勢"
+              data={filteredTotalChartData}
+              options={{ colors: ["#3b82f6", "#8b5cf6"] }}
+            />
             <AreaChartCard
               title="銀行資產趨勢"
-              data={bankAreaChartData}
-              options={{ colors: ["#2563eb"] }}
+              data={filteredBankChartData}
+              options={{ colors: ["#3b82f6"] }}
             />
             <AreaChartCard
               title="投資資產趨勢"
-              data={brokerageFirmAreaChartData}
-              options={{ colors: ["#9333ea"] }}
+              data={filteredBrokerageChartData}
+              options={{ colors: ["#8b5cf6"] }}
             />
           </div>
         </div>

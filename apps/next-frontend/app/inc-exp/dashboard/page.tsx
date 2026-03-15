@@ -23,8 +23,8 @@ export default function Dashboard() {
   }, [router, userId]);
 
   const [currency, setCurrency] = useState("1");
-  const [startDate, setStartDate] = useState(new Date("1900-01-01"));
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date>(new Date());
 
   const { data: userCurrencies } = useGetUserCurrenciesQuery();
   const currencyOptions = [
@@ -53,11 +53,12 @@ export default function Dashboard() {
 
     const filteredIncExpRecords = (incExpRecords || []).filter((record) => {
       const recordDate = new Date(record.date);
-      return (
-        startDate <= recordDate &&
-        recordDate <= endDate &&
-        record.currency.id.toString() === currency
-      );
+      // 如果 startDate 為 null，則不檢查下限 (或者視為 true)
+      const isAfterStart = !startDate || recordDate >= startDate;
+      const isBeforeEnd = recordDate <= endDate;
+      const isCorrectCurrency = record.currency.id.toString() === currency;
+
+      return isAfterStart && isBeforeEnd && isCorrectCurrency;
     });
 
     const categorySum = {
@@ -132,8 +133,9 @@ export default function Dashboard() {
 
       <div className="flex w-full flex-col items-center space-y-6 pt-2">
         <ConditionFilter
-          className="mb-4"
+          className="max-w-40 px-4"
           options={currencyOptions}
+          value={currency}
           setFilter={setCurrency}
         />
 
@@ -159,33 +161,19 @@ export default function Dashboard() {
         </div>
 
         <div className="grid w-[90vw] grid-cols-1 gap-6 lg:grid-cols-2">
-          <PieChartCard
-            title="收入分類"
-            data={incSumData}
-            height={"300px"}
-            options={{
-              colors: ["#10b981", "#34d399", "#6ee7b7", "#a7f3d0", "#d1fae5"],
-            }}
-          />
-          <PieChartCard
-            title="支出分類"
-            data={expSumData}
-            height={"300px"}
-            options={{
-              colors: ["#ef4444", "#f87171", "#fca5a5", "#fecaca", "#fee2e2"],
-            }}
-          />
-        </div>
-        <div className="w-[90vw]">
-          <AreaChartCard
-            title="收支趨勢"
-            data={monthlyIncExpData}
-            height={"300px"}
-            options={{
-              isStacked: false,
-              colors: ["#10b981", "#ef4444"],
-            }}
-          />
+          <PieChartCard title="收入分類" data={incSumData} height={"300px"} />
+          <PieChartCard title="支出分類" data={expSumData} height={"300px"} />
+          <div className="lg:col-span-2">
+            <AreaChartCard
+              title="每月收支趨勢"
+              data={monthlyIncExpData}
+              height="350px"
+              options={{
+                useBarChart: true,
+                isStacked: false,
+              }}
+            />
+          </div>
         </div>
         <IncExpFormManager updateShowState={null} />
       </div>

@@ -1,41 +1,49 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
+import { DateRange } from "react-day-picker";
 
-// Interface for the date state props
-interface DateState {
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+// 分別定義 startDate 與 endDate 的型別，解決 null 造成的衝突
+interface StartDateState {
+  data: Date | null;
+  setData: Dispatch<SetStateAction<Date | null>>;
+}
+
+interface EndDateState {
   data: Date;
   setData: Dispatch<SetStateAction<Date>>;
 }
+
 interface DateOption {
   id: string;
   label: string;
-  getDates: () => { start: Date; end: Date };
+  getDates: () => { start: Date | null; end: Date };
 }
 
-/**
- * A component providing buttons to filter by a date duration.
- * @param {object} props - The component props.
- * @param {DateState} props.startDate - State object for the start date.
- * @param {DateState} props.endDate - State object for the end date.
- */
 export default function DurationFilter({
   startDate,
   endDate,
 }: {
-  startDate: DateState;
-  endDate: DateState;
+  startDate: StartDateState;
+  endDate: EndDateState;
 }) {
   const dateOptions: DateOption[] = [
     {
       id: "default",
-      label: "不限", // "Unlimited"
+      label: "不限",
       getDates: () => ({
-        start: new Date("1900-01-01"),
+        start: null,
         end: new Date(),
       }),
     },
     {
       id: "week",
-      label: "近一周", // "Past Week"
+      label: "近一周",
       getDates: () => {
         const end = new Date();
         const start = new Date();
@@ -45,7 +53,7 @@ export default function DurationFilter({
     },
     {
       id: "month",
-      label: "近一個月", // "Past Month"
+      label: "近一個月",
       getDates: () => {
         const end = new Date();
         const start = new Date();
@@ -55,7 +63,7 @@ export default function DurationFilter({
     },
     {
       id: "3months",
-      label: "近三個月", // "Past 3 Months"
+      label: "近三個月",
       getDates: () => {
         const end = new Date();
         const start = new Date();
@@ -65,7 +73,7 @@ export default function DurationFilter({
     },
     {
       id: "ytd",
-      label: "今年至今", // "Year to Date"
+      label: "今年至今",
       getDates: () => ({
         start: new Date(new Date().getFullYear(), 0, 1),
         end: new Date(),
@@ -73,54 +81,45 @@ export default function DurationFilter({
     },
   ];
 
-  // State to track the active button's key. Default is now empty so no button is active on load.
   const [activeButton, setActiveButton] = useState("default");
-  // State to control the visibility of the custom date picker popover
   const [showCustomPicker, setShowCustomPicker] = useState(false);
 
-  // State for the custom date inputs
-  const today = new Date().toISOString().split("T")[0];
-  const [customStart, setCustomStart] = useState(today);
-  const [customEnd, setCustomEnd] = useState(today);
+  // 用於 Calendar 內部暫存的選取範圍，將 null 轉為 undefined 以符合 react-day-picker 的型別要求
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startDate.data || undefined,
+    to: endDate.data,
+  });
 
-  // Configuration for the duration buttons
+  // 判斷是否為不限時間
+  const isUnlimited = startDate.data === null;
 
-  // Common Tailwind classes for buttons
   const baseClasses =
     "w-28 px-4 py-2 rounded-lg font-semibold transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
   const inactiveClasses = "bg-gray-200 text-gray-700 hover:bg-gray-300";
   const activeClasses = "bg-indigo-600 text-white shadow-md";
 
-  // Handler for standard duration button clicks
   const handleDurationClick = (option: DateOption) => {
     const { start, end } = option.getDates();
     startDate.setData(start);
     endDate.setData(end);
     setActiveButton(option.id);
-    setShowCustomPicker(false); // Close picker if it was open
+    setShowCustomPicker(false);
+    // 同步更新自訂選取器的 state，將 null 轉回 undefined
+    setDateRange({ from: start || undefined, to: end });
   };
 
-  // Handler for the "Confirm" button in the custom date picker
   const handleCustomDateApply = () => {
-    if (
-      customStart &&
-      customEnd &&
-      new Date(customStart) <= new Date(customEnd)
-    ) {
-      startDate.setData(new Date(customStart));
-      endDate.setData(new Date(customEnd));
+    if (dateRange?.from && dateRange?.to) {
+      startDate.setData(dateRange.from);
+      endDate.setData(dateRange.to);
       setActiveButton("customize");
       setShowCustomPicker(false);
-    } else {
-      // Here you could show an error message to the user
-      console.error("Invalid custom date range");
     }
   };
 
   return (
     <>
       <div className="flex flex-wrap gap-3 justify-center z-10 text-black text-md">
-        {/* Map over the options array to render buttons */}
         {dateOptions.map((option) => (
           <button
             key={option.id}
@@ -133,73 +132,68 @@ export default function DurationFilter({
           </button>
         ))}
 
-        {/* Custom Date Range Button and Popover */}
         <div className="relative">
-          <button
-            className={`${baseClasses} ${
-              activeButton === "customize" ? activeClasses : inactiveClasses
-            }`}
-            onClick={() => {
-              setActiveButton("customize");
-              setShowCustomPicker(!showCustomPicker);
-            }}
-          >
-            自訂 {/* "Custom" */}
-          </button>
-
-          {showCustomPicker && (
-            <div
-              className="absolute top-full mt-2 bg-white p-4 rounded-lg shadow-xl w-72 z-20 border border-gray-200"
-              // Stop propagation to prevent the button's onClick from re-triggering
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <label
-                    htmlFor="start-date"
-                    className="text-gray-600 font-medium"
-                  >
-                    起:
-                  </label>
-                  <input
-                    type="date"
-                    id="start-date"
-                    className="ml-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 w-48"
-                    value={customStart}
-                    onChange={(e) => setCustomStart(e.target.value)}
-                  />
-                </div>
-                <div className="flex justify-between items-center">
-                  <label
-                    htmlFor="end-date"
-                    className="text-gray-600 font-medium"
-                  >
-                    迄:
-                  </label>
-                  <input
-                    type="date"
-                    id="end-date"
-                    className="ml-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 w-48"
-                    value={customEnd}
-                    onChange={(e) => setCustomEnd(e.target.value)}
-                  />
-                </div>
-              </div>
+          <Popover open={showCustomPicker} onOpenChange={setShowCustomPicker}>
+            <PopoverTrigger asChild>
               <button
-                className="w-full mt-4 bg-indigo-500 text-white p-2 rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                onClick={handleCustomDateApply}
+                className={`${baseClasses} ${
+                  activeButton === "customize" ? activeClasses : inactiveClasses
+                }`}
+                onClick={() => setActiveButton("customize")}
               >
-                確定 {/* "Confirm" */}
+                自訂
               </button>
-            </div>
-          )}
+            </PopoverTrigger>
+
+            <PopoverContent
+              className="w-auto p-0 rounded-2xl shadow-2xl border-gray-100 overflow-hidden"
+              align="center"
+              sideOffset={8}
+            >
+              <Calendar
+                className="p-6"
+                mode="range"
+                selected={dateRange}
+                onSelect={setDateRange}
+                numberOfMonths={2}
+                pagedNavigation
+                /**
+                 * 若目前是「不限 (null)」狀態，則月曆預設顯示今天。
+                 */
+                defaultMonth={startDate.data || new Date()}
+              />
+
+              {/* 美化底部的操作區塊 */}
+              <div className="px-5 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+                <div className="text-sm text-gray-500 font-medium">
+                  {dateRange?.from ? (
+                    <>
+                      {dateRange.from.toLocaleDateString()} -{" "}
+                      {dateRange.to
+                        ? dateRange.to.toLocaleDateString()
+                        : "選擇結束日期"}
+                    </>
+                  ) : (
+                    "請選擇日期範圍"
+                  )}
+                </div>
+                <button
+                  className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold tracking-wide transition-all duration-200 hover:bg-indigo-700 hover:shadow-md active:scale-[0.96] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+                  onClick={handleCustomDateApply}
+                  disabled={!dateRange?.from || !dateRange?.to}
+                >
+                  套用
+                </button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
-      {/* Displaying the current duration */}
+
       <div className="text-gray-600 text-sm my-2 text-center">
         當前期間:{" "}
         <span className="font-semibold">
-          {startDate.data.toLocaleDateString()}
+          {isUnlimited ? "不限" : startDate.data?.toLocaleDateString()}
         </span>{" "}
         ~{" "}
         <span className="font-semibold">
