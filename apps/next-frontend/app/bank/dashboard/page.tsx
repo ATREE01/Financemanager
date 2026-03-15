@@ -5,17 +5,21 @@ import {
   CurrencyTransactionRecordType,
   IncExpRecordType,
 } from "@financemanager/financemanager-website-types";
+import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import AreaChartCard from "@/app/components/area-chart-card";
-import DetailTable from "@/app/components/detail-table";
-import styles from "@/app/components/detail-table/index.module.css";
+import { DataTable } from "@/app/components/data-table";
 import BankFormManager from "@/app/components/forms/bank-form-manager";
 import LoadingPage from "@/app/components/loading-page";
 import PageLabel from "@/app/components/page-label";
 import PieChartCard from "@/app/components/pie-chart-card";
 import SummaryCard from "@/app/components/summary-card";
+import TimeRangeFilter, {
+  filterDataByTimeRange,
+  TimeRange,
+} from "@/app/components/time-range-filter";
 import { useUserId } from "@/lib/features/Auth/AuthSlice";
 import {
   useGetBankhistoryDataQuery,
@@ -30,36 +34,26 @@ import {
   useGetStockBuyRecordsQuery,
 } from "@/lib/features/stock/StockApiSlice";
 
-const titles = [
-  "銀行名稱",
-  "幣別",
-  "現有金額",
-  "定存",
-  "收入",
-  "支出",
-  "存款",
-  "提款",
-  "轉入",
-  "轉出",
-  "證券金額",
-  "手續費",
-  "買入",
-  "賣出",
-];
-const tableValues = [
-  "total",
-  "timeDeposit",
-  "income",
-  "expense",
-  "deposit",
-  "withdraw",
-  "transferIn",
-  "transferOut",
-  "invt",
-  "charge",
-  "buy",
-  "sell",
-];
+type BankData = {
+  total: number;
+  timeDeposit: number;
+  income: number;
+  expense: number;
+  deposit: number;
+  withdraw: number;
+  transferIn: number;
+  transferOut: number;
+  invt: number;
+  charge: number;
+  buy: number;
+  sell: number;
+};
+
+type TableArrayItem = {
+  id: string;
+  name: string;
+  currencyName: string;
+} & BankData;
 
 const DashboardBank = () => {
   const userId = useUserId();
@@ -68,22 +62,38 @@ const DashboardBank = () => {
     if (!userId) router.push("/auth/login");
   }, [router, userId]);
 
-  const { data: banks } = useGetBanksQuery();
-  const { data: finIncExpRecords } = useGetFinIncExpRecordsQuery();
-  const { data: bankRecords } = useGetBankRecordsQuery();
-  const { data: stockBuyRecords } = useGetStockBuyRecordsQuery();
-  const { data: stockBundleSellRecords } = useGetStockBundleSellRecordsQuery();
-  const { data: timeDepositRecords } = useGetTimeDepositRecordsQuery();
-  const { data: bankHistoryData } = useGetBankhistoryDataQuery();
-  const { data: currencyTransactionRecords } =
-    useGetCurrencyTransactionRecordsQuery();
+  const [timeRange, setTimeRange] = useState<TimeRange>("1Y");
 
-  const { bankData, summaryData, bankChartData } = useMemo(() => {
-    const data: {
-      [key: string]: {
-        [key: string]: number;
-      };
-    } = {};
+  const { data: banks, isLoading: isLoadingBanks } = useGetBanksQuery();
+  const { data: finIncExpRecords, isLoading: isLoadingFinIncExp } =
+    useGetFinIncExpRecordsQuery();
+  const { data: bankRecords, isLoading: isLoadingBankRecords } =
+    useGetBankRecordsQuery();
+  const { data: stockBuyRecords, isLoading: isLoadingStockBuy } =
+    useGetStockBuyRecordsQuery();
+  const { data: stockBundleSellRecords, isLoading: isLoadingStockSell } =
+    useGetStockBundleSellRecordsQuery();
+  const { data: timeDepositRecords, isLoading: isLoadingTimeDeposit } =
+    useGetTimeDepositRecordsQuery();
+  const { data: bankHistoryData, isLoading: isLoadingBankHistory } =
+    useGetBankhistoryDataQuery();
+  const {
+    data: currencyTransactionRecords,
+    isLoading: isLoadingCurrencyTrans,
+  } = useGetCurrencyTransactionRecordsQuery();
+
+  const isLoading =
+    isLoadingBanks ||
+    isLoadingFinIncExp ||
+    isLoadingBankRecords ||
+    isLoadingStockBuy ||
+    isLoadingStockSell ||
+    isLoadingTimeDeposit ||
+    isLoadingBankHistory ||
+    isLoadingCurrencyTrans;
+
+  const { summaryData, bankChartData, tableDataArray } = useMemo(() => {
+    const data: { [key: string]: BankData } = {};
 
     let totalAssets = 0;
     let totalTimeDeposit = 0;
@@ -96,7 +106,6 @@ const DashboardBank = () => {
 
     if (!banks)
       return {
-        bankData: data,
         summaryData: {
           totalAssets,
           totalTimeDeposit,
@@ -104,8 +113,8 @@ const DashboardBank = () => {
           totalExpense,
         },
         bankChartData: chartData,
+        tableDataArray: [],
       };
-
     banks.forEach((bank) => {
       data[bank.id] = {
         total: 0,
@@ -214,6 +223,8 @@ const DashboardBank = () => {
       }
     });
 
+    const tableArray: TableArrayItem[] = [];
+
     // Calculate summary data and chart data
     banks.forEach((bank) => {
       const bankInfo = data[bank.id];
@@ -231,11 +242,17 @@ const DashboardBank = () => {
             (bankInfo.total + bankInfo.timeDeposit) * exchangeRate,
           ]);
         }
+
+        tableArray.push({
+          id: bank.id,
+          name: bank.name,
+          currencyName: bank.currency.name,
+          ...bankInfo,
+        });
       }
     });
 
     return {
-      bankData: data,
       summaryData: {
         totalAssets,
         totalTimeDeposit,
@@ -243,6 +260,7 @@ const DashboardBank = () => {
         totalExpense,
       },
       bankChartData: chartData,
+      tableDataArray: tableArray,
     };
   }, [
     banks,
@@ -253,7 +271,6 @@ const DashboardBank = () => {
     finIncExpRecords,
     currencyTransactionRecords,
   ]);
-
   const bankAreaChartData = useMemo(() => {
     return [
       ["Date", "總額"],
@@ -261,76 +278,146 @@ const DashboardBank = () => {
     ];
   }, [bankHistoryData]);
 
-  if (
-    !banks ||
-    !finIncExpRecords ||
-    !bankRecords ||
-    !stockBuyRecords ||
-    !stockBundleSellRecords ||
-    !timeDepositRecords ||
-    !bankHistoryData ||
-    !currencyTransactionRecords
-  )
-    return <LoadingPage />;
+  const columns = useMemo<ColumnDef<TableArrayItem>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "銀行名稱",
+        cell: ({ row }) => (
+          <span className="font-bold">{row.original.name}</span>
+        ),
+      },
+      { accessorKey: "currencyName", header: "幣別" },
+      {
+        accessorKey: "total",
+        header: "現有金額",
+        cell: ({ row }) => (
+          <span className="font-medium text-blue-600">
+            {Number(row.original.total)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "timeDeposit",
+        header: "定存",
+        cell: ({ row }) => Number(row.original.timeDeposit),
+      },
+      {
+        accessorKey: "income",
+        header: "收入",
+        cell: ({ row }) => (
+          <span className="text-green-600">{Number(row.original.income)}</span>
+        ),
+      },
+      {
+        accessorKey: "expense",
+        header: "支出",
+        cell: ({ row }) => (
+          <span className="text-red-600">{Number(row.original.expense)}</span>
+        ),
+      },
+      {
+        accessorKey: "deposit",
+        header: "存款",
+        cell: ({ row }) => Number(row.original.deposit),
+      },
+      {
+        accessorKey: "withdraw",
+        header: "提款",
+        cell: ({ row }) => Number(row.original.withdraw),
+      },
+      {
+        accessorKey: "transferIn",
+        header: "轉入",
+        cell: ({ row }) => Number(row.original.transferIn),
+      },
+      {
+        accessorKey: "transferOut",
+        header: "轉出",
+        cell: ({ row }) => Number(row.original.transferOut),
+      },
+      {
+        accessorKey: "invt",
+        header: "證券金額",
+        cell: ({ row }) => Number(row.original.invt),
+      },
+      {
+        accessorKey: "charge",
+        header: "手續費",
+        cell: ({ row }) => Number(row.original.charge),
+      },
+      {
+        accessorKey: "buy",
+        header: "買入",
+        cell: ({ row }) => Number(row.original.buy),
+      },
+      {
+        accessorKey: "sell",
+        header: "賣出",
+        cell: ({ row }) => Number(row.original.sell),
+      },
+    ],
+    [],
+  );
 
-  const tableContent = banks.map((bank) => {
-    return (
-      <tr key={bank.id} className="border-b hover:bg-gray-100">
-        <td className={styles["table-data-cell"]}>{bank.name}</td>
-        <td className={styles["table-data-cell"]}>{bank.currency.name}</td>
-        {tableValues.map((value) => (
-          <td key={value} className={styles["table-data-cell"]}>
-            {bankData[bank.id]?.[value] ?? 0}
-          </td>
-        ))}
-      </tr>
-    );
-  });
+  if (isLoading) return <LoadingPage />;
+
+  const filteredBankAreaChartData = filterDataByTimeRange(
+    bankAreaChartData,
+    timeRange,
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-5 pt-[--navbar-height]">
-      <PageLabel title="金融機構總覽" />
-      <div className="flex w-full flex-col items-center space-y-6 pt-2">
-        <div className="grid w-[90vw] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <SummaryCard
-            className="border-purple-200 bg-purple-100 text-purple-800"
-            title="總資產"
-            value={summaryData.totalAssets}
-          />
-          <SummaryCard title="總定存" value={summaryData.totalTimeDeposit} />
-          <SummaryCard
-            className="border-green-200 bg-green-100 text-green-700"
-            title="總收入"
-            value={summaryData.totalIncome}
-          />
-          <SummaryCard
-            className="border-red-200 bg-red-100 text-red-700"
-            title="總支出"
-            value={summaryData.totalExpense}
-          />
-        </div>
-        <div className="grid w-[90vw] grid-cols-1 gap-6 lg:grid-cols-2">
-          <PieChartCard
-            title="資產分布 (台幣)"
-            data={bankChartData}
-            height={"300px"}
-          />
-          <AreaChartCard
-            title="資產變化圖"
-            data={bankAreaChartData}
-            height={"300px"}
-            options={{
-              isStacked: false,
-            }}
-          />
-        </div>
-        <div className="w-[90vw]">
-          <h3 className="mb-4 text-xl font-semibold text-gray-800">銀行明細</h3>
-          <div className="overflow-x-auto">
-            <DetailTable titles={titles} tableContent={tableContent} />
+    <div className="min-h-screen bg-gray-50 py-5">
+      <div className="pt-[--navbar-height]">
+        <PageLabel title="金融機構總覽" />
+        <div className="max-w-[95vw] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center">
+          <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+            <SummaryCard
+              className="bg-purple-100 border-purple-200 text-purple-800"
+              title="總資產"
+              value={summaryData.totalAssets}
+            />
+            <SummaryCard title="總定存" value={summaryData.totalTimeDeposit} />
+            <SummaryCard
+              className="bg-green-100 border-green-200 text-green-700"
+              title="總收入"
+              value={summaryData.totalIncome}
+            />
+            <SummaryCard
+              className="bg-red-100 border-red-200 text-red-700"
+              title="總支出"
+              value={summaryData.totalExpense}
+            />
           </div>
+
+          <div className="flex w-full justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">歷史資產趨勢</h2>
+            <TimeRangeFilter value={timeRange} onChange={setTimeRange} />
+          </div>
+
+          <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
+            <AreaChartCard
+              title="資產變化圖"
+              data={filteredBankAreaChartData}
+              height="350px"
+              options={{ isStacked: false, colors: ["#2563eb"] }}
+            />
+            <PieChartCard
+              title="資產分布 (台幣)"
+              data={bankChartData}
+              height="350px"
+            />
+          </div>
+
+          <div className="w-full">
+            <h3 className="mb-4 text-xl font-semibold text-gray-800">
+              銀行明細
+            </h3>
+            <DataTable columns={columns} data={tableDataArray} />
+          </div>
+          <BankFormManager updateShowState={null} />
         </div>
-        <BankFormManager updateShowState={null} />
       </div>
     </div>
   );

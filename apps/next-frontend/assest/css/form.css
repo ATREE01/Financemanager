@@ -28,7 +28,7 @@
 .activate {
   visibility: visible;
   opacity: 1;
-  top: 8%;
+  top: 16%;
 }
 
 @media screen and (max-width: 650px) {
@@ -135,7 +135,7 @@
 
 .record-btn {
   position: fixed;
-  bottom: 8vh;
+  bottom: 4vh;
   right: 3rem;
   width: 2.5rem;
   height: 2.5rem;

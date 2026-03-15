@@ -1,6 +1,9 @@
+import { ChevronDown, ChevronRight, Dot } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 interface ParentLink {
   title: string;
@@ -22,43 +25,90 @@ export default function SidebarItem({
   item: ParentLink | ChildLink;
   onClick: () => void;
 }) {
+  const currentPath = usePathname();
   const [open, setOpen] = useState(false);
 
-  const currentPath = usePathname();
+  const isParent = (item: ParentLink | ChildLink): item is ParentLink => {
+    return (item as ParentLink).childrens !== undefined;
+  };
 
-  if ((item as ParentLink).childrens !== undefined) {
+  useEffect(() => {
+    if (isParent(item)) {
+      const isChildActive = item.childrens.some(
+        (child) => currentPath === child.path,
+      );
+      if (isChildActive) {
+        setOpen(true);
+      }
+    }
+  }, [currentPath, item]);
+
+  if (isParent(item)) {
+    const isChildActive = item.childrens.some(
+      (child) => currentPath === child.path,
+    );
+
     return (
-      <div
-        className={`sidebar-item py-1 mx-2 my-1 block rounded ${open ? "bg-indigo-200" : ""}`}
-      >
-        {/* "sidebar-item sidebar-item-toggle" */}
-        <div
-          className="sidebar-item py-2 mx-2 my-1 cursor-pointer rounded text-xl font-bold hover:bg-indigo-300"
+      <div className="flex flex-col gap-1">
+        <button
+          className={cn(
+            "w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-100",
+            isChildActive
+              ? "text-blue-700 bg-blue-50/80"
+              : "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
+          )}
           onClick={() => setOpen(!open)}
         >
-          {item.title}
-          <i className="bi bi-caret-down-fill"></i>
-        </div>
-        <div
-          className={`sidebar-container rounded ${open ? "block" : "hidden"}`}
-        >
-          {(item as ParentLink).childrens.map((child, index) => (
-            <SidebarItem key={index} item={child} onClick={onClick} />
-          ))}
+          <span>{item.title}</span>
+          {open ? (
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          )}
+        </button>
+        <div className={cn("flex-col gap-0.5 pl-3", open ? "flex" : "hidden")}>
+          {item.childrens.map((child, index) => {
+            const isActive = currentPath === child.path;
+            return (
+              <Link
+                key={index}
+                href={child.path}
+                onClick={onClick}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-100",
+                  isActive
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                )}
+              >
+                <Dot
+                  className={cn(
+                    "w-4 h-4",
+                    isActive ? "text-blue-600" : "text-slate-300",
+                  )}
+                />
+                {child.title}
+              </Link>
+            );
+          })}
         </div>
       </div>
     );
   } else {
+    const isActive = currentPath === item.path;
     return (
-      <>
-        <Link
-          className={`sidebar-item py-2 mx-2 my-1 block text-xl rounded hover:bg-indigo-300 ${currentPath === (item as ChildLink).path ? " bg-indigo-300 rounded" : ""}`}
-          href={(item as ChildLink).path}
-          onClick={onClick}
-        >
-          {item.title}
-        </Link>
-      </>
+      <Link
+        className={cn(
+          "flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-100",
+          isActive
+            ? "text-blue-700 bg-blue-50/80"
+            : "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
+        )}
+        href={item.path}
+        onClick={onClick}
+      >
+        {item.title}
+      </Link>
     );
   }
 }
