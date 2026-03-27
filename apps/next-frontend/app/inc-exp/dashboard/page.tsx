@@ -1,6 +1,7 @@
 "use client";
 
 import { IncExpRecordType } from "@financemanager/financemanager-website-types";
+import { startOfDay } from "date-fns"; // 新增引入 startOfDay
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -51,14 +52,19 @@ export default function Dashboard() {
       [key: string]: { income: number; expense: number };
     } = {};
 
-    const filteredIncExpRecords = (incExpRecords || []).filter((record) => {
-      const recordDate = new Date(record.date);
-      // 如果 startDate 為 null，則不檢查下限 (或者視為 true)
-      const isAfterStart = !startDate || recordDate >= startDate;
-      const isBeforeEnd = recordDate <= endDate;
-      const isCorrectCurrency = record.currency.id.toString() === currency;
+    // 取得統一的開始與結束時間基準點 (去掉時分秒)
+    const start = startDate ? startOfDay(startDate) : null;
+    const end = endDate ? startOfDay(endDate) : null;
 
-      return isAfterStart && isBeforeEnd && isCorrectCurrency;
+    const filteredIncExpRecords = (incExpRecords || []).filter((record) => {
+      // 統一將紀錄的時間也去掉時分秒
+      const recordDate = startOfDay(new Date(record.date));
+
+      return (
+        (!start || recordDate >= start) &&
+        (!end || recordDate <= end) &&
+        record.currency.id.toString() === currency
+      );
     });
 
     const categorySum = {

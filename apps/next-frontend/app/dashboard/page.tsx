@@ -184,7 +184,7 @@ export default function Dashboard() {
           </div>
 
           {/* Time Filter for Area Charts */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h2 className="text-2xl font-bold text-gray-800">歷史資產趨勢</h2>
             <TimeRangeFilter value={timeRange} onChange={setTimeRange} />
           </div>

@@ -39,7 +39,7 @@ export default function NavBar({ sidebar }: { sidebar: Sidebar }) {
           </Link>
           <Link
             href="/auth/login"
-            className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors shadow-sm"
+            className="px-4 py-2 text-sm font-medium bg-primary hover:bg-primary/90 text-white rounded-md transition-colors shadow-sm"
           >
             登入
           </Link>

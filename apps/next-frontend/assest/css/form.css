@@ -28,7 +28,7 @@
 .activate {
   visibility: visible;
   opacity: 1;
-  top: 16%;
+  top: 10vh;
 }
 
 @media screen and (max-width: 650px) {
