@@ -31,7 +31,7 @@ const PieChartCard = ({
   title,
   data,
   options = {},
-  height = "380px",
+  height = "320px", // 調整 1：將整體預設高度從 380px 降為 320px，減少不必要的留白
 }: {
   title: string;
   data: PieChartData;
@@ -166,11 +166,12 @@ const PieChartCard = ({
     const sin = Math.sin(-RADIAN * (midAngle ?? 0));
     const cos = Math.cos(-RADIAN * (midAngle ?? 0));
 
-    const sx = (cx ?? 0) + ((outerRadius ?? 0) + 10) * cos;
-    const sy = (cy ?? 0) + ((outerRadius ?? 0) + 10) * sin;
-    const mx = (cx ?? 0) + ((outerRadius ?? 0) + 28) * cos;
-    const my = (cy ?? 0) + ((outerRadius ?? 0) + 28) * sin;
-    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+    // 調整 2：稍微縮短外圍引線的長度，讓圓餅圖有更多放大的空間
+    const sx = (cx ?? 0) + ((outerRadius ?? 0) + 8) * cos;
+    const sy = (cy ?? 0) + ((outerRadius ?? 0) + 8) * sin;
+    const mx = (cx ?? 0) + ((outerRadius ?? 0) + 18) * cos;
+    const my = (cy ?? 0) + ((outerRadius ?? 0) + 18) * sin;
+    const ex = mx + (cos >= 0 ? 1 : -1) * 16;
     const ey = my;
 
     const textAnchor = cos >= 0 ? "start" : "end";
@@ -220,7 +221,7 @@ const PieChartCard = ({
         <circle cx={ex} cy={ey} r={2.5} fill={fill} stroke="none" />
 
         <text
-          x={ex + (cos >= 0 ? 1 : -1) * 10}
+          x={ex + (cos >= 0 ? 1 : -1) * 8}
           y={ey}
           textAnchor={textAnchor}
           fill="#1f2937"
@@ -230,7 +231,7 @@ const PieChartCard = ({
           {Number(value ?? 0).toLocaleString()}
         </text>
         <text
-          x={ex + (cos >= 0 ? 1 : -1) * 10}
+          x={ex + (cos >= 0 ? 1 : -1) * 8}
           y={ey}
           dy={18}
           textAnchor={textAnchor}
@@ -264,7 +265,7 @@ const PieChartCard = ({
   }
 
   return (
-    <Card className="hover:shadow-xl transition-all duration-300 border border-gray-100 bg-white overflow-hidden">
+    <Card className="hover:shadow-xl transition-all duration-300 border border-gray-100 bg-white">
       <CardHeader className="pb-4 pt-5 px-6">
         <CardTitle className="text-xl font-bold text-gray-800 tracking-tight">
           {title}
@@ -272,19 +273,15 @@ const PieChartCard = ({
       </CardHeader>
 
       <CardContent className="px-6 pb-6 pt-2">
-        {" "}
-        {/* 減少底部 padding */}
         <div style={{ height, width: "100%" }}>
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart
-              margin={{ top: 10, right: 10, bottom: 20, left: 10 }} // 大幅減少 margin
-            >
+            <PieChart margin={{ top: 20, right: 30, bottom: 0, left: 30 }}>
               <Pie
                 data={parsedData}
                 cx="50%"
-                cy="50%"
-                innerRadius="48%" // 稍微調小一點，讓外圈更有空間
-                outerRadius="88%" // 加大，讓圖表本體更大
+                cy="45%" // 調整 3：將中心點從 50% 移到 45%，讓圖表往上提，平衡版面
+                innerRadius={isMobile ? "60%" : "55%"} // 調整 4：稍微放大內徑與外徑
+                outerRadius={isMobile ? "80%" : "70%"}
                 paddingAngle={2}
                 dataKey="value"
                 stroke="none"
@@ -295,11 +292,11 @@ const PieChartCard = ({
 
               <Legend
                 verticalAlign="bottom"
-                height={42} // 縮小 Legend 高度
+                height={36}
                 iconType="circle"
                 iconSize={9}
                 wrapperStyle={{
-                  paddingTop: "8px", // 減少上方間距
+                  paddingTop: "20px", // 確保圖例跟圖表之間有足夠呼吸空間
                   fontSize: "13px",
                   color: "#4b5563",
                 }}
