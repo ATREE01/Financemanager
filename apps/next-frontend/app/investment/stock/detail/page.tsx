@@ -296,7 +296,7 @@ export default function Detail() {
           <span className="font-medium text-blue-600">
             {Number(
               row.original.stockSellRecords.reduce(
-                (acc, cur) => (acc += cur.shareNumber),
+                (acc, cur) => (acc += Number(cur.shareNumber)),
                 0,
               ),
             )}
