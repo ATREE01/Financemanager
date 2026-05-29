@@ -1,48 +1,70 @@
-FROM node:23-bookworm-slim AS base
+# ==========================================
+# 階段 1: 基礎環境與依賴安裝
+# ==========================================
+FROM node:25-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+RUN npm install -g corepack@latest --force
 RUN corepack enable
 
+FROM base AS deps
+WORKDIR /app
+
+# 只複製依賴相關檔案
+COPY lerna.json package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/next-frontend/package.json ./apps/next-frontend/package.json 
+COPY packages/financemanager-website-types/package.json ./packages/financemanager-website-types/package.json 
+
+# 安裝全部依賴（包含 devDependencies 才能 build）
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+# ==========================================
+# 階段 2: 專案構建 (Build)
+# ==========================================
 FROM base AS builder
 WORKDIR /app
 
-COPY lerna.json package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/next-frontend/package.json ./apps/next-frontend/
-COPY packages/financemanager-website-types/package.json packages/financemanager-website-types/package-lock.json ./packages/financemanager-website-types/
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+# 從 deps 階段把安裝好的 node_modules 拿過來
+COPY --from=deps /app ./
 
+# 複製原始碼
 COPY ./apps/next-frontend ./apps/next-frontend
 COPY ./packages ./packages
+
+# 開始打包
 RUN pnpm build
 
-FROM base AS prod-deps
-WORKDIR /app
-COPY lerna.json package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/next-frontend/package.json ./apps/next-frontend/
-RUN pnpm install --prod --frozen-lockfile
+# 清理不必要的 Next.js cache 避免佔用空間 (保險起見，雖然 standalone 用不到)
+RUN rm -rf ./apps/next-frontend/.next/cache
 
-FROM base AS frontend
+# ==========================================
+# 階段 3: 最終生產鏡像 (Production)
+# ==========================================
+FROM node:25-slim AS frontend
 
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=prod-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=prod-deps --chown=nextjs:nodejs /app/apps/next-frontend/node_modules ./apps/frontend/node_modules
+# 創建運行所需的目錄並處理權限
+RUN mkdir -p /app/apps/frontend
+RUN chown nextjs:nodejs /app/apps/frontend
 
-COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/package.json ./apps/frontend/package.json
-COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/public ./apps/frontend/public
-COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/.next ./apps/frontend/.next
+# 1. 複製 standalone 專案（Next.js 自動幫你精簡過的極小 node_modules 與主程式）
+COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/.next/standalone ./
 
-ENV COREPACK_HOME=/app/.cache/corepack
-RUN mkdir -p $COREPACK_HOME && chown -R nextjs:nodejs $COREPACK_HOME
+# 2. 複製靜態檔案 (standalone 不包含 static 和 public，需要手動補進去)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/.next/static ./apps/next-frontend/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/next-frontend/public ./apps/next-frontend/public
 
 USER nextjs
 
 EXPOSE 3000
 
-WORKDIR /app/apps/frontend
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-CMD ["pnpm", "start"]
+# 注意：啟用 standalone 後，啟動入口變成了 server.js，不再需要 pnpm 運行！
+CMD ["node", "apps/next-frontend/server.js"]
