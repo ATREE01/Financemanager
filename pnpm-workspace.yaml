@@ -1,3 +1,12 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+allowBuilds:
+  '@nestjs/core': true
+  '@scarf/scarf': true
+  bcrypt: true
+  esbuild: true
+  msgpackr-extract: true
+  msw: true
+  nx: true
+  unrs-resolver: true

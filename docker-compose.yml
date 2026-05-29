@@ -12,6 +12,7 @@ services:
       - financemanager
     environment:
       - PORT=${FRONTEND_PORT}
+      - API_URL=${API_URL}
   backend:
     # image:
     #   financemanager-backend:1.0.0
